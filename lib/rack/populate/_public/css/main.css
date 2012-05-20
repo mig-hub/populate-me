@@ -25,7 +25,7 @@ body {
 .btn {
 	display: block;
 	width: 32px; height: 32px;
-	background: transparent url('/img/icons-cms.png') no-repeat left top;
+	background: transparent url('../img/icons-cms.png') no-repeat left top;
 	margin: 0px auto;
 }
 .btn:hover { background-color: #555; }

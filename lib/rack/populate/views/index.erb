@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <link rel="stylesheet" href="<%= config[:path] %>/_public/css/main.css" type="text/css" media="screen" charset="utf-8" />
+  <title><%= config[:client_name] %> - Admin</title>
+  <script id='template-nutshell' type='text/html'>
+    <li class='nutshell'>
+      <div class='nutshell-bar'><a href='#' class='btn cross-btn float-right'></a></div>
+      <a href='#' class='nutshell-edit'><img src='img/test.gif' width='128' height='128' />Hello World</a>
+      <div class='nutshell-bottom'></div>
+      <ul class='nutshell-children'>
+        <li><a href='#' class='btn further-btn further-bar'>Image(s) 4</a></li>
+        <li><a href='#' class='btn further-btn further-bar'>Product(s) 3</a></li>
+      </ul>
+    </li>
+  </script>
+  <script id='template-nut-tree' type='text/html'>
+    <a href='#' class='btn plus-btn extra-plus'></a>
+    <ul class='nut-tree'>
+      <li class='nutshell'>
+        <div class='nutshell-bar'><a href='#' class='btn cross-btn float-right'></a></div>
+        <a href='#' class='nutshell-edit'><img src='img/test.gif' width='128' height='128' />Hello World</a>
+        <div class='nutshell-bottom'></div>
+        <ul class='nutshell-children'>
+          <li><a href='#' class='btn further-btn further-bar'>Image(s) 4</a></li>
+          <li><a href='#' class='btn further-btn further-bar'>Product(s) 3</a></li>
+        </ul>
+      </li>
+    </ul>
+  </script>
+</head>
+<body>
+  <div id='trunk'>
+    <div id='header' class='shadowed'>
+      <a href='#' class='btn back-btn float-left'></a>
+      <a href='#' class='btn home-btn float-right'></a>
+      <div id='search-wrap'><input type='search' id='search' /></div>
+    </div>
+    <div id='content'></div>
+  </div>
+  <script src='http://code.jquery.com/jquery-1.7.2.min.js' type='text/javascript'></script>
+  <script src='<%= config[:path] %>/_public/js/main.js' type='text/javascript'></script>
+</body>
+</html>
