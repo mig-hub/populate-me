@@ -28,7 +28,7 @@ module Rack
           :website_url => 'www.domain.com',
           :path => '/admin',
           :logout_path => '/admin/logout', # sometimes higher in stack
-          :menu => [['Home', '/']],
+          :menu => [['Home', '/admin']],
         }
       end
     end
@@ -38,9 +38,10 @@ module Rack
     end    
 
     def menu(*levels)
+      @levels = levels
       @items = config[:menu]
       levels.each do |l|
-        @items = @items.assoc(l)
+        @items = @items.assoc(l)[1]
       end
       @content = :menu
       erb :layout
@@ -52,7 +53,13 @@ module Rack
       erb :layout
     end
 
-    def form
+    def form(*args)
+      new_env = @r.env.dup.update({'PATH_INFO'=>@r.env['PATH_INFO'].sub('form/','')})
+      status, header, res = BackendAPI.new.call(new_env)
+      @res.status = status
+      @res.header.replace(header)
+      @form = res.body.inject(''){|r,s| r+s }
+      @content = :form
       erb :layout
     end
     

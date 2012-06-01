@@ -1,0 +1,6 @@
+<ul class='menu-list'>
+  <% @items.each do |i| %>
+    <% url = i[1].kind_of?(String) ? i[1] : "#{config[:path]}/menu#{@levels.join('/')}/#{i[0]}" %>
+    <li><a href='<%= url %>'><%= i[0].gsub(/-/, ' ') %></a></li>
+  <% end %>
+</ul>
