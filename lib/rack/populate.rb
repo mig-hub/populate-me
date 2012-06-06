@@ -7,7 +7,6 @@ module Rack
     F = ::File
     DIR = F.expand_path(F.dirname(__FILE__)+'/populate')
     BEFORE = proc{
-      @r.env['erb.location'] = DIR+'/views/' if ['index', 'menu', 'list', 'form'].include?(@action)
     }
 
     def self.included(klass)
@@ -28,23 +27,41 @@ module Rack
           :website_url => 'www.domain.com',
           :path => '/admin',
           :logout_path => '/admin/logout', # sometimes higher in stack
-          :menu => [['Home', '/admin']],
+          #:menu => [['Home', '/admin']],
+          :menu => [['Home', [
+            ['One', [
+              ['Fist', '/'],
+              ['Fucking', '/'],
+            ]],
+            ['Two', '/'],
+            ['Three', '/'],
+            ['Four', '/']
+          ]]],
         }
       end
     end
 
     def index
-      menu
+      @r.env['erb.location'] = DIR+'/views/'
+      erb :layout
     end    
 
     def menu(*levels)
-      @levels = levels
-      @items = config[:menu]
+      level_menu = config[:menu]
       levels.each do |l|
-        @items = @items.assoc(l)[1]
+        level_menu = level_menu.assoc(l)[1]
       end
-      @content = :menu
-      erb :layout
+      items = level_menu.map do |i|
+        {
+          'title'=>i[0].gsub(/-/, ' '),
+          'href'=> i[1].kind_of?(String) ? i[1] : "#{config[:path]}/menu/#{levels.join('/')}/#{i[0]}"
+        }
+      end
+      @res['Content-Type'] = 'text/json'
+      JSON.generate({
+        'action'=>'menu',
+        'items'=>items
+      })
     end
 
     def list(m)
@@ -66,7 +83,10 @@ module Rack
     private
 
     def config
-      @config ||= self.class.config.update(:path=>@r.script_name).dup
+      @config ||= self.class.config.update({
+        :path => @r.script_name, 
+        :logout_path => "#{@r.script_name}/logout"
+      }).dup
     end
 
   end
