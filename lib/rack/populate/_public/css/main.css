@@ -9,6 +9,14 @@ body {
 	margin: 0px; 
   text-align: center; /* for IE7 */
 }
+
+img { border: 0px; }
+
+noscript div { 
+	padding: 20px; 
+	background-color: yellow; color: black;
+}
+
 .shadowed {
 	-moz-box-shadow: 0px 0px 20px black;
 	-webkit-box-shadow: 0px 0px 20px black;
