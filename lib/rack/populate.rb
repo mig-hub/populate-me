@@ -33,7 +33,7 @@ module Rack
               ['Fist', '/'],
               ['Fucking', '/'],
             ]],
-            ['Two', '/'],
+            ['Two', '/admin/list/Project'],
             ['Three', '/'],
             ['Four', '/']
           ]]],
@@ -57,17 +57,29 @@ module Rack
           'href'=> i[1].kind_of?(String) ? i[1] : "#{config[:path]}/menu/#{levels.join('/')}/#{i[0]}"
         }
       end
+      
       @res['Content-Type'] = 'text/json'
       JSON.generate({
         'action'=>'menu',
+        'page_title'=>levels.join(' / ').gsub(/-/, ' '),
         'items'=>items
       })
     end
 
-    def list(m)
-      model = Kernel.const_get(m)
-      @content = :list
-      erb :layout
+    def list(class_name)
+      model = Kernel.const_get(class_name)
+      items = model.find(@r['filter']||{}).map {|m| m.to_nutshell }
+      
+      @res['Content-Type'] = 'text/json'
+      JSON.generate({
+        'action'=> 'list',
+        'page_title'=> model.human_plural_name,
+        'class_name'=> class_name,
+        'sortable'=> model.sortable_on_that_page?(@r),
+        'command_plus'=> !model.populate_config[:no_plus],
+        'command_search'=> !model.populate_config[:no_search],
+        'items'=> items,
+      })
     end
 
     def form(*args)

@@ -6,10 +6,18 @@
   <link rel="stylesheet" href="<%= config[:path] %>/_public/css/main.css" type="text/css" media="screen" charset="utf-8" />
   <title><%= config[:client_name] %> - Admin</title>
   <script id='template-menu' type='text/html'>
+    <h1>{{page_title}}</h1>
     <ul class='menu-list'>
       {{#items}}
         <li><a href='{{href}}' class='pushstack'>{{title}}</a></li>
       {{/items}}
+    </ul>
+  </script>
+  <script id='template-nut-tree' type='text/html'>
+    <h1>{{page_title}}</h1>
+    <a href='<%= config[:path] %>/{{class_name}}' class='btn plus-btn extra-plus'></a>
+    <ul class='nut-tree'>
+      {{#items}}{{>nutshell}}{{/items}}
     </ul>
   </script>
   <script id='template-nutshell' type='text/html'>
@@ -22,12 +30,6 @@
         <li><a href='#' class='btn further-btn further-bar'>Product(s) 3</a></li>
       </ul>
     </li>
-  </script>
-  <script id='template-nut-tree' type='text/html'>
-    <a href='<%= config[:path] %>/{{class_name}}' class='btn plus-btn extra-plus'></a>
-    <ul class='nut-tree'>
-      {{#items}}{{>nutshell}}{{/items}}
-    </ul>
   </script>
 </head>
 <body>

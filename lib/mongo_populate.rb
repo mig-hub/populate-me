@@ -16,28 +16,28 @@ module MongoPopulate
     
     attr_accessor :populate_config
     
-	  def list_view(r)
-		  @list_options = {:request=>r, :destination=>r.fullpath, :path=>r.script_name, :filter=>r['filter'] }
-			@list_options.store(:sortable,sortable_on_that_page?)
-		  out = list_view_header
-			out << many_to_many_picker unless populate_config[:minilist_class].nil?
-			out << "<ul class='nut-tree #{'sortable' if @list_options[:sortable]} #{populate_config[:nut_tree_class]}' id='#{self.name}' rel='#{@list_options[:path]}/#{self.name}'>"
-			self.find(@list_options[:filter]||{}).each {|m| out << m.to_nutshell }
-			out << "</ul>"
-		end
+    #     def list_view(r)
+    #   @list_options = {:request=>r, :destination=>r.fullpath, :path=>r.script_name, :filter=>r['filter'] }
+    #   @list_options.store(:sortable,sortable_on_that_page?)
+    #   out = list_view_header
+    #   out << many_to_many_picker unless populate_config[:minilist_class].nil?
+    #   out << "<ul class='nut-tree #{'sortable' if @list_options[:sortable]} #{populate_config[:nut_tree_class]}' id='#{self.name}' rel='#{@list_options[:path]}/#{self.name}'>"
+    #   self.find(@list_options[:filter]||{}).each {|m| out << m.to_nutshell }
+    #   out << "</ul>"
+    # end
 		
 		def sortable_on_that_page?(r)
-      @schema.key?('position') && (@schema['position'][:scope].nil? || (r[:filter]||{}).key?(@schema['position'][:scope]))
+      @schema.key?('position') && (@schema['position'][:scope].nil? || (r['filter']||{}).key?(@schema['position'][:scope]))
     end
     
-    def minilist_view
-      o = "<ul class='minilist'>\n"
-      self.collection.find.each_mutant do |m|
-        thumb = m.respond_to?(:to_populate_thumb) ? m.to_populate_thumb('stash_thumb.gif') : m.placeholder_thumb('stash_thumb.gif')
-        o << "<li title='#{m.to_label}' id='mini-#{m.id}'>#{thumb}<div>#{m.to_label}</div></li>\n"
-      end
-      o << "</ul>\n"
-    end
+    # def minilist_view
+    #   o = "<ul class='minilist'>\n"
+    #   self.collection.find.each_mutant do |m|
+    #     thumb = m.respond_to?(:to_populate_thumb) ? m.to_populate_thumb('stash_thumb.gif') : m.placeholder_thumb('stash_thumb.gif')
+    #     o << "<li title='#{m.to_label}' id='mini-#{m.id}'>#{thumb}<div>#{m.to_label}</div></li>\n"
+    #   end
+    #   o << "</ul>\n"
+    # end
     
     private
     
@@ -69,6 +69,10 @@ module MongoPopulate
 		  placeholder_thumb(size)
 		end
 	end
+	
+	def to_nutshell
+	  @doc
+  end
 	
 	def in_nutshell
     o = model.list_options
