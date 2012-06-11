@@ -18,7 +18,7 @@
   <script id='template-nut-tree' type='text/html'>
     <h1>{{page_title}}</h1>
     {{#command_plus}}
-      <a href='<%= config[:path] %>/{{class_name}}' class='btn plus-btn extra-plus pushstack'></a>
+      <a href='<%= config[:path] %>/form/{{class_name}}' class='btn plus-btn extra-plus pushstack'></a>
     {{/command_plus}}
     <ul class='nut-tree'>
       {{#items}}{{>nutshell}}{{/items}}
@@ -40,7 +40,7 @@
   <div id='trunk'>
     <div id='header' class='shadowed'>
       <a href='#' class='btn back-btn float-left popstack'></a>
-      <a href='/' class='btn home-btn float-right'></a>
+      <a href='<%= config[:path] %>' class='btn home-btn float-right'></a>
       <div id='search-wrap'><input type='search' id='search' /></div>
     </div>
     <noscript><div>In order to have this content management system working, you need to have javascript enabled.</div></noscript>

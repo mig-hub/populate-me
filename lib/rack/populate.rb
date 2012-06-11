@@ -67,29 +67,34 @@ module Rack
     end
 
     def list(class_name)
-      model = Kernel.const_get(class_name)
-      items = model.find(@r['filter']||{}).map {|m| m.to_nutshell }
+      @model_class_name = class_name
+      resolve_model_class
+      items = @model_class.find(@r['filter']||{}).map {|m| m.to_nutshell }
       
       @res['Content-Type'] = 'text/json'
       JSON.generate({
         'action'=> 'list',
-        'page_title'=> model.human_plural_name,
+        'page_title'=> @model_class.human_plural_name,
         'class_name'=> class_name,
-        'sortable'=> model.sortable_on_that_page?(@r),
-        'command_plus'=> !model.populate_config[:no_plus],
-        'command_search'=> !model.populate_config[:no_search],
+        'sortable'=> @model_class.sortable_on_that_page?(@r),
+        'command_plus'=> !@model_class.populate_config[:no_plus],
+        'command_search'=> !@model_class.populate_config[:no_search],
         'items'=> items,
       })
     end
 
-    def form(*args)
-      new_env = @r.env.dup.update({'PATH_INFO'=>@r.env['PATH_INFO'].sub('form/','')})
-      status, header, res = BackendAPI.new.call(new_env)
-      @res.status = status
-      @res.header.replace(header)
-      @form = res.body.inject(''){|r,s| r+s }
-      @content = :form
-      erb :layout
+    def form(class_name=nil, id=nil)
+      @model_class_name, @id = class_name, id
+      build_model_vars
+      @model_instance ||= @model_class.backend_post
+      @model_instance.backend_put @r['model']
+      form = @model_instance.backend_form(@r.path.sub(/\/form/, ''), @r['fields'], :destination => @r['_destination'], :submit_text => @r['_submit_text'])
+      
+      @res['Content-Type'] = 'text/json'
+      JSON.generate({
+        'action'=> 'form',
+        'form'=>form
+      })
     end
     
     private
@@ -99,6 +104,37 @@ module Rack
         :path => @r.script_name, 
         :logout_path => "#{@r.script_name}/logout"
       }).dup
+    end
+    
+    def resolve_model_class
+      if @model_class_name.nil?
+        raise("No model class name provided")
+      end
+      unless ::Object.const_defined?(@model_class_name)
+        raise("#{@model_class_name} is not constant")
+      end
+      @model_class = Kernel.const_get(@model_class_name)
+      unless @model_class.kind_of?(BackendApiAdapter::ClassMethods)
+        raise("Requested constant #{@model_class_name} is not a model class")
+      end
+    end
+    
+    def build_model_vars
+      resolve_model_class
+      @model_instance = @model_class.backend_get(@id) unless @id.nil?
+      @clone_instance = @model_class.backend_get(@r['clone_id']) unless @r['clone_id'].nil?
+      unless @clone_instance.nil?
+        @r['fields'] ||= @clone_instance.cloning_backend_columns
+        @r['model'] = @clone_instance.backend_values.reject{|k,v| !@r['fields'].include?(k.to_s)}
+      end
+      @r['model'] ||= {}
+      send_404 if @model_instance.nil?&&!@id.nil?
+    end
+    
+    def send_404
+      @res.status=404 # Not Found
+      @res.headers['X-Cascade']='pass'
+      @res.write 'Not Found'
     end
 
   end

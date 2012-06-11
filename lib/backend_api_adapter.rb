@@ -53,6 +53,9 @@ module BackendApiAdapter
     end
 		def backend_form_title; self.new? ? "<h2><span>New #{model.human_name}</span></h2>\n" : "<h2><span>Edit #{self.to_label}</span></h2>\n"; end
 		def backend_show; 'OK'; end
+		
+		def default_backend_columns; model.schema.keys; end
+  	def cloning_backend_columns; default_backend_columns.reject{|c| model.schema[c][:type]==:attachment}; end
 	end
 end
 

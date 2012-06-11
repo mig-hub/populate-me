@@ -104,9 +104,6 @@ module MongoPopulate
 		end
 		out
 	end
-    
-  def default_backend_columns; model.schema.keys; end
-	def cloning_backend_columns; default_backend_columns.reject{|c| model.schema[c][:type]==:attachment}; end
 
 end
 
