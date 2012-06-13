@@ -1,5 +1,5 @@
 require 'rack/golem'
-require 'backend_api'
+#require 'backend_api'
 require 'json'
 
 module Rack
@@ -19,7 +19,7 @@ module Rack
 
     module ClassMethods
       def new(*)
-        ::Rack::Static.new(BackendAPI.new(super), :urls => ["/_public"], :root => DIR)
+        ::Rack::Static.new(::Rack::MethodOverride.new(super), :urls => ["/_public"], :root => DIR)
       end 
       def config
         @config ||= {
@@ -41,9 +41,23 @@ module Rack
       end
     end
 
-    def index
-      @r.env['erb.location'] = DIR+'/views/'
-      erb :layout
+    def index(class_name=nil, id=nil)
+      if class_name.nil?
+        @r.env['erb.location'] = DIR+'/views/'
+        erb :layout
+      else
+        http_method = @r.request_method.downcase
+        if ['post','put','delete'].include?(http_method)
+          @model_class_name, @id = class_name, id
+          build_model_vars
+          return if @res.status==404
+          @res['Content-Type'] = 'text/json'
+          __send__(http_method)
+        else
+          send_404
+          '' # Trick for the moment but it needs a throw for 404
+        end
+      end
     end    
 
     def menu(*levels)
@@ -86,6 +100,7 @@ module Rack
     def form(class_name=nil, id=nil)
       @model_class_name, @id = class_name, id
       build_model_vars
+      return if @res.status==404
       @model_instance ||= @model_class.backend_post
       @model_instance.backend_put @r['model']
       form = @model_instance.backend_form(@r.path.sub(/\/form/, ''), @r['fields'], :destination => @r['_destination'], :submit_text => @r['_submit_text'])
@@ -129,6 +144,48 @@ module Rack
       end
       @r['model'] ||= {}
       send_404 if @model_instance.nil?&&!@id.nil?
+    end
+    
+    def post
+      return put unless @id.nil?
+      @model_instance = @model_class.backend_post(@r['model'])
+      save_and_respond
+    end
+    
+    def put
+      if @id.nil? && @r[@model_class_name]
+        @model_class.sort(@r[@model_class_name])
+      else
+        @model_instance.backend_put(@r['model'])
+        save_and_respond
+      end
+    end
+    
+    def delete
+      @model_instance.backend_delete
+      @r['_destination'].nil? ? @res.status=204 : @res.redirect(::Rack::Utils::unescape(@r['_destination'])) # 204 No Content
+    end
+    
+    def save_and_respond
+      if @model_instance.backend_save?
+        if @r['_destination'].nil?
+          @res.status=201 # Created
+          JSON.generate({
+            'action'=> 'save',
+            'message'=> 'ok'
+          })
+        else
+          @res.redirect(::Rack::Utils::unescape(@r['_destination']))
+        end
+      else
+        form = @model_instance.backend_form(@r.path, @r['fields']||@r['model'].keys, :destination => @r['_destination'], :submit_text => @r['_submit_text'])
+        # Bad Request 400 does not give content anymore in safari/lion
+        # So I put 200 back until I find a better code
+        JSON.generate({
+          'action'=> 'validation',
+          'form'=>form
+        })
+      end
     end
     
     def send_404

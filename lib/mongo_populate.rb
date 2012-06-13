@@ -71,7 +71,10 @@ module MongoPopulate
 	end
 	
 	def to_nutshell
-	  @doc
+	  @doc.dup.update({
+	    'class_name'=>model.name,
+	    'id'=>@doc['_id'].to_s
+	  })
   end
 	
 	def in_nutshell
