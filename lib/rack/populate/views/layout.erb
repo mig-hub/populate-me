@@ -26,9 +26,11 @@
   </script>
   <script id='template-nutshell' type='text/html'>
     <li class='nutshell'>
-      <div class='nutshell-bar'><a href='<%= config[:path] %>/{{class_name}}/{{id}}' class='btn cross-btn nutshell-delete float-right'></a></div>
-      <a href='<%= config[:path] %>/form/{{class_name}}/{{id}}' class='nutshell-edit pushstack'><img src='img/test.gif' width='128' height='128' />Hello World</a>
-      <div class='nutshell-bottom'></div>
+      <div class='nutshell-core'>
+        <div class='nutshell-bar'><a href='<%= config[:path] %>/{{class_name}}/{{id}}' class='btn cross-btn nutshell-delete float-right'></a></div>
+        <a href='<%= config[:path] %>/form/{{class_name}}/{{id}}' class='nutshell-edit pushstack'><img src='img/test.gif' width='128' height='128' />Hello World</a>
+        <div class='nutshell-bottom'></div>
+      </div>
       <ul class='nutshell-children'>
         <li><a href='#' class='btn further-btn further-bar'>Image(s) 4</a></li>
         <li><a href='#' class='btn further-btn further-bar'>Product(s) 3</a></li>
