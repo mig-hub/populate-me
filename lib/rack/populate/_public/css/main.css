@@ -30,6 +30,7 @@ noscript div {
 #header { background-color: #89D8EE; width: 100%; height: 32px; position: relative; }
 #search-wrap { position: absolute; top: 0px; bottom: 0px; left: 40px; right: 40px; }
 #search { width: 100%; border: 0px; height: 100%; }
+#content { position: relative; }
 
 .btn {
 	display: block;
