@@ -17,7 +17,7 @@ module BackendApiAdapter
         fields_list = respond_to?(:crushyform) ? crushyform(cols) : backend_fields(cols)
       end
       o = "<form action='#{url}' method='POST' #{"enctype='multipart/form-data'" if fields_list.match(/type='file'/)} class='backend-form'>\n"
-      o << backend_form_title unless block_given?
+      #o << backend_form_title unless block_given?
       o << fields_list
       opts[:method] = 'PUT' if (opts[:method].nil? && !self.new?)
       o << "<input type='hidden' name='_method' value='#{opts[:method]}' />\n" unless opts[:method].nil?
@@ -51,7 +51,7 @@ module BackendApiAdapter
       end
       o
     end
-		def backend_form_title; self.new? ? "<h2><span>New #{model.human_name}</span></h2>\n" : "<h2><span>Edit #{self.to_label}</span></h2>\n"; end
+		def backend_form_title; self.new? ? "New #{model.human_name}" : "Edit #{self.to_label}"; end
 		def backend_show; 'OK'; end
 		
 		def default_backend_columns; model.schema.keys; end

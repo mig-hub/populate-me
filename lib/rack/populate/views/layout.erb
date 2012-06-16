@@ -8,7 +8,6 @@
   <link rel="stylesheet" href="<%= config[:path] %>/_public/css/main.css" type="text/css" media="screen" charset="utf-8" />
   <title><%= config[:client_name] %> - Admin</title>
   <script id='template-menu' type='text/html'>
-    <h1>{{page_title}}</h1>
     <ul class='menu-list'>
       {{#items}}
         <li><a href='{{href}}' class='pushstack'>{{title}}</a></li>
@@ -16,7 +15,6 @@
     </ul>
   </script>
   <script id='template-nut-tree' type='text/html'>
-    <h1>{{page_title}}</h1>
     {{#command_plus}}
       <a href='<%= config[:path] %>/form/{{class_name}}' class='btn plus-btn extra-plus pushstack'></a>
     {{/command_plus}}
@@ -40,10 +38,11 @@
 </head>
 <body>
   <div id='trunk'>
+    <h1 id='page-title' class='shadowed'>Welcome</h1>
     <div id='header' class='shadowed'>
       <a href='#' class='btn back-btn float-left popstack'></a>
       <a href='<%= config[:path] %>' class='btn home-btn float-right'></a>
-      <div id='search-wrap'><input type='search' id='search' /></div>
+      <div id='search-wrap'><input type='text' id='search' placeholder='Search' /></div>
     </div>
     <noscript><div>In order to have this content management system working, you need to have javascript enabled.</div></noscript>
     <div id='content'></div>

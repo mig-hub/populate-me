@@ -71,11 +71,12 @@ module Rack
           'href'=> i[1].kind_of?(String) ? i[1] : "#{config[:path]}/menu/#{levels.join('/')}/#{i[0]}"
         }
       end
+      page_title = levels.empty? ? "Welcome" : levels.join(' / ').gsub(/-/, ' ')
       
       @res['Content-Type'] = 'text/json'
       JSON.generate({
         'action'=>'menu',
-        'page_title'=>levels.join(' / ').gsub(/-/, ' '),
+        'page_title'=>page_title,
         'items'=>items
       })
     end
@@ -108,6 +109,7 @@ module Rack
       @res['Content-Type'] = 'text/json'
       JSON.generate({
         'action'=> 'form',
+        'page_title'=> @model_instance.backend_form_title,
         'form'=>form
       })
     end
