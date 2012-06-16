@@ -1,7 +1,7 @@
 body {
 	font-family: verdana, sans-serif;
 	font-size: 11px;
-	color: #666;
+	color: #888;
 	background-color: #444;
 	padding: 0px;
 	/* Build column */
@@ -132,3 +132,10 @@ ul.nutshell-children li { margin: 0px 10px; }
 	border-bottom-right-radius: 5px;
 	border-bottom-left-radius: 5px;
 }
+
+/* ========= */
+/* = Forms = */
+/* ========= */
+
+.crushyfield-error input { background-color: #FCC; }
+.crushyfield-error-list { color: #F99; }
