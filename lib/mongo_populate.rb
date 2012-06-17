@@ -71,10 +71,13 @@ module MongoPopulate
 	end
 	
 	def to_nutshell
-	  @doc.dup.update({
+	  {
 	    'class_name'=>model.name,
-	    'id'=>@doc['_id'].to_s
-	  })
+	    'id'=>@doc['_id'].to_s,
+	    'foreign_key_name'=>model.foreign_key_name,
+	    'title'=>self.to_label,
+	    'children'=>nutshell_children,
+	  }
   end
 	
 	def in_nutshell
@@ -94,18 +97,18 @@ module MongoPopulate
 	def nutshell_backend_associations
 	  model.relationships
 	end
-
-	def nutshell_children
-		o = model.list_options
-		out = ""
-		nutshell_backend_associations.each do |k, opts|
-		  next if opts[:hidden]
-		  k = Kernel.const_get(k)
-			link = "#{o[:path]}/list/#{k}?filter[#{model.foreign_key_name}]=#{self.id}"
-			text = opts[:link_text] || "#{k.human_name}(s)"
-			out << "<a href='#{link}' class='push-stack sublist-link nutshell-child'>#{text} #{self.children_count(k)}</a>\n"
+  
+  def nutshell_children
+		nutshell_backend_associations.inject([]) do |arr, (k, opts)|
+		  unless opts[:hidden]
+  		  klass = Kernel.const_get(k)
+  			arr << {
+  			  'children_class_name'=>k,
+  			  'title'=>opts[:link_text] || "#{klass.human_name}(s)",
+  			  'count'=>self.children_count(klass),
+  			}
+  		end
 		end
-		out
 	end
 
 end
