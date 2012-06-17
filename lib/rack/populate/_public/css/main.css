@@ -129,10 +129,17 @@ ul.nutshell-children li { margin: 0px 10px; }
 
 .nutshell-edit { 
 	background-color: white;
-	padding: 10px 10px 10px 138px;
-	height: 108px;
+	padding: 10px 10px 10px 10px;
+  height: auto;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
-.nutshell-edit img { position: absolute; left: 0px; top: 0px; }
+.nutshell-edit:hover {
+  -moz-box-shadow: 0px 0px 20px black;
+	-webkit-box-shadow: 0px 0px 20px black;
+	box-shadow: 0px 0px 20px black;
+}
 
 .nutshell-bottom {
 	background-color: white;

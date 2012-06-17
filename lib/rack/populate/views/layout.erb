@@ -26,7 +26,11 @@
     <li class='nutshell'>
       <div class='nutshell-core'>
         <div class='nutshell-bar'><a href='<%= config[:path] %>/{{class_name}}/{{id}}' class='btn cross-btn nutshell-delete float-right'></a></div>
-        <a href='<%= config[:path] %>/form/{{class_name}}/{{id}}' class='nutshell-edit pushstack'><img src='img/test.gif' width='128' height='128' />{{title}}</a>
+        <a href='<%= config[:path] %>/form/{{class_name}}/{{id}}' class='nutshell-edit pushstack'>
+          {{#thumb}}<img src='{{thumb}}' onerror="this.style.display='none'" />{{/thumb}}
+          {{^thumb}}<img src='/admin/_public/img/placeholder.png' onerror="this.style.display='none'" />{{/thumb}}
+          &nbsp;{{title}}
+        </a>
         <div class='nutshell-bottom'></div>
       </div>
       <ul class='nutshell-children'>

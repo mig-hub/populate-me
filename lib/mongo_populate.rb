@@ -43,7 +43,7 @@ module MongoPopulate
     
     def image_slot(name='image',opts={})
 		  super(name,opts)
-			# First image slot is considered the best populate thumb
+			# First image slot is considered the best populate thumb by default
 			unless instance_methods.include?(:to_populate_thumb)
 			  define_method :to_populate_thumb do |style|
 				  generic_thumb(name, style)
@@ -64,11 +64,15 @@ module MongoPopulate
     return placeholder_thumb(size) if obj.nil?
 	  current = obj.doc[img]
 		if !current.nil? && !current[size].nil?
-		  "<img src='/gridfs/#{current[size]}' onerror=\"this.style.display='none'\" />\n"
+		  "/gridfs/#{current[size]}"
 		else
 		  placeholder_thumb(size)
 		end
 	end
+	
+	def placeholder_thumb(size)
+    "/_public/img/placeholder.#{size}"
+  end
 	
 	def to_nutshell
 	  {
@@ -76,6 +80,7 @@ module MongoPopulate
 	    'id'=>@doc['_id'].to_s,
 	    'foreign_key_name'=>model.foreign_key_name,
 	    'title'=>self.to_label,
+	    'thumb'=>self.respond_to?(:to_populate_thumb) ? self.to_populate_thumb('stash_thumb.gif') : nil,
 	    'children'=>nutshell_children,
 	  }
   end
