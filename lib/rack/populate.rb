@@ -27,16 +27,7 @@ module Rack
           :website_url => 'www.domain.com',
           :path => '/admin',
           :logout_path => '/admin/logout', # sometimes higher in stack
-          #:menu => [['Home', '/admin']],
-          :menu => [['Home', [
-            ['One', [
-              ['Fist', '/'],
-              ['Fucking', '/'],
-            ]],
-            ['Two', '/admin/list/Project'],
-            ['Three', '/'],
-            ['Four', '/']
-          ]]],
+          :menu => [['Home', '/admin']],
         }
       end
     end
