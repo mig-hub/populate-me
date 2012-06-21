@@ -25,7 +25,7 @@
   <script id='template-nutshell' type='text/html'>
     <li class='nutshell nutshell-{{class_name}}' id='{{class_name}}-{{id}}'>
       <div class='nutshell-core'>
-        <div class='nutshell-bar sortable-handle'>
+        <div class='nutshell-bar {{#sortable}}sortable-handle{{/sortable}}'>
           
           <a href='<%= config[:path] %>/{{class_name}}/{{id}}' class='btn cross-btn nutshell-delete float-right'></a>
         </div>
