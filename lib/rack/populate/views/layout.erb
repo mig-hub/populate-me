@@ -18,14 +18,17 @@
     {{#command_plus}}
       <a href='<%= config[:path] %>/form/{{class_name}}{{query_string}}' class='btn plus-btn extra-plus pushstack'></a>
     {{/command_plus}}
-    <ul class='nut-tree'>
+    <ul class='nut-tree {{#sortable}}sortable{{/sortable}}'>
       {{#items}}{{>nutshell}}{{/items}}
     </ul>
   </script>
   <script id='template-nutshell' type='text/html'>
-    <li class='nutshell'>
+    <li class='nutshell nutshell-{{class_name}}' id='{{class_name}}-{{id}}'>
       <div class='nutshell-core'>
-        <div class='nutshell-bar'><a href='<%= config[:path] %>/{{class_name}}/{{id}}' class='btn cross-btn nutshell-delete float-right'></a></div>
+        <div class='nutshell-bar sortable-handle'>
+          
+          <a href='<%= config[:path] %>/{{class_name}}/{{id}}' class='btn cross-btn nutshell-delete float-right'></a>
+        </div>
         <a href='<%= config[:path] %>/form/{{class_name}}/{{id}}' class='nutshell-edit pushstack'>
           {{#thumb}}<img src='{{thumb}}' onerror="this.style.display='none'" />{{/thumb}}
           {{^thumb}}<img src='/admin/_public/img/placeholder.png' onerror="this.style.display='none'" />{{/thumb}}

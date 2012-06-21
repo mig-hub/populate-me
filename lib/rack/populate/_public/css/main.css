@@ -107,7 +107,7 @@ ul.nutshell-children li { margin: 0px 10px; }
 
 .nutshell-bar {
 	background-color: white;
-	background: white url('/img/handle-pattern.png') repeat left top;
+/*  background: white url('../img/handle-pattern.png') repeat left top;*/
 	height: 32px;
 	-webkit-border-top-left-radius: 5px;
 	-webkit-border-top-right-radius: 5px;
@@ -115,6 +115,11 @@ ul.nutshell-children li { margin: 0px 10px; }
 	-moz-border-radius-topright: 5px;
 	border-top-left-radius: 5px;
 	border-top-right-radius: 5px;
+}
+
+.sortable-handle {
+  background: transparent url('../img/handle-pattern.png') repeat left top;
+  cursor: move;
 }
 
 .further-bar { width: auto; background-color: #89D8EE; border-top: 1px dotted black; }
