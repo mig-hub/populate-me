@@ -149,6 +149,7 @@ module Rack
     def put
       if @id.nil? && @r[@model_class_name]
         @model_class.sort(@r[@model_class_name])
+        JSON.generate({'ids'=>@r[@model_class_name]})
       else
         @model_instance.backend_put(@r['model'])
         save_and_respond
