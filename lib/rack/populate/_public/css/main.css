@@ -162,6 +162,7 @@ ul.nutshell-children li { margin: 0px 10px; }
 /* = Forms = */
 /* ========= */
 
+.backend-form { margin: 10px; padding: 0px; }
 .crushyfield-error input { background-color: #FCC; }
 .crushyfield-error-list { color: #F99; }
 
