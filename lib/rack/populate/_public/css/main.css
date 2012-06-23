@@ -141,9 +141,10 @@ ul.nutshell-children li { margin: 0px 10px; }
   text-overflow: ellipsis;
 }
 .nutshell-edit:hover {
-  -moz-box-shadow: 0px 0px 20px black;
-	-webkit-box-shadow: 0px 0px 20px black;
-	box-shadow: 0px 0px 20px black;
+/*  -moz-box-shadow: 0px 0px 20px black;*/
+/*  -webkit-box-shadow: 0px 0px 20px black;*/
+/*  box-shadow: 0px 0px 20px black;*/
+  background-color: aliceblue;
 }
 
 .nutshell-bottom {
