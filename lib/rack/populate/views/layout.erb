@@ -32,7 +32,7 @@
         <a href='<%= config[:path] %>/form/{{class_name}}/{{id}}' class='nutshell-edit pushstack'>
           {{#thumb}}<img src='{{thumb}}' onerror="this.style.display='none'" />{{/thumb}}
           {{^thumb}}<img src='/admin/_public/img/placeholder.png' onerror="this.style.display='none'" />{{/thumb}}
-          &nbsp;{{title}}
+          &nbsp;<span class='nutshell-title'>{{title}}</span>
         </a>
         <div class='nutshell-bottom'></div>
       </div>
