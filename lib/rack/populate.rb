@@ -25,6 +25,7 @@ module Rack
         @config ||= {
           :client_name => 'Client Name',
           :website_url => 'www.domain.com',
+          :page_title => 'Populate Me',
           :path => '/admin',
           :logout_path => '/admin/logout', # sometimes higher in stack
           :menu => [['Home', '/admin']],
@@ -62,7 +63,7 @@ module Rack
           'href'=> i[1].kind_of?(String) ? i[1] : "#{config[:path]}/menu/#{levels.join('/')}/#{i[0]}"
         }
       end
-      page_title = levels.empty? ? "Welcome" : levels.join(' / ').gsub(/-/, ' ')
+      page_title = levels.empty? ? config[:page_title] : levels.join(' / ').gsub(/-/, ' ')
       
       @res['Content-Type'] = 'text/json'
       JSON.generate({
