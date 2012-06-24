@@ -1,6 +1,6 @@
 body {
-	font-family: verdana, sans-serif;
-	font-size: 11px;
+	font-family: 'gill sans', verdana, sans-serif;
+	font-size: 12px;
 	color: #888;
 	background-color: #444;
 	padding: 0px;
@@ -165,6 +165,8 @@ ul.nutshell-children li { margin: 0px 10px; }
 .backend-form { margin: 10px; padding: 0px; }
 .crushyfield-error input { background-color: #FCC; }
 .crushyfield-error-list { color: #F99; }
+input[type=text] { width: 50%; }
+textarea { width: 70%; height: 150px; }
 
 /* ========== */
 /* = Footer = */
