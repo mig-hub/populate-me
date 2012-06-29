@@ -1,0 +1,5 @@
+require 'populate_me/mongo/mutation'
+require 'populate_me/mongo/crushyform'
+require 'populate_me/mongo/stash'
+require 'populate_me/mongo/backend_api_plug'
+require 'populate_me/mongo/plug'

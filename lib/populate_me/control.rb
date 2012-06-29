@@ -1,9 +1,8 @@
 require 'rack/golem'
-#require 'backend_api'
 require 'json'
 
-module Rack
-  module Populate
+module PopulateMe
+  module Control
     F = ::File
     DIR = F.expand_path(F.dirname(__FILE__)+'/populate')
     BEFORE = proc{

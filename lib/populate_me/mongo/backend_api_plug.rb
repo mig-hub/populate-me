@@ -1,4 +1,10 @@
-module BackendApiAdapter
+module PopulateMe::Mongo::BackendApiPlug
+  
+  # This module adds a layer between the backend API and the models.
+  # It is legacy code and could probably be removed,
+  # but in a way it makes it easier to plug something else than MongoDB.
+  # I'll keep it and see.
+  
   module ClassMethods
 	  def backend_get(id); get(id=='unique' ? '000000000000000000000000' : id); end
 		def backend_post(doc=nil); inst = new(doc); inst.is_new = true; inst; end

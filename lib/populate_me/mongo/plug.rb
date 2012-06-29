@@ -1,13 +1,10 @@
-require 'mongo_mutation'
-require 'mongo_crushyform'
-require 'mongo_stash'
-require 'backend_api_adapter'
-
-module MongoPopulate
+module PopulateMe::Mongo::Plug
+  
+  # This module is the one that plug the model to the CMS
   
 	def self.included(base)
-	  base.extend(BackendApiAdapter::ClassMethods)
-		base.extend(MongoCrushyform::ClassMethods)
+	  base.extend(BackendApiPlug::ClassMethods)
+		base.extend(Crushyform::ClassMethods)
 		base.extend(ClassMethods)
 		base.populate_config = {:nut_tree_class=>'sortable-grid'}
 	end
@@ -54,7 +51,7 @@ module MongoPopulate
 	end
 
   include BackendApiAdapter::InstanceMethods
-	include MongoCrushyform::InstanceMethods
+	include Crushyform::InstanceMethods
 
 	def after_stash(col)
 	  convert(col, "-resize '100x75^' -gravity center -extent 100x75", 'stash_thumb.gif')
