@@ -4,7 +4,7 @@ require 'json'
 module PopulateMe
   module Control
     F = ::File
-    DIR = F.expand_path(F.dirname(__FILE__)+'/populate')
+    DIR = F.expand_path(F.dirname(__FILE__)+'/control')
     BEFORE = proc{
     }
 
@@ -122,7 +122,7 @@ module PopulateMe
         raise("#{@model_class_name} is not constant")
       end
       @model_class = Kernel.const_get(@model_class_name)
-      unless @model_class.kind_of?(BackendApiAdapter::ClassMethods)
+      unless @model_class.kind_of?(PopulateMe::Mongo::BackendApiPlug::ClassMethods)
         raise("Requested constant #{@model_class_name} is not a model class")
       end
     end
