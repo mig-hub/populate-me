@@ -36,7 +36,8 @@ module PopulateMe
         end
         def find_one(spec_or_object_id=nil,opts={})
           opts = {:sort=>self.sorting_order}.update(opts)
-          self.new(collection.find_one(spec_or_object_id,opts))
+          item = collection.find_one(spec_or_object_id,opts)
+          item.nil? ? nil : self.new(item)
         end
         def count(opts={}); collection.count(opts); end
 
@@ -140,7 +141,6 @@ module PopulateMe
     	  k = resolve_class(k)
     	  slot_name = opts.delete(:slot_name) || model.foreign_key_name
     	  d = k.find_one({slot_name=>@doc['_id'].to_s}, opts)
-    	  d.nil? ? nil : k.new(d)
     	end
     	def children_count(k,sel={})
     	  k = resolve_class(k)
