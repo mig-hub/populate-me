@@ -86,8 +86,14 @@ module PopulateMe
               if select_options.kind_of?(Array)
                 select_options.each do |op|
                   key,val = op.kind_of?(Array) ? [op[0],op[1]] : [op,op]
-                  selected = 'selected' if (val==o[:input_value] || (o[:input_value]||[]).include?(val))
-                  out << "<option value='%s' %s>%s</option>\n" % [val,selected,key]
+                  if key==:optgroup
+                    out << "<optgroup label='%s'>\n" % [val]
+                  elsif key==:closegroup
+                    out << "</optgroup>\n"
+                  else
+                    selected = 'selected' if (val==o[:input_value] || (o[:input_value]||[]).include?(val))
+                    out << "<option value='%s' %s>%s</option>\n" % [val,selected,key]
+                  end
                 end
               end
               out << "</select>%s\n" % [o[:required]]
