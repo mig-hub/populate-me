@@ -1,9 +1,9 @@
-Rack Populate
-=============
+Populate Me
+===========
 
 !!! WARNING : This project is under construction and therefore is not usable yet.
 
-Nevertheless Rack-Populate will be a ready-made controller for having a CMS.  
-There will be a Model adapter for MongoDB.  
+Nevertheless Populate Me will be a relatively complete but simple CMS.  
+It will include a Rack middleware for putting in your Rack stack, and a bespoke MongoDB ODM.    
 Stay tuned.
 
