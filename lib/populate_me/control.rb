@@ -35,7 +35,7 @@ module PopulateMe
     def index(class_name=nil, id=nil)
       if class_name.nil?
         @r.env['erb.location'] = DIR+'/views/'
-        erb :layout
+        erb :populate_me_layout
       else
         http_method = @r.request_method.downcase
         if ['post','put','delete'].include?(http_method)
