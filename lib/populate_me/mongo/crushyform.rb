@@ -140,10 +140,10 @@ module PopulateMe
               return tag if options[:permalink_classes].nil?
               options[:permalink_classes].each do |sym|
                 c = Kernel.const_get sym
-                entries = c.collection.find
+                entries = c.find
                 unless entries.count==0
                   values << "<optgroup label='#{c.human_name}'>\n"
-                  entries.each_mutant do |e|
+                  entries.each do |e|
                     values << "<option value='#{e.permalink}' #{'selected' if e.permalink==options[:input_value]}>#{e.to_label}</option>\n"
                   end
                   values << "</optgroup>\n"
