@@ -103,6 +103,7 @@ module PopulateMe
     	class << self
     	  attr_accessor :classes
     		Stash.classes = []
+    		
     		def all_after_stash
     		  Stash.classes.each do |m|
     			  m.collection.find.each do |i|
@@ -112,6 +113,36 @@ module PopulateMe
     				end
     			end
     		end
+    		
+    		def fix_dots_in_keys(c, for_real=false)
+          puts "\n#{c}" unless for_real
+          img_keys = c.schema.select{|k,v| v[:type]==:attachment }.keys
+          c.find({}, {:fields=>img_keys}).each do |e|
+            old_hash = e.doc.select{|k,v| img_keys.include?(k) }
+            fixed_hash = Marshal.load(Marshal.dump(old_hash))
+            img_keys.each do |k|
+              (fixed_hash[k]||{}).keys.each do |style|
+                fixed_hash[k][style.tr('.','_')] = fixed_hash[k].delete(style)
+              end
+            end
+            next if old_hash==fixed_hash
+
+            if for_real
+              c.collection.update({'_id'=>e.id}, {'$set'=>fixed_hash})
+            else
+              puts old_hash.inspect
+              puts fixed_hash.inspect
+            end
+
+          end
+        end
+        
+        def all_fix_dots_in_keys(for_real=false)
+          Stash.classes.each do |c|
+            Stash.fix_dots_in_keys(c, for_real)
+          end
+        end
+
     	end
 
     end
