@@ -86,7 +86,7 @@ module PopulateMe
     		  src = @temp_attachments[col][:tempfile]
     		end
     	  model.gridfs.delete(@doc[col][style]) unless @doc[col][style].nil?
-    		ext = style[/\..*$/]
+    		ext = style[/[a-zA-Z]+$/].insert(0,'.')
     		dest = Tempfile.new(['MongoStash_dest', ext])
     		dest.binmode
     		dest.close
