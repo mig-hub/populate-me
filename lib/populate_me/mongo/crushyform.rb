@@ -210,7 +210,7 @@ module PopulateMe
       def to_thumb(c)
         current = @doc[c]
         if current.respond_to?(:[])
-          "<img src='/gridfs/#{@doc[c]['stash_thumb.gif']}' width='100' onerror=\"this.style.display='none'\" />\n"
+          "<img src='/gridfs/#{@doc[c]['stash_thumb_gif']}' width='100' onerror=\"this.style.display='none'\" />\n"
         end
       end
       # Reset dropdowns on hooks

@@ -42,7 +42,7 @@ module PopulateMe
         # def minilist_view
         #   o = "<ul class='minilist'>\n"
         #   self.collection.find.each_mutant do |m|
-        #     thumb = m.respond_to?(:to_populate_thumb) ? m.to_populate_thumb('stash_thumb.gif') : m.placeholder_thumb('stash_thumb.gif')
+        #     thumb = m.respond_to?(:to_populate_thumb) ? m.to_populate_thumb('stash_thumb_gif') : m.placeholder_thumb('stash_thumb_gif')
         #     o << "<li title='#{m.to_label}' id='mini-#{m.id}'>#{thumb}<div>#{m.to_label}</div></li>\n"
         #   end
         #   o << "</ul>\n"
@@ -65,10 +65,10 @@ module PopulateMe
       module InstanceMethods
 
     	  def after_stash(col)
-      	  convert(col, "-resize '100x75^' -gravity center -extent 100x75", 'stash_thumb.gif')
+      	  convert(col, "-resize '100x75^' -gravity center -extent 100x75", 'stash_thumb_gif')
       	end
 
-        def generic_thumb(img , size='stash_thumb.gif', obj=self)
+        def generic_thumb(img , size='stash_thumb_gif', obj=self)
           return placeholder_thumb(size) if obj.nil?
       	  current = obj.doc[img]
       		if !current.nil? && !current[size].nil?
@@ -79,7 +79,7 @@ module PopulateMe
       	end
 	
       	def placeholder_thumb(size)
-          "/_public/img/placeholder.#{size}"
+          "/_public/img/placeholder.#{size.gsub(/^(.*)_([a-zA-Z]+)$/, '\1.\2')}"
         end
 	
       	def to_nutshell
@@ -88,7 +88,7 @@ module PopulateMe
       	    'id'=>@doc['_id'].to_s,
       	    'foreign_key_name'=>model.foreign_key_name,
       	    'title'=>self.to_label,
-      	    'thumb'=>self.respond_to?(:to_populate_thumb) ? self.to_populate_thumb('stash_thumb.gif') : nil,
+      	    'thumb'=>self.respond_to?(:to_populate_thumb) ? self.to_populate_thumb('stash_thumb_gif') : nil,
       	    'children'=>nutshell_children,
       	  }
         end
@@ -96,7 +96,7 @@ module PopulateMe
       	def in_nutshell
           o = model.list_options
       		out = "<div class='in-nutshell'>\n"
-      		out << self.to_populate_thumb('nutshell.jpg') if self.respond_to?(:to_populate_thumb)
+      		out << self.to_populate_thumb('nutshell_jpg') if self.respond_to?(:to_populate_thumb)
       		cols = model.populate_config[:quick_update_fields] || nutshell_backend_columns.select{|col| 
       		  [:boolean,:select].include?(model.schema[col][:type]) && !model.schema[col][:multiple] && !model.schema[col][:no_quick_update]
       		}
