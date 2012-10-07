@@ -71,7 +71,8 @@ module PopulateMe
     	def convert(col, convert_steps, style)
     	  return if @doc[col].nil?
     	  if @temp_attachments.nil? || @temp_attachments[col].nil?
-    	    f = model.gridfs.get(@doc[col]['original'])
+    	    f = model.gridfs.get(@doc[col]['original']) rescue nil
+    	    return if f.nil?
     	    return unless f.content_type[/^image\//]
     	    src = Tempfile.new('MongoStash_src')
     	    src.binmode
