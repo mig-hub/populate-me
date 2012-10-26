@@ -31,10 +31,12 @@ module PopulateMe
     			{'_id'=>id}
     		end
     		def find(selector={},opts={})
+          selector.update(opts.delete(:selector)||{})
           opts = {:sort=>self.sorting_order}.update(opts)
           collection.find(selector,opts).extend(CursorMutation)
         end
         def find_one(spec_or_object_id=nil,opts={})
+          spec_or_object_id.nil? ? spec_or_object_id = opts.delete(:selector) : spec_or_object_id.update(opts.delete(:selector)||{})
           opts = {:sort=>self.sorting_order}.update(opts)
           item = collection.find_one(spec_or_object_id,opts)
           item.nil? ? nil : self.new(item)
