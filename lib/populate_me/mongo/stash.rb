@@ -109,7 +109,8 @@ module PopulateMe
     		  Stash.classes.each do |m|
     			  m.collection.find.each do |i|
     				  m.schema.each do |k,v|
-    					  m.new(i).after_stash(k) if v[:type]==:attachment
+                obj = m.new(i)
+                obj.after_stash(k) if v[:type]==:attachment&&obj[k].to_s!=''
     					end
     				end
     			end
