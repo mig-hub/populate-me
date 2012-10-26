@@ -72,7 +72,11 @@ module PopulateMe
     		end
 
     		private
-    		def slot(name,opts={}); @schema[name] = {:type=>:string}.update(opts); end
+        def slot(name,opts={})
+          @schema[name] = {:type=>:string}.update(opts)
+          define_method(name) { @doc[name] }
+          define_method("#{name}=") { |x| @doc[name] = x }
+        end
     		def image_slot(name='image',opts={})
     		  slot name, {:type=>:attachment}.update(opts)
     			slot "#{name}_tooltip"
