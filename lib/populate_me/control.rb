@@ -54,15 +54,15 @@ module PopulateMe
     def menu(*levels)
       level_menu = config[:menu]
       levels.each do |l|
-        level_menu = level_menu.assoc(l)[1]
+        level_menu = level_menu.assoc(::Rack::Utils.unescape(l))[1]
       end
       items = level_menu.map do |i|
         {
-          'title'=>i[0].gsub(/-/, ' '),
-          'href'=> i[1].kind_of?(String) ? i[1] : "#{config[:path]}/menu/#{levels.join('/')}/#{i[0]}"
+          'title'=>i[0],
+          'href'=> i[1].kind_of?(String) ? i[1] : "#{config[:path]}/menu/#{levels.join('/')}/#{::Rack::Utils.escape(i[0])}"
         }
       end
-      page_title = levels.empty? ? config[:page_title] : levels.join(' / ').gsub(/-/, ' ')
+      page_title = levels.empty? ? config[:page_title] : ::Rack::Utils.unescape(levels.join(' / '))
       
       @res['Content-Type'] = 'text/json'
       JSON.generate({
