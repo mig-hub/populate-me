@@ -59,7 +59,9 @@ module PopulateMe
       items = level_menu.map do |i|
         {
           'title'=>i[0],
-          'href'=> i[1].kind_of?(String) ? i[1] : "#{config[:path]}/menu/#{levels.join('/')}/#{::Rack::Utils.escape(i[0])}"
+          'href'=> i[1].kind_of?(String) ? 
+            i[1] : 
+            "#{config[:path]}/menu/#{levels.join('/')}#{'/' unless levels.empty?}#{::Rack::Utils.escape(i[0])}"
         }
       end
       page_title = levels.empty? ? config[:page_title] : ::Rack::Utils.unescape(levels.join(' / '))
