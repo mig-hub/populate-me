@@ -28,6 +28,9 @@ module PopulateMe
               tag = "<input type='%s' name='%s' value=\"%s\" id='%s' class='%s' %s />%s\n" % [o[:input_type]||'text', o[:input_name], o[:input_value], m.field_id_for(c), o[:input_class], o[:required]&&'required', o[:required]]
               "#{tag}#{js}"
             end,
+            :slug => proc do |m,c,o|
+              crushyform_types[:string].call(m,c,o)
+            end,
             :boolean => proc do |m,c,o|
               crushid = m.field_id_for(c)
               s = ['checked', nil]

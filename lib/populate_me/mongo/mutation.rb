@@ -14,10 +14,11 @@ module PopulateMe
 
       module MutateClass
     	  attr_accessor :db, :schema, :relationships
-    		attr_writer :label_column, :sorting_order
+    		attr_writer :label_column, :slug_column, :sorting_order
 
         LABEL_COLUMNS = ['title', 'label', 'fullname', 'full_name', 'surname', 'lastname', 'last_name', 'name', 'firstname', 'first_name', 'login', 'caption', 'reference', 'file_name', 'body', '_id']
     		def label_column; @label_column ||= LABEL_COLUMNS.find{|c| @schema.keys.include?(c)||c=='_id'}; end
+        def slug_column; @slug_column ||= (@schema.find{|k,v| v[:type]==:slug}||[])[0]; end
     	  def foreign_key_name(plural=false); "id#{'s' if plural}_"+self.name; end
     		def human_name; self.name.gsub(/([A-Z])/, ' \1')[1..-1]; end
     		def human_plural_name; human_name+'s'; end
@@ -100,6 +101,17 @@ module PopulateMe
     	def [](field); @doc[field]; end
     	def []=(field,val); @doc[field] = val; end
     	def to_label;  @doc[model.label_column].to_s.tr("\n\r", ' '); end
+      ACCENTS_FROM = 
+      "ÀÁÂÃÄÅàáâãäåĀāĂăĄąÇçĆćĈĉĊċČčÐðĎďĐđÈÉÊËèéêëĒēĔĕĖėĘęĚěĜĝĞğĠġĢģĤĥĦħÌÍÎÏìíîïĨĩĪīĬĭĮįİıĴĵĶķĸĹĺĻļĽľĿŀŁłÑñŃńŅņŇňŉŊŋÒÓÔÕÖØòóôõöøŌōŎŏŐőŔŕŖŗŘřŚśŜŝŞ"
+      ACCENTS_TO = 
+      "AAAAAAaaaaaaAaAaAaCcCcCcCcCcDdDdDdEEEEeeeeEeEeEeEeEeGgGgGgGgHhHhIIIIiiiiIiIiIiIiIiJjKkkLlLlLlLlLlNnNnNnNnnNnOOOOOOooooooOoOoOoRrRrRrSsSsSsSssT"
+      def auto_slug
+         s = self.to_label.tr(ACCENTS_FROM,ACCENTS_TO).tr(' .,;:?!/\'"()[]{}<>','-').gsub(/&/, 'and')
+        defined?(::Rack::Utils) ? ::Rack::Utils.escape(s) : s
+      end
+      def to_slug; @doc[model.column_slug]||self.auto_slug; end
+      # To param will be deprecated
+      # Use a URL like .../<id>/<slug> instead
     	def to_param; "#{@doc['_id']}-#{to_label.scan(/\w+/).join('-')}"; end
       def field_id_for(col); "%s-%s-%s" % [id||'new',model.name,col]; end
 
@@ -200,6 +212,7 @@ module PopulateMe
     	def after_validation; end
     	def fix_type_integer(k,v); @doc[k] = v.to_i; end
     	def fix_type_boolean(k,v); @doc[k] = (v=='true'||v==true) ? true : false; end
+      def fix_type_slug(k,v); @doc[k] = self.auto_slug if v.to_s==''; end
     	def fix_type_date(k,v)
     	  if v.is_a?(String)
     	    if v[/\d\d\d\d-\d\d-\d\d/]
