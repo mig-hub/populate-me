@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'populate_me/mongo/mutation'
 require 'populate_me/mongo/stash'
 require 'populate_me/mongo/crushyform'
