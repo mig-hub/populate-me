@@ -13,7 +13,7 @@ body {
 
 img { border: 0px; }
 ul { list-style: none; padding: 0px; margin: 0px; }
-a { color: #2aa198; }
+a { color: #dc322f; }
 a:hover { text-decoration: none; }
 
 noscript div { 
@@ -109,7 +109,7 @@ ul.nutshell-children li { margin: 0px 10px; }
 
 .nutshell-bar {
 	background-color: #fdf6e3;
-/*  background: #fdf6e3 url('../img/handle-pattern.png') repeat left top;*/
+/*  background: #fdf6e3 url('../img/grip.png') repeat left top;*/
 	height: 32px;
 	-webkit-border-top-left-radius: 5px;
 	-webkit-border-top-right-radius: 5px;
@@ -120,11 +120,11 @@ ul.nutshell-children li { margin: 0px 10px; }
 }
 
 .sortable-handle {
-  background: transparent url('../img/handle-pattern.png') repeat left top;
+  background: transparent url('../img/grip.png') repeat left top;
   cursor: move;
 }
 
-.further-bar { width: auto; background-color: #b58900; border-top: 1px dotted black; }
+.further-bar { width: auto; background-color: #2aa198; border-top: 1px dotted black; }
 
 .nutshell-edit, .further-bar { 
 	display: block; position: relative;
@@ -141,17 +141,7 @@ ul.nutshell-children li { margin: 0px 10px; }
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-}
-.nutshell-edit:hover {
-/*  -moz-box-shadow: 0px 0px 20px black;*/
-/*  -webkit-box-shadow: 0px 0px 20px black;*/
-/*  box-shadow: 0px 0px 20px black;*/
-  background-color: aliceblue;
-}
-
-.nutshell-bottom {
-	background-color: white;
-	height: 10px;
+  
 	-webkit-border-bottom-right-radius: 5px;
 	-webkit-border-bottom-left-radius: 5px;
 	-moz-border-radius-bottomright: 5px;
@@ -159,6 +149,21 @@ ul.nutshell-children li { margin: 0px 10px; }
 	border-bottom-right-radius: 5px;
 	border-bottom-left-radius: 5px;
 }
+.nutshell-edit:hover {
+  background-color: #eee8d5;
+}
+
+/*
+.nutshell-bottom {
+	background-color: #fdf6e3;
+	height: 10px;
+	-webkit-border-bottom-right-radius: 5px;
+	-webkit-border-bottom-left-radius: 5px;
+	-moz-border-radius-bottomright: 5px;
+	-moz-border-radius-bottomleft: 5px;
+	border-bottom-right-radius: 5px;
+	border-bottom-left-radius: 5px;
+}*/
 
 /* ========= */
 /* = Forms = */
