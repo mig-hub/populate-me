@@ -16,7 +16,7 @@
   </script>
   <script id='template-nut-tree' type='text/html'>
     {{#command_plus}}
-      <a href='<%= config[:path] %>/form/{{class_name}}{{query_string}}' class='btn plus-btn extra-plus pushstack'></a>
+      <a href='<%= config[:path] %>/form/{{class_name}}{{query_string}}' class='btn plus-btn extra-plus pushstack' title='Create'></a>
     {{/command_plus}}
     <ul class='nut-tree {{#sortable}}sortable{{/sortable}}'>
       {{#items}}{{>nutshell}}{{/items}}
@@ -27,9 +27,9 @@
       <div class='nutshell-core'>
         <div class='nutshell-bar {{#sortable}}sortable-handle{{/sortable}}'>
           
-          <a href='<%= config[:path] %>/{{class_name}}/{{id}}' class='btn cross-btn nutshell-delete float-right'></a>
+          <a href='<%= config[:path] %>/{{class_name}}/{{id}}' class='btn cross-btn nutshell-delete float-right' title='Delete'></a>
         </div>
-        <a href='<%= config[:path] %>/form/{{class_name}}/{{id}}' class='nutshell-edit pushstack'>
+        <a href='<%= config[:path] %>/form/{{class_name}}/{{id}}' class='nutshell-edit pushstack' title='Edit'>
           {{#thumb}}<img src='{{thumb}}' onerror="this.style.display='none'" />{{/thumb}}
           &nbsp;<span class='nutshell-title'>{{title}}</span>
         </a>
@@ -46,8 +46,8 @@
   <div id='trunk'>
     <h1 id='page-title' class='shadowed'><%= config[:page_title] %></h1>
     <div id='header' class='shadowed'>
-      <a href='#' class='btn back-btn float-left popstack'></a>
-      <a href='<%= config[:path] %>' class='btn home-btn float-right'></a>
+      <a href='#' class='btn back-btn float-left popstack' title='Back'></a>
+      <a href='<%= config[:path] %>' class='btn home-btn float-right' title='Home'></a>
       <div id='search-wrap'><input type='text' id='search' placeholder='Search' /></div>
     </div>
     <noscript><div>In order to have this content management system working, you need to have javascript enabled.</div></noscript>
