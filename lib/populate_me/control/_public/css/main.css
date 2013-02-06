@@ -122,6 +122,8 @@ ul.nutshell-children li { margin: 0px 10px; }
 .sortable-handle {
   background: transparent url('../img/grip.png') repeat left top;
   cursor: move;
+  cursor: ns-resize;
+  cursor: -webkit-grab;
 }
 
 .further-bar { width: auto; background-color: #2aa198; border-top: 1px dotted black; }
