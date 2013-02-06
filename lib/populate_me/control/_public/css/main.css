@@ -124,6 +124,7 @@ ul.nutshell-children li { margin: 0px 10px; }
   cursor: move;
   cursor: ns-resize;
   cursor: -webkit-grab;
+  cursor: -moz-grab;
 }
 
 .further-bar { width: auto; background-color: #2aa198; border-top: 1px dotted black; }
