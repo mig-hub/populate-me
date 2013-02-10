@@ -83,6 +83,7 @@ module PopulateMe
     	    f = model.gridfs.get(@doc[col]['original']) rescue nil
     	    return if f.nil?
     	    return unless f.content_type[/^image\//]
+          puts 'yo'
     	    src = Tempfile.new('MongoStash_src')
     	    src.binmode
     	    src.write(f.read(4096)) until f.eof?
@@ -97,12 +98,16 @@ module PopulateMe
     		end
     	  model.gridfs.delete(@doc[col][style]) unless @doc[col][style].nil?
     		ext = style[/[a-zA-Z]+$/].insert(0,'.')
+    		content_type = Rack::Mime.mime_type(ext) 
+        unless content_type[/^image\//]
+          ext = '.jpg'
+          content_type = 'image/jpeg'
+        end
     		dest = Tempfile.new(['MongoStash_dest', ext])
     		dest.binmode
     		dest.close
     	  system "convert \"#{src.path}\" #{convert_steps} \"#{dest.path}\""
     		filename = "#{model.name}/#{self.id}/#{style}"
-    		content_type = Rack::Mime.mime_type(ext) 
     		attachment_id = model.gridfs.put(dest.open, {:filename=>filename, :content_type=>content_type})
         @doc[col] = @doc[col].update({style=>attachment_id})
     		model.collection.update({'_id'=>@doc['_id']}, @doc)
