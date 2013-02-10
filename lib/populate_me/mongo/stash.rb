@@ -83,7 +83,6 @@ module PopulateMe
     	    f = model.gridfs.get(@doc[col]['original']) rescue nil
     	    return if f.nil?
     	    return unless f.content_type[/^image\//]
-          puts 'yo'
     	    src = Tempfile.new('MongoStash_src')
     	    src.binmode
     	    src.write(f.read(4096)) until f.eof?
