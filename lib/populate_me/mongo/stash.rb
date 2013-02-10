@@ -13,6 +13,14 @@ module PopulateMe
 
       module ClassMethods
     	  attr_accessor :gridfs
+        def all_after_stash
+          self.collection.find.each do |i|
+            self.schema.each do |k,v|
+              obj = self.new(i)
+              obj.after_stash(k) if v[:type]==:attachment&&obj[k].to_s!=''
+            end
+          end
+        end
     	end
 	
     	# Instance Methods
@@ -108,12 +116,7 @@ module PopulateMe
     		
     		def all_after_stash
     		  Stash.classes.each do |m|
-    			  m.collection.find.each do |i|
-    				  m.schema.each do |k,v|
-                obj = m.new(i)
-                obj.after_stash(k) if v[:type]==:attachment&&obj[k].to_s!=''
-    					end
-    				end
+            m.all_after_stash
     			end
     		end
     		
