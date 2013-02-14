@@ -195,16 +195,17 @@ module PopulateMe
       end
       # crushyfield is crushyinput but with label+error
       def crushyfield(col, o={})
-        return '' if (o[:type]==:none || model.schema[col][:type]==:none)
+        return '' if (o[:type]==:none || (model.schema[col]||{})[:type]==:none)
         default_field_name = col[/^id_/] ? Kernel.const_get(col.sub(/^id_/, '')).human_name : col.tr('_', ' ').capitalize
-        field_name = o[:name] || model.schema[col][:name] || default_field_name
+        field_name = o[:name] || (model.schema[col]||{})[:name] || default_field_name
         error_list = errors_on(col).map{|e|" - #{e}"} if !errors_on(col).nil?
         "<p class='crushyfield %s'><label for='%s'>%s</label><span class='crushyfield-error-list'>%s</span><br />\n%s</p>\n" % [error_list&&'crushyfield-error', field_id_for(col), field_name, error_list, crushyinput(col, o)]
       end
       def crushyinput(col, o={})
-        o = model.schema[col].dup.update(o)
-        o[:input_name] ||= "model[#{col}]"
-        o[:input_value] = o[:input_value].nil? ? self[col] : o[:input_value]
+        o = (model.schema[col]||{}).dup.update(o)
+        o[:col_split] = col.split('__')
+        o[:input_name] ||= o[:col_split].reduce('model'){|out,x| out<<"[#{x}]"}
+        o[:input_value] = o[:input_value].nil? ? (o[:col_split].reduce(self, :[]) rescue nil) : o[:input_value]
         o[:input_value] = model.html_escape(o[:input_value]) if (o[:input_value].is_a?(String) && o[:html_escape]!=false)
         o[:required] = o[:required]==true ? model.crushyfield_required : o[:required]
         crushyform_type = model.crushyform_types[o[:type]] || model.crushyform_types[:string]
