@@ -203,8 +203,8 @@ module PopulateMe
       end
       def crushyinput(col, o={})
         o = (model.schema[col]||{}).dup.update(o)
-        o[:col_split] = col.split('__')
-        o[:input_name] ||= o[:col_split].reduce('model'){|out,x| out<<"[#{x}]"}
+        o[:col_split] = scan_col_split(col)
+        o[:input_name] ||= input_name_from_col_split(o[:col_split])
         o[:input_value] = o[:input_value].nil? ? (o[:col_split].reduce(self, :[]) rescue nil) : o[:input_value]
         o[:input_value] = model.html_escape(o[:input_value]) if (o[:input_value].is_a?(String) && o[:html_escape]!=false)
         o[:required] = o[:required]==true ? model.crushyfield_required : o[:required]
@@ -224,7 +224,14 @@ module PopulateMe
     	# Fix types
     	def fix_type_string_list(k,v); @doc[k] = v.to_s.strip.split(/\s*,\s*/).compact if v.is_a?(String); end
 
-  
+      private
+      # column split treatment
+      def scan_col_split(s)
+        s.split('__').map{|x| x[/\d+/] ? x.to_i : x }
+      end
+      def input_name_from_col_split(col_split)
+        col_split.reduce('model'){|out,x| out<<"[#{x unless x.class==Fixnum}]"}
+      end
     end
   end
 end
