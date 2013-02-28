@@ -35,7 +35,7 @@ module PopulateMe
             :boolean => proc do |m,c,o|
               crushid = m.field_id_for(c)
               checked = 'checked' if o[:input_value]
-              out += "<input type='hidden' name='%s' value='false' id='%s-off' />\n"
+              out = "<input type='hidden' name='%s' value='false' id='%s-off' />\n"
               out += "<input type='checkbox' name='%s' value='true' id='%s' class='%s' %s />\n"
               out % [o[:input_name], crushid, o[:input_name], crushid, o[:input_class], checked]
             end,
