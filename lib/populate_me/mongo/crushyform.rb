@@ -193,6 +193,7 @@ module PopulateMe
       # crushyfield is crushyinput but with label+error
       def crushyfield(col, o={})
         return '' if (o[:type]==:none || model.schema[col][:type]==:none)
+        return crushyinput(col,o) if (o[:input_type]=='hidden' || model.schema[col][:input_type]=='hidden')
         default_field_name = col[/^id_/] ? Kernel.const_get(col.sub(/^id_/, '')).human_name : col.tr('_', ' ').capitalize
         field_name = o[:name] || model.schema[col][:name] || default_field_name
         error_list = errors_on(col).map{|e|" - #{e}"} if !errors_on(col).nil?
