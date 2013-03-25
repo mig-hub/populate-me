@@ -110,7 +110,7 @@ module PopulateMe
          s = self.to_label.tr(ACCENTS_FROM,ACCENTS_TO).tr(' .,;:?!/\'"()[]{}<>','-').gsub(/&/, 'and')
         defined?(::Rack::Utils) ? ::Rack::Utils.escape(s) : s
       end
-      def to_slug; @doc[model.column_slug]||self.auto_slug; end
+      def to_slug; @doc[model.slug_column]||self.auto_slug; end
       # To param will be deprecated
       # Use a URL like .../<id>/<slug> instead
     	def to_param; "#{@doc['_id']}-#{to_label.scan(/\w+/).join('-')}"; end
