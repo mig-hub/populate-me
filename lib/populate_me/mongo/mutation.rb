@@ -8,7 +8,7 @@ module PopulateMe
   
     	def self.included(weak)
     		weak.extend(MutateClass)
-    		weak.db = DB
+    		weak.db = DB if defined?(DB)
     		weak.schema = BSON::OrderedHash.new
     		weak.relationships = BSON::OrderedHash.new
     	end
