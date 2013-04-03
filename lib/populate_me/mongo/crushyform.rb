@@ -34,13 +34,10 @@ module PopulateMe
             end,
             :boolean => proc do |m,c,o|
               crushid = m.field_id_for(c)
-              s = ['checked', nil]
-              s.reverse! unless o[:input_value]
-              out = "<span class='%s'>"
-              out += "<input type='radio' name='%s' value='true' id='%s' %s /> <label for='%s'>Yes</label> "
-              out += "<input type='radio' name='%s' value='false' id='%s-no' %s /> <label for='%s-no'>No</label>"
-              out += "</span>\n"
-              out % [o[:input_class], o[:input_name], crushid, s[0], crushid, o[:input_name], crushid, s[1], crushid]
+              checked = 'checked' if o[:input_value]
+              out = "<input type='hidden' name='%s' value='false' id='%s-off' />\n"
+              out += "<input type='checkbox' name='%s' value='true' id='%s' class='%s' %s />\n"
+              out % [o[:input_name], crushid, o[:input_name], crushid, o[:input_class], checked]
             end,
             :text => proc do |m,c,o|
               "<textarea name='%s' id='%s' class='%s' %s>%s</textarea>%s\n" % [o[:input_name], m.field_id_for(c), o[:input_class], o[:required]&&'required', o[:input_value], o[:required]]
@@ -196,6 +193,7 @@ module PopulateMe
       # crushyfield is crushyinput but with label+error
       def crushyfield(col, o={})
         return '' if (o[:type]==:none || (model.schema[col]||{})[:type]==:none)
+        return crushyinput(col,o) if (o[:input_type]=='hidden' || model.schema[col][:input_type]=='hidden')
         default_field_name = col[/^id_/] ? Kernel.const_get(col.sub(/^id_/, '')).human_name : col.tr('_', ' ').capitalize
         field_name = o[:name] || (model.schema[col]||{})[:name] || default_field_name
         error_list = errors_on(col).map{|e|" - #{e}"} if !errors_on(col).nil?
