@@ -7,7 +7,10 @@ $:.unshift './lib'
 require 'populate_me/mongo'
 
 MONGO = ::Mongo::MongoClient.new
-class NoDB; include PopulateMe::Mongo::Plug; end
+class NoDB
+  include PopulateMe::Mongo::Plug
+  def self.human_name; 'No DB'; end
+end
 DB  = MONGO['test-mongo-mutation']
 
 class Naked; include PopulateMe::Mongo::Plug; end
@@ -31,6 +34,13 @@ class Article
   slot 'title'
   slot 'content', :type=>:text
   image_slot
+end
+
+class FeatureBox
+  include PopulateMe::Mongo::Plug
+  slot 'header'
+  self.label_column = 'header'
+  def self.human_plural_name; 'Feature Boxes'; end
 end
 
 describe "PopulateMe::Mongo::Mutation" do
@@ -57,6 +67,43 @@ describe "PopulateMe::Mongo::Mutation" do
   describe ".relationships" do
     before { @bson = Naked.relationships }
     behaves_like "Empty BSON"
+  end
+
+  describe ".human_name" do
+    it "Returns a legible version of the class name - override when incorrect" do
+      Article.human_name.should=='Article'
+      FeatureBox.human_name.should=='Feature Box'
+      # No accronym for simplicity
+      # Easier to override when needed
+      NoDB.human_name.should=='No DB'
+    end
+  end
+
+  describe ".human_plural_name" do
+    it "Only adds an 's' to human name - override if needed" do
+      Article.human_plural_name.should=='Articles'
+      # No rules for simplicity
+      # Easier to override when needed
+      FeatureBox.human_plural_name.should=='Feature Boxes'
+      # Here only .human_name was overridden
+      NoDB.human_plural_name.should=='No DBs'
+    end
+  end
+
+  describe ".ref" do
+    it 'Returns a selector for a BSON::ObjectId' do
+      id = BSON::ObjectId.new
+      Address.ref(id).should=={'_id'=>id}
+    end
+    it 'Makes the argument a BSON::ObjectId if it is a valid string' do
+      string_id = '000000000000000000000000'
+      BSON::ObjectId.legal?(string_id).should==true
+      Address.ref(string_id).should=={'_id'=>BSON::ObjectId.from_string(string_id)}
+    end
+    it 'Just put an empty string in selector for any invalid argument' do
+      Address.ref('abc').should=={'_id'=>''}
+      Address.ref([]).should=={'_id'=>''}
+    end
   end
   
   shared "Basic slot" do
@@ -116,13 +163,9 @@ describe "PopulateMe::Mongo::Mutation" do
     end
   end
 
-  # .label_column
   # .slug_column
   # .foreign_key_name
-  # .human_name
-  # .human_plural_name
   # .collection
-  # .ref
   # .find
   # .find_one
   # .count
@@ -174,11 +217,19 @@ describe "PopulateMe::Mongo::Mutation" do
     end
   end
 
+  describe '#to_label' do
+    it 'Uses a built-in list of slots to pick from for a label' do
+      Person.new({'age'=>42, 'name'=>'Bozo', 'surname'=>'Montana', 'car'=>'Jaguar'}).to_label.should=='Montana'
+    end
+    it 'Uses an other slot declared with label_column=' do
+      FeatureBox.new({'header'=>'Glamour'}).to_label.should=='Glamour'
+    end
+  end
+
   # #default_doc
   # #id
   # #[]
   # #[]=
-  # #to_label
   # #auto_slug
   # #to_slug
   # #to_param
