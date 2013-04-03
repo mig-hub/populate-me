@@ -115,6 +115,23 @@ describe "PopulateMe::Mongo::Mutation" do
       behaves_like "Image slot"
     end
   end
+
+  # .label_column
+  # .slug_column
+  # .foreign_key_name
+  # .human_name
+  # .human_plural_name
+  # .collection
+  # .ref
+  # .find
+  # .find_one
+  # .count
+  # .sorting_order
+  # .sort
+  # .get
+  # .delete
+  # .is_unique
+  # .has_many
   
   shared "Has error recipient" do
     it "Has an empty recipent for errors" do
@@ -155,6 +172,35 @@ describe "PopulateMe::Mongo::Mutation" do
     it "Is a shortcut for self.class" do
       Naked.new.model.should==Naked
     end
+  end
+
+  # #default_doc
+  # #id
+  # #[]
+  # #[]=
+  # #to_label
+  # #auto_slug
+  # #to_slug
+  # #to_param
+  # #field_id_for
+  # #resolve_class
+  # #parent
+  # #slot_children
+  # #first_slot_child
+  # #children
+  # #first_child
+  # #children_count
+  # #delete
+  # #new?
+  # #update_doc
+  # #errors_on
+  # #valid?
+  # Hooks
+  # Validation
+  # Fix types
+  # #save
+
+  describe 'CursorMutation' do
   end
 
 end
