@@ -8,7 +8,7 @@ module PopulateMe
   
     	def self.included(weak)
     		weak.extend(MutateClass)
-    		weak.db = DB
+    		weak.db = DB if defined?(DB)
     		weak.schema = BSON::OrderedHash.new
     		weak.relationships = BSON::OrderedHash.new
     	end
@@ -212,6 +212,9 @@ module PopulateMe
     	def validate; end
     	def after_validation; end
     	def fix_type_integer(k,v); @doc[k] = v.to_i; end
+      def fix_type_price(k,v)
+        v.kind_of?(Array) ? @doc[k] = (v[0].to_i*100)+v[1].to_i : @doc[k] = v.to_i
+      end
     	def fix_type_boolean(k,v); @doc[k] = (v=='true'||v==true) ? true : false; end
       def fix_type_slug(k,v); @doc[k] = self.auto_slug if v.to_s==''; end
     	def fix_type_date(k,v)
