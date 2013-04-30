@@ -32,6 +32,13 @@ module PopulateMe
             :slug => proc do |m,c,o|
               crushyform_types[:string].call(m,c,o)
             end,
+            :price => proc do |m,c,o|
+              crushid = m.field_id_for(c)
+              price_main, price_cents = o[:input_value].to_i.divmod(100)
+              out = "<input type='text' name='%s[]' id='%s-main' class='%s price-main' value='%s' size='10' />&nbsp;&bull;&nbsp;"
+              out << "<input type='text' name='%s[]' id='%s-cents' class='%s price-cents' value='%s' size='2' maxlength='2' style='width: auto;' />"
+              out % [o[:input_name], crushid, o[:input_class], price_main, o[:input_name], crushid, o[:input_class], price_cents]
+            end,
             :boolean => proc do |m,c,o|
               crushid = m.field_id_for(c)
               checked = 'checked' if o[:input_value]
