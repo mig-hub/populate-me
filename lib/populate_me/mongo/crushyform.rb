@@ -193,7 +193,7 @@ module PopulateMe
 
       def crushyform(columns=model.schema.keys, action=nil, meth='POST')
         columns.delete('_id')
-        fields = columns.inject(""){|out,c|out+crushyfield(c)}
+        fields = columns.inject(""){|out,c|out.force_encoding('utf-8')+crushyfield(c).force_encoding('utf-8')}
         enctype = fields.match(/type='file'/) ? "enctype='multipart/form-data'" : ''
         action.nil? ? fields : "<form action='%s' method='%s' %s>%s</form>\n" % [action, meth, enctype, fields]
       end
