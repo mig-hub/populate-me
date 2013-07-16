@@ -213,7 +213,7 @@ module PopulateMe
     	def after_validation; end
     	def fix_type_integer(k,v); @doc[k] = v.to_i; end
       def fix_type_price(k,v)
-        v.kind_of?(Array) ? @doc[k] = (v[0].to_i*100)+v[1].to_i : @doc[k] = v.to_i
+        @doc[k] = v.respond_to?(:to_price_integer) ? v.to_price_integer : v
       end
     	def fix_type_boolean(k,v); @doc[k] = (v=='true'||v==true) ? true : false; end
       def fix_type_slug(k,v); @doc[k] = self.auto_slug if v.to_s==''; end
