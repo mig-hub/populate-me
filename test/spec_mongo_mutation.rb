@@ -1,8 +1,10 @@
+# encoding: utf-8
 Encoding.default_internal = Encoding.default_external = Encoding::UTF_8 if RUBY_VERSION >= '1.9.0'
 
 require 'rubygems'
 require 'bacon'
 require 'mongo'
+require 'rack/utils'
 $:.unshift './lib'
 require 'populate_me/mongo'
 
@@ -223,6 +225,12 @@ describe "PopulateMe::Mongo::Mutation" do
     end
     it 'Uses an other slot declared with label_column=' do
       FeatureBox.new({'header'=>'Glamour'}).to_label.should=='Glamour'
+    end
+  end
+
+  describe '#auto_slug' do
+    it 'Should build a url friendly slug based on #to_label' do
+      FeatureBox.new({'header'=>"Así es la vida by Daniel Bär & Mickaël ? (100%)"}).auto_slug.should=='Asi-es-la-vida-by-Daniel-Bar-and-Mickael-100%25'
     end
   end
 

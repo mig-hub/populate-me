@@ -107,7 +107,7 @@ module PopulateMe
       ACCENTS_TO = 
       "AAAAAAaaaaaaAaAaAaCcCcCcCcCcDdDdDdEEEEeeeeEeEeEeEeEeGgGgGgGgHhHhIIIIiiiiIiIiIiIiIiJjKkkLlLlLlLlLlNnNnNnNnnNnOOOOOOooooooOoOoOoRrRrRrSsSsSsSssT"
       def auto_slug
-         s = self.to_label.tr(ACCENTS_FROM,ACCENTS_TO).tr(' .,;:?!/\'"()[]{}<>','-').gsub(/&/, 'and')
+         s = self.to_label.tr(ACCENTS_FROM,ACCENTS_TO).tr(' .,;:?!/\'"()[]{}<>','-').gsub(/&/, 'and').gsub(/-+/,'-').gsub(/(^-|-$)/,'')
         defined?(::Rack::Utils) ? ::Rack::Utils.escape(s) : s
       end
       def to_slug; @doc[model.slug_column]||self.auto_slug; end
