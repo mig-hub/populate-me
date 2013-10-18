@@ -75,7 +75,7 @@ module PopulateMe
               @crushyform_types[:select].call(m,c,opts)
             end,
             :attachment => proc do |m,c,o|
-    				  deleter = "<input type='checkbox' name='#{o[:input_name]}' class='deleter' value='nil' /> Delete this file<br />" unless m.doc[c].nil?
+              deleter = "<input type='checkbox' name='#{o[:input_name]}' class='deleter' value='nil' /> Delete this file<br />" unless m.doc[c].nil?
               "%s%s<input type='file' name='%s' id='%s' class='%s' />%s\n" % [m.to_thumb(c), deleter, o[:input_name], m.field_id_for(c), o[:input_class], o[:required]]
             end,
             :select => proc do |m,c,o|
@@ -103,43 +103,43 @@ module PopulateMe
               end
               out << "</select>%s\n" % [o[:required]]
             end,
-    				:string_list => proc do |m,c,o|
-    				  if o[:autocompleted]
-    				    values = o[:autocomplete_options] || m.class.collection.distinct(c)
-    				    js = <<-EOJS
+            :string_list => proc do |m,c,o|
+              if o[:autocompleted]
+                values = o[:autocomplete_options] || m.class.collection.distinct(c)
+                js = <<-EOJS
                 <script type="text/javascript" charset="utf-8">
                   $(function(){
                     $( "##{m.field_id_for(c)}" )
                     .bind( "keydown", function( event ) {
-                    	if ( event.keyCode === $.ui.keyCode.TAB &&
-                    	$( this ).data( "autocomplete" ).menu.active ) {
-                    		event.preventDefault();
-                    	}
+                      if ( event.keyCode === $.ui.keyCode.TAB &&
+                      $( this ).data( "autocomplete" ).menu.active ) {
+                        event.preventDefault();
+                      }
                     })
                     .autocomplete({
-                    	minLength: 0,
-                    	source: function( request, response ) {
-                    		response($.ui.autocomplete.filter(["#{values.join('","')}"], request.term.split(/,\s*/).pop()));
-                    	},
-                    	focus: function() { return false; },
-                    	select: function( event, ui ) {
-                    		var terms = this.value.split(/,\s*/);
-                    		terms.pop();
-                    		terms.push(ui.item.value);
-                    		terms.push("");
-                    		this.value = terms.join( ", " );
-                    		return false;
-                    	}
+                      minLength: 0,
+                      source: function( request, response ) {
+                        response($.ui.autocomplete.filter(["#{values.join('","')}"], request.term.split(/,\s*/).pop()));
+                      },
+                      focus: function() { return false; },
+                      select: function( event, ui ) {
+                        var terms = this.value.split(/,\s*/);
+                        terms.pop();
+                        terms.push(ui.item.value);
+                        terms.push("");
+                        this.value = terms.join( ", " );
+                        return false;
+                      }
                     });
                   });
                 </script>
                 EOJS
                 o[:autocompleted] = false # reset so that it does not autocomplete for :string type below
-    			    end
-    				  tag = @crushyform_types[:string].call(m,c,o.update({:input_value=>(o[:input_value]||[]).join(',')}))
-    				  "#{tag}#{js}"
-    				end,
-    				:permalink => proc do |instance, column_name, options|
+              end
+              tag = @crushyform_types[:string].call(m,c,o.update({:input_value=>(o[:input_value]||[]).join(',')}))
+              "#{tag}#{js}"
+            end,
+            :permalink => proc do |instance, column_name, options|
               values = "<option value=''>Or Browse the list</option>\n"
               tag = @crushyform_types[:string].call(instance, column_name, options)
               return tag if options[:permalink_classes].nil?
@@ -222,8 +222,8 @@ module PopulateMe
       # Reset dropdowns on hooks
       def after_save; model.reset_dropdown_cache; super; end
       def after_delete; model.reset_dropdown_cache; super; end
-    	# Fix types
-    	def fix_type_string_list(k,v); @doc[k] = v.to_s.strip.split(/\s*,\s*/).compact if v.is_a?(String); end
+      # Fix types
+      def fix_type_string_list(k,v); @doc[k] = v.to_s.strip.split(/\s*,\s*/).compact if v.is_a?(String); end
 
   
     end
