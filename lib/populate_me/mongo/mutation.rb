@@ -67,10 +67,7 @@ module PopulateMe
 
     		def is_unique(doc={})
     		  return unless collection.count==0
-    		  doc = {'_id'=>BSON::ObjectId('000000000000000000000000')}.update(doc)
-    		  d = self.new
-    			d.doc.update(doc)
-    			d.save 
+    		  self.new(doc).save 
     		end
 
     		private
