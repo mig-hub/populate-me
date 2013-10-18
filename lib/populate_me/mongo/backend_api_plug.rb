@@ -13,16 +13,16 @@ module PopulateMe
       end
   
       module ClassMethods
-    	  def backend_get(id); get(id=='unique' ? '000000000000000000000000' : id); end
-    		def backend_post(doc=nil); inst = new(doc); inst.is_new = true; inst; end
-    	end
-	
-    	# Instance Methods
+        def backend_get(id); get(id=='unique' ? '000000000000000000000000' : id); end
+        def backend_post(doc=nil); inst = new(doc); inst.is_new = true; inst; end
+      end
+  
+      # Instance Methods
 
-    	def backend_delete; delete; end
-    	def backend_put(fields); update_doc(fields); end
-    	def backend_values; @doc; end
-    	def backend_save?; !save.nil?; end
+      def backend_delete; delete; end
+      def backend_put(fields); update_doc(fields); end
+      def backend_values; @doc; end
+      def backend_save?; !save.nil?; end
       def backend_form(url, cols=nil, opts={})
         cols ||= default_backend_columns
         if block_given?
@@ -66,11 +66,11 @@ module PopulateMe
         end
         o
       end
-    	def backend_form_title; self.new? ? "New #{model.human_name}" : "Edit #{self.to_label}"; end
-    	def backend_show; 'OK'; end
-	
-    	def default_backend_columns; model.schema.keys; end
-    	def cloning_backend_columns; default_backend_columns.reject{|c| model.schema[c][:type]==:attachment}; end
+      def backend_form_title; self.new? ? "New #{model.human_name}" : "Edit #{self.to_label}"; end
+      def backend_show; 'OK'; end
+  
+      def default_backend_columns; model.schema.keys; end
+      def cloning_backend_columns; default_backend_columns.reject{|c| model.schema[c][:type]==:attachment}; end
 
     end
   end
