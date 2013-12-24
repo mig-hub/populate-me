@@ -24,13 +24,16 @@ module PopulateMe
         def human_name; self.name.gsub(/([A-Z])/, ' \1')[1..-1]; end
         def human_plural_name; human_name+'s'; end
         def collection; db[self.name]; end
-        def ref(id)
+        def correct_id_class(id)
           if id.is_a?(String)&&BSON::ObjectId.legal?(id)
-            id = BSON::ObjectId.from_string(id)
+            return BSON::ObjectId.from_string(id)
           elsif !id.is_a?(BSON::ObjectId)
-            id = ''
+            return ''
           end
-          {'_id'=>id}
+          id
+        end
+        def ref(id)
+          {'_id' => (id.kind_of?(Array) ? {'$in'=> id.map{|i|correct_id_class(i)} } : correct_id_class(id)) }
         end
         def find(selector={},opts={})
           selector.update(opts.delete(:selector)||{})
@@ -64,6 +67,12 @@ module PopulateMe
         # CRUD
         def get(id, opts={}); doc = collection.find_one(ref(id), opts); doc.nil? ? nil : self.new(doc); end
         def delete(id); collection.remove(ref(id)); end
+
+        def get_multiple(ids, opts={})
+          ids.map!{|id|correct_id_class(id)}
+          sort_proc = proc{ |a,b| ids.index(a['_id'])<=>ids.index(b['_id']) }
+          self.find(ref(ids), opts).to_a.sort(&sort_proc)
+        end
 
     		def is_unique(doc={})
     		  return unless collection.count==0
@@ -133,10 +142,7 @@ module PopulateMe
           klass = resolve_class(k)
           key = klass.foreign_key_name(true)
         end
-        ids = (@doc[key]||[]).map{|i| BSON::ObjectId.from_string(i) }
-        selector = {'_id'=>{'$in'=>ids}}
-        sort_proc = proc{ |a,b| ids.index(a['_id'])<=>ids.index(b['_id']) }
-        klass.find(selector, opts).to_a.sort(&sort_proc)
+        klass.get_multiple((@doc[key]||[]), opts)
       end
       def first_slot_child(k, opts={})
         if k.kind_of?(String)
