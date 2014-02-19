@@ -83,6 +83,7 @@ module PopulateMe
               o[:select_options] = m.__send__(o[:select_options]) unless o[:select_options].kind_of?(Array)
               select_options = o[:select_options].dup
               if (o[:multiple] && !o[:input_value].nil? && o[:input_value].size>1)
+                # This if is for having the selected options ordered (they can be ordered with asm select)
                 o[:input_value].reverse.each do |v|
                   elem = select_options.find{|x| x==v||(x||[])[1]==v }
                   select_options.unshift(select_options.delete(elem)) unless elem.nil?
@@ -96,7 +97,8 @@ module PopulateMe
                   elsif key==:closegroup
                     out << "</optgroup>\n"
                   else
-                    selected = 'selected' if (val==o[:input_value] || (o[:input_value]||[]).include?(val))
+                    # Array case is for multiple select
+                    selected = 'selected' if (val==o[:input_value] || (o[:input_value].kind_of?(Array)&&o[:input_value].include?(val)))
                     out << "<option value='%s' %s>%s</option>\n" % [val,selected,key]
                   end
                 end

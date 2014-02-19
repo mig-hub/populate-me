@@ -13,11 +13,11 @@ module PopulateMe
       end
   
       module ClassMethods
-        def backend_get(id); get(id=='unique' ? '000000000000000000000000' : id); end
-        def backend_post(doc=nil); inst = new(doc); inst.is_new = true; inst; end
-      end
-  
-      # Instance Methods
+        def backend_get(id); id=='unique' ? find_one : get(id); end
+    	  def backend_post(doc=nil); inst = new(doc); inst.is_new = true; inst; end
+    	end
+	
+    	# Instance Methods
 
       def backend_delete; delete; end
       def backend_put(fields); update_doc(fields); end
