@@ -35,7 +35,9 @@ module PopulateMe
         def find(selector={},opts={})
           selector.update(opts.delete(:selector)||{})
           opts = {:sort=>self.sorting_order}.update(opts)
-          collection.find(selector,opts).extend(CursorMutation)
+          cur = collection.find(selector,opts)
+          cur.instance_variable_set('@mutant_class', self)
+          cur.extend(CursorMutation)
         end
         def find_one(spec_or_object_id=nil,opts={})
           spec_or_object_id.nil? ? spec_or_object_id = opts.delete(:selector) : spec_or_object_id.update(opts.delete(:selector)||{})
@@ -269,12 +271,7 @@ module PopulateMe
         # We must keep the regular cursor
         # so we should extend on demand.
         # Meaning the cursor object should be extended, not the cursor class.
-        def self.extended(into)
-          into.set_mutant_class
-        end
-        def set_mutant_class
-          @mutant_class = Kernel.const_get(collection.name)
-        end
+        # @mutant_class should be defined before extending
         def next
           n = super
           n.nil? ? nil : @mutant_class.new(n)

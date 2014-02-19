@@ -260,6 +260,10 @@ describe "PopulateMe::Mongo::Mutation" do
   # #save
 
   describe 'CursorMutation' do
+    it 'Should give the correct class of object on iterations' do
+      Address.new('body'=>'42').save
+      Address.find.to_a[0].model.name.should=='Address'
+    end
   end
 
 end
