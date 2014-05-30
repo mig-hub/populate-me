@@ -52,7 +52,11 @@ describe 'PopulateMe::Document' do
     inst['id'].should!=nil
     User.api_get_all.size.should>0
     inst.to_h.should==User.api_get_all[0]
+    inst2 = User.api_post
+    inst2['id'].should!=nil
+    inst2['id'].should!=inst['id']
   end
+
   # it 'Deletes correctly' do
 
   # end
