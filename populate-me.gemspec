@@ -5,8 +5,8 @@ Gem::Specification.new do |s|
   s.name = 'populate-me'
   s.version = PopulateMe::VERSION
   s.platform = Gem::Platform::RUBY
-  s.summary = "ALPHA !!! Populate Me is relatively complete but simple CMS"
-  s.description = "ALPHA !!! Populate Me is relatively complete but simple CMS. It includes a Rack middleware for putting in your Rack stack, and a bespoke MongoDB ODM. But Populate Me is not really finished yet."
+  s.summary = "ALPHA !!! Populate Me is a relatively complete but simple CMS"
+  s.description = "ALPHA !!! Populate Me is a relatively complete but simple CMS. It includes a Rack middleware for putting in your Rack stack, and a bespoke MongoDB ODM. But Populate Me is not really finished yet."
   s.author = "Mickael Riga"
   s.email = "mig@mypeplum.com"
   s.files = `git ls-files`.split("\n").sort
