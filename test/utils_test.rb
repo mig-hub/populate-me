@@ -25,7 +25,8 @@ describe 'PopulateMe::Utils' do
       ['HelloWorld','hello-world'],
       ['HTTPRequest','h-t-t-p-request'],
       ['RestAPI','rest-a-p-i'],
-      ['AlteredSMTPAttachment','altered-s-m-t-p-attachment']
+      ['AlteredSMTPAttachment','altered-s-m-t-p-attachment'],
+      ['RestAPI::Request::Post','rest-a-p-i--request--post'],
     ]
     it "Translates correctly" do
       DASH_CASES.each do |dash_case|
