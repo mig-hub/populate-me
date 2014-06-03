@@ -33,6 +33,30 @@ module PopulateMe
     end
     module_function :slugify
 
+    def each_stub(obj,&block)
+      obj.each_with_index do |(k,v),i|
+        value = v || k
+        if value.is_a?(Hash) || value.is_a?(Array)
+          each_stub(value,&block)
+        else
+          block.call(obj, (v.nil? ? i : k), value)
+        end
+      end
+    end
+    module_function :each_stub
+
+    def automatic_typecast(obj)
+      return obj unless obj.is_a?(String)
+      if obj=='true'
+        true
+      elsif obj=='false'
+        false
+      elsif obj==''
+        nil
+      end
+    end
+    module_function :automatic_typecast
+
   end
 end
 
