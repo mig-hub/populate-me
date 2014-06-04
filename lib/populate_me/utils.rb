@@ -7,6 +7,11 @@ module PopulateMe
 
     extend Rack::Utils
 
+    def blank?(s)
+      s.to_s.strip==''
+    end
+    module_function :blank?
+
     def dasherize_class_name(s)
       s.gsub(/[A-Z]/){|s|"-#{s.downcase}"}[1..-1].gsub('::','-')
     end
@@ -17,10 +22,18 @@ module PopulateMe
     end
     module_function :undasherize_class_name
 
-    def blank?(s)
-      s.to_s.strip==''
+    def resolve_class_name(s,context=Kernel)
+      return nil if blank?(s)
+      current, *payload = s.split('::')
+      return nil unless context.const_defined?(current)
+      const = context.const_get(current)
+      if payload.empty?
+        const
+      else
+        resolve_class_name(payload.join('::'),const)
+      end
     end
-    module_function :blank?
+    module_function :resolve_class_name
 
     ACCENTS_FROM = 
       "ÀÁÂÃÄÅàáâãäåĀāĂăĄąÇçĆćĈĉĊċČčÐðĎďĐđÈÉÊËèéêëĒēĔĕĖėĘęĚěĜĝĞğĠġĢģĤĥĦħÌÍÎÏìíîïĨĩĪīĬĭĮįİıĴĵĶķĸĹĺĻļĽľĿŀŁłÑñŃńŅņŇňŉŊŋÒÓÔÕÖØòóôõöøŌōŎŏŐőŔŕŖŗŘřŚśŜŝŞ"

@@ -16,6 +16,19 @@ describe 'PopulateMe::Utils' do
   #
   # Some methods might be useful for the frontend.
 
+  describe '#blank?' do
+    it 'Checks true correctly' do
+      [nil,'',' '," \n \t"].each do |i|
+        PopulateMe::Utils.blank?(i).should==true
+      end
+    end
+    it 'Checks false correctly' do
+      ['a','abc', '  abc  ', 1234].each do |i|
+        PopulateMe::Utils.blank?(i).should==false
+      end
+    end
+  end
+
   describe '#dasherize_class_name' do
 
     # Just makes a URL-friendly version of a Document/Model class name
@@ -48,16 +61,16 @@ describe 'PopulateMe::Utils' do
     end
   end
 
-  describe '#blank?' do
-    it 'Checks true correctly' do
-      [nil,'',' '," \n \t"].each do |i|
-        PopulateMe::Utils.blank?(i).should==true
-      end
+  describe '#resolve_class_name' do
+    it 'Returns the constant if it exists' do
+      PopulateMe::Utils.resolve_class_name('String').should==String
+      PopulateMe::Utils.resolve_class_name('PopulateMe::Utils').should==PopulateMe::Utils
     end
-    it 'Checks false correctly' do
-      ['a','abc', '  abc  ', 1234].each do |i|
-        PopulateMe::Utils.blank?(i).should==false
-      end
+    it 'Returns nil if the constant does not exist' do
+      PopulateMe::Utils.resolve_class_name('Strang').should==nil
+      PopulateMe::Utils.resolve_class_name('PopulateMe::Yootils').should==nil
+      PopulateMe::Utils.resolve_class_name('').should==nil
+      PopulateMe::Utils.resolve_class_name(nil).should==nil
     end
   end
 
