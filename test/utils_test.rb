@@ -74,6 +74,19 @@ describe 'PopulateMe::Utils' do
     end
   end
 
+  describe '#resolve_dasherized_class_name' do
+    it 'Returns the constant if it exists' do
+      PopulateMe::Utils.resolve_dasherized_class_name('string').should==String
+      PopulateMe::Utils.resolve_dasherized_class_name('populate-me--utils').should==PopulateMe::Utils
+    end
+    it 'Returns nil if the constant does not exist' do
+      PopulateMe::Utils.resolve_dasherized_class_name('strang').should==nil
+      PopulateMe::Utils.resolve_dasherized_class_name('populate-me--yootils').should==nil
+      PopulateMe::Utils.resolve_dasherized_class_name('').should==nil
+      PopulateMe::Utils.resolve_dasherized_class_name(nil).should==nil
+    end
+  end
+
   describe '#slugify' do
 
     # For making slug for a document
