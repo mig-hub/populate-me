@@ -35,15 +35,12 @@ class PopulateMe::API < Sinatra::Base
     {'success'=>false,'message'=>env['sinatra.error'].message}.to_json
   end
 
-  helpers do
+  module Helpers
 
     include PopulateMe::Utils
 
     def resolve_model_class(name)
-      halt(404) if blank?(name)
-      name = undasherize_class_name(name)
-      halt(404) unless ::Object.const_defined?(name)
-      model_class = Kernel.const_get(name)
+      model_class = resolve_dasherized_class_name(name)
       halt(404) unless model_class.respond_to?(:api_get)
       model_class
     end
@@ -55,6 +52,8 @@ class PopulateMe::API < Sinatra::Base
     end
 
   end
+
+  helpers Helpers
 
 end
 
