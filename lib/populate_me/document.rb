@@ -3,85 +3,120 @@ require 'populate_me/utils'
 module PopulateMe
   module Document
 
-    # PopulateMe::Document is the base for any document
-    # the Backend is supposed to deal with.
-    #
-    # Any module for a specific ORM or ODM should include
-    # this module first.
-    # It contains what is not specific to a particular kind
-    # of database and it provides defaults.
-    #
-    # It can be used on its own but it keeps everything
-    # in memory. Which means it is only for tests and conceptual
-    # understanding.
-
-    def self.included(base)
+    def self.included base 
       base.extend ClassMethods
-      base.documents = []
       base.next_id = 0
     end
 
     module ClassMethods
-      attr_accessor :documents, :next_id
-      def api_get_all
-        @documents
-      end
-      def api_post(doc={})
-        inst = self.new(doc)
-        return nil if inst.nil?
-        if inst['id'].nil?
-          inst['id'] = @next_id
-          @next_id += 1
+      attr_accessor :_documents, :next_id
+
+      def documents; self._documents ||= []; end
+
+      def from_hash hash
+        doc = self.new
+        hash.each do |k,v|
+          doc.set k.to_sym => v
         end
-        @documents << inst.to_h
-        inst
+        doc._is_new = false
+        doc
+      end
+
+      # def api_get_all
+      #   @documents
+      # end
+      # def api_post doc={} 
+      #   inst = self.new(doc)
+      #   return nil if inst.nil?
+      #   if inst['id'].nil?
+      #     inst['id'] = @next_id
+      #     @next_id += 1
+      #   end
+      #   @documents << inst.to_h
+      #   inst
+      # end
+    end
+
+    attr_accessor :_id, :_errors, :_is_new
+
+    def id; self._id; end
+    def id= val; self._id = val; end
+    def errors; self._errors; end
+    def new?; self._is_new; end
+
+    def initialize attributes=nil 
+      set attributes if attributes
+      self._is_new = true
+      self._errors = {}
+    end
+
+    def set attributes
+      attributes.each{|k,v| __send__ "#{k}=", v }
+      self
+    end
+
+    def persistent_instance_variables
+      instance_variables.select{|k| k !~ /^@_/ }
+    end
+
+    def to_h
+      persistent_instance_variables.inject({}) do |h,var|
+        k = var.to_s[1..-1]
+        v = instance_variable_get var
+        h[k] = v
+        h
       end
     end
+    alias_method :to_hash, :to_h
 
-    attr_accessor :to_h, :errors
-
-    def initialize(doc={})
-      @to_h = doc
-      @errors = {}
+    def inspect
+      "#<#{self.class}:#{to_h.inspect}>"
     end
-
-    # Hash interface 
-    def [](slot)
-      @to_h[slot]
-    end
-    def []=(slot,value)
-      @to_h[slot] = value
-    end
+    alias_method :to_s, :inspect
 
     # Validation
-    def error_on(k,v)
-      @errors[k] = (@errors[k]||[]) << v
+    def error_on k,v 
+      self._errors[k] = (self._errors[k]||[]) << v
       self
     end
     def valid?
-      @errors = {}
+      self._errors = {}
       validate
-      @errors.empty?
+      self._errors.empty?
     end
     def validate; end
 
-    # def save
-    #   return nil unless valid?
-    #   before_save
-    #   if new?
-    #     before_create
-    #     id = model.collection.insert(@doc)
-    #     @doc['_id'] = id
-    #     after_create
-    #   else
-    #     before_update
-    #     id = model.collection.update({'_id'=>@doc['_id']}, @doc)
-    #     after_update
-    #   end
-    #   after_save
-    #   id.nil? ? nil : self
-    # end
-
+    def save
+      before_save
+      if new?
+        before_create
+        id = perform_create
+        after_create
+      else
+        before_update
+        id = perform_update
+        after_update
+      end
+      after_save
+      id
+    end
+    def perform_create
+      if self.id.nil?
+        self.id = self.class.next_id
+        self.class.next_id += 1
+      end
+      self.class.documents << self.to_h
+      self._is_new = false
+      self.id
+    end
+    def perform_update
+    end
+    def before_save; end
+    def after_save; end
+    def before_create; end
+    def after_create; end
+    def before_update; end
+    def after_update; end
 
   end
 end
