@@ -26,7 +26,7 @@ describe 'PopulateMe::Document' do
     obj.set size: 1, taste: 'good'
     obj.size.should==1
     obj.taste.should=='good'
-    obj.set size: 4
+    obj.set 'size'=>4
     obj.size.should==4
     obj.taste.should=='good'
   end
