@@ -92,6 +92,7 @@ module PopulateMe
       if new?
         before_create
         id = perform_create
+        self._is_new = false unless id.nil?
         after_create
       else
         before_update
@@ -103,7 +104,6 @@ module PopulateMe
     end
     def perform_create
       self.class.documents << self.to_h
-      self._is_new = false
       self.respond_to?(:id) ? self.id : nil
     end
     def perform_update

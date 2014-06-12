@@ -68,9 +68,7 @@ describe 'PopulateMe::Document' do
   it 'Can be saved as raw hash' do
     User.documents.should==[] # Empty by default
     u = User.new first_name: 'Bob', last_name: 'Mould'
-    u.new?.should==true # New when created with new
     u.perform_create
-    u.new?.should==false # Not new once saved
     u.first_name.should=='Bob'
     User.documents.size.should==1
     User.documents[0].should==u.to_h # Data is the hash
