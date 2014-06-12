@@ -82,17 +82,20 @@ module PopulateMe
     end
     def valid?
       self._errors = {}
+      before_validation
       validate
+      after_validation
       self._errors.empty?
     end
     def validate; end
+    def before_validation; end
+    def after_validation; end
 
     def save
       before_save
       if new?
         before_create
         id = perform_create
-        self._is_new = false unless id.nil?
         after_create
       else
         before_update
@@ -111,7 +114,7 @@ module PopulateMe
     def before_save; end
     def after_save; end
     def before_create; end
-    def after_create; end
+    def after_create; self._is_new = false; end
     def before_update; end
     def after_update; end
 
