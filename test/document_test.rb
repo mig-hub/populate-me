@@ -65,25 +65,15 @@ describe 'PopulateMe::Document' do
     attr_accessor :first_name, :last_name
   end
 
-  it 'Performs creation and add an ID if needed' do
+  it 'Can be saved as raw hash' do
     User.documents.should==[] # Empty by default
-    u1 = User.new first_name: 'Bob', last_name: 'Mould'
-    u1.new?.should==true # New when created with new
-    the_id1 = u1.perform_create
-    u1.new?.should==false # Not new once persistent
-    the_id1.should!=nil
-    u1.id.should==the_id1 
-    u1.first_name.should=='Bob'
-    u2 = User.new first_name: 'Joey', last_name: 'Ramone', _id: 'xxx'
-    u2.id.should=='xxx'
-    the_id2 = u2.perform_create
-    the_id2.should=='xxx' # Kept the given ID
-    u2.id.should=='xxx'
-    u3 = User.new
-    the_id3 = u3.perform_create
-    the_id3.should!=the_id1 # Automatic is different each time
-    User.documents.size.should==3
-    User.documents[0].should==u1.to_h # Data is the hash
+    u = User.new first_name: 'Bob', last_name: 'Mould'
+    u.new?.should==true # New when created with new
+    u.perform_create
+    u.new?.should==false # Not new once saved
+    u.first_name.should=='Bob'
+    User.documents.size.should==1
+    User.documents[0].should==u.to_h # Data is the hash
   end
 
   class Tomato
@@ -93,31 +83,11 @@ describe 'PopulateMe::Document' do
 
   it 'Can be recreated from the hash saved' do
     tom = Tomato.new taste: 'good'
-    id = tom.perform_create
-    tom.id.should==id
+    tom.perform_create
     Tomato.documents[0].should==tom.to_h
     retrieved = Tomato.from_hash(Tomato.documents[0])
     retrieved.new?.should==false
-    retrieved.id.should==tom.id
     retrieved.should==tom
-  end
-
-  it 'Saves correctly' do
-    User.documents.should==[]
-    inst = User.new(
-      first_name: 'Bob',
-      last_name: 'Mould'
-    )
-    inst.new?.should==true
-    inst.save
-    inst.new?.should==false
-    User.documents.size.should>0
-    inst.id.should!=nil
-    inst.to_h.should==User.documents[0]
-    inst2 = User.new
-    inst2.save
-    inst2.id.should!=nil
-    inst2.id.should!=inst.id
   end
 
   class Dodgy
@@ -133,11 +103,11 @@ describe 'PopulateMe::Document' do
 
   it 'Handles validations' do
     u = Dodgy.new
-    u._errors.should=={}
+    u.errors.should=={}
     u.valid?.should==true
     u.prohibited = 'I dare'
     u.valid?.should==false
-    u._errors[:prohibited].should==['Is not allowed','Is not good']
+    u.errors[:prohibited].should==['Is not allowed','Is not good']
     u.prohibited = nil
     u.valid?.should==true
     u.number = 15
@@ -145,8 +115,5 @@ describe 'PopulateMe::Document' do
     u.valid?.should==false
   end
 
-  # it 'Deletes correctly' do
-
-  # end
 end
 

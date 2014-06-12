@@ -5,11 +5,10 @@ module PopulateMe
 
     def self.included base 
       base.extend ClassMethods
-      base.next_id = 0
     end
 
     module ClassMethods
-      attr_accessor :_documents, :next_id
+      attr_accessor :_documents
 
       def documents; self._documents ||= []; end
 
@@ -37,10 +36,8 @@ module PopulateMe
       # end
     end
 
-    attr_accessor :_id, :_errors, :_is_new
+    attr_accessor :_errors, :_is_new
 
-    def id; self._id; end
-    def id= val; self._id = val; end
     def errors; self._errors; end
     def new?; self._is_new; end
 
@@ -68,6 +65,10 @@ module PopulateMe
       end
     end
     alias_method :to_hash, :to_h
+
+    def == other
+      other.to_h==to_h
+    end
 
     def inspect
       "#<#{self.class}:#{to_h.inspect}>"
@@ -101,13 +102,9 @@ module PopulateMe
       id
     end
     def perform_create
-      if self.id.nil?
-        self.id = self.class.next_id
-        self.class.next_id += 1
-      end
       self.class.documents << self.to_h
       self._is_new = false
-      self.id
+      self.respond_to?(:id) ? self.id : nil
     end
     def perform_update
     end
