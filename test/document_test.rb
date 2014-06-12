@@ -94,8 +94,8 @@ describe 'PopulateMe::Document' do
     include PopulateMe::Document
     attr_accessor :prohibited, :number
     def validate
-      number = number.to_i unless number.is_a? Integer
-      error_on(:number, 'Is too high') if number==15
+      self.number = self.number.to_i unless self.number.is_a? Integer
+      error_on(:number, 'Is too high') if self.number==15
       error_on(:prohibited,'Is not allowed') unless prohibited.nil?
       error_on(:prohibited,'Is not good') unless prohibited.nil?
     end
