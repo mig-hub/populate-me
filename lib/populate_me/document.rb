@@ -1,6 +1,10 @@
 require 'populate_me/utils'
 
+
 module PopulateMe
+
+  class MissingDocumentError < StandardError; end
+
   module Document
 
     def self.included base 
@@ -36,7 +40,7 @@ module PopulateMe
       # end
     end
 
-    attr_accessor :_errors, :_is_new
+    attr_accessor :id, :_errors, :_is_new
 
     def errors; self._errors; end
     def new?; self._is_new; end
@@ -91,6 +95,7 @@ module PopulateMe
     def before_validation; end
     def after_validation; end
 
+    # Saving
     def save
       before_save
       if new?
@@ -107,16 +112,32 @@ module PopulateMe
     end
     def perform_create
       self.class.documents << self.to_h
-      self.respond_to?(:id) ? self.id : nil
+      self.id
     end
     def perform_update
+      index = self.class.documents.index{|d| d['id']==self.id }
+      raise MissingDocumentError, "No document can be found with this ID: #{self.id}" if self.id.nil?||index.nil?
+      self.class.documents[index] = self.to_h
     end
     def before_save; end
     def after_save; end
-    def before_create; end
+    ID_CHARS = ('a'..'z').to_a + ('A'..'Z').to_a + ('0'..'9').to_a
+    ID_SIZE = 16
+    def before_create
+      if self.id.nil?
+        self.id = ID_SIZE.times{self.id << ID_CHARS[rand(ID_CHARS.size)]} 
+      end
+    end
     def after_create; self._is_new = false; end
     def before_update; end
     def after_update; end
+
+    # Deletion
+    def delete o={}
+    end
+    def perform_delete
+
+    end
 
   end
 end

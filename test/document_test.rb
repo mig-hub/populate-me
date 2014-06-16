@@ -51,7 +51,7 @@ describe 'PopulateMe::Document' do
     obj.persistent_instance_variables.should==[:@size]
   end
 
-  it 'Can be turned into a hash with string keys' do
+  it 'Perform creation into a hash with string keys' do
     obj = Egg.new
     obj.to_h.should=={}
     obj.set size: 1, taste: 'good', _hidden: 'secret'
@@ -111,6 +111,30 @@ describe 'PopulateMe::Document' do
     u.number = 15
     u.number.should==15
     u.valid?.should==false
+  end
+
+  class Garlic
+    include PopulateMe::Document
+    attr_accessor :strength, :shape
+  end
+
+  it 'Cannot update if the original does not exist' do
+    g = Garlic.new id: 'xxx', strength: 5
+    lambda{ g.perform_update }.should.raise(PopulateMe::MissingDocumentError)
+  end
+
+  it 'Cannot update if the document has no ID' do
+    g = Garlic.new id: 'xxx', strength: 3
+    g.perform_create
+    g.id = nil
+    lambda{ g.perform_update }.should.raise(PopulateMe::MissingDocumentError)
+  end
+
+  it 'Updates correctly' do
+    g = Garlic.new id: 'xxx', shape: 'curvy'
+    g.perform_update
+    Garlic.documents[0]['shape'].should=='curvy'
+    Garlic.documents[0]['strength'].should==nil
   end
 
 end
