@@ -136,7 +136,9 @@ module PopulateMe
     def delete o={}
     end
     def perform_delete
-
+      index = self.class.documents.index{|d| d['id']==self.id }
+      raise MissingDocumentError, "No document can be found with this ID: #{self.id}" if self.id.nil?||index.nil?
+      self.class.documents.delete_at(index)
     end
 
   end

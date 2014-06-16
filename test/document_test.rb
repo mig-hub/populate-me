@@ -118,12 +118,12 @@ describe 'PopulateMe::Document' do
     attr_accessor :strength, :shape
   end
 
-  it 'Cannot update if the original does not exist' do
+  it 'Raises on update if the original does not exist' do
     g = Garlic.new id: 'xxx', strength: 5
     lambda{ g.perform_update }.should.raise(PopulateMe::MissingDocumentError)
   end
 
-  it 'Cannot update if the document has no ID' do
+  it 'Raises on update if the document has no ID' do
     g = Garlic.new id: 'xxx', strength: 3
     g.perform_create
     g.id = nil
@@ -135,6 +135,31 @@ describe 'PopulateMe::Document' do
     g.perform_update
     Garlic.documents[0]['shape'].should=='curvy'
     Garlic.documents[0]['strength'].should==nil
+  end
+
+  class Ball
+    include PopulateMe::Document
+    attr_accessor :diameter
+  end
+
+  it 'Raises on delete if the entry does not exist' do
+    b = Ball.new id: 'xxx', diameter: 5
+    lambda{ b.perform_delete }.should.raise(PopulateMe::MissingDocumentError)
+  end
+
+  it 'Raises on delete if the document has no ID' do
+    b = Ball.new id: 'xxx', diameter: 3
+    b.perform_create
+    b.id = nil
+    lambda{ b.perform_delete }.should.raise(PopulateMe::MissingDocumentError)
+  end
+
+  it 'Deletes correctly' do
+    b = Ball.new id: 'yyy', diameter: 5
+    b.perform_create
+    Ball.documents.find{|d| d['id']=='yyy' }.should!=nil
+    b.perform_delete
+    Ball.documents.find{|d| d['id']=='yyy' }.should==nil
   end
 
 end
