@@ -13,6 +13,7 @@ module PopulateMe
 
     module ClassMethods
       attr_writer :documents
+      attr_accessor :callbacks
 
       def documents; @documents ||= []; end
 
@@ -29,6 +30,14 @@ module PopulateMe
       def [] id
         hash = self.documents.find{|doc| doc['id']==id }
         from_hash hash
+      end
+
+      def register_callback name, item=nil, &block
+        name = name.to_sym
+        item = block if item.nil?
+        @callbacks ||= {}
+        @callbacks[name] ||= []
+        @callbacks[name] << item
       end
 
       # def api_get_all

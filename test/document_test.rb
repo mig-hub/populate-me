@@ -76,6 +76,28 @@ describe 'PopulateMe::Document' do
 
   end
 
+  describe 'Callbacks' do
+
+    class Hamburger
+      include PopulateMe::Document
+      attr_accessor :taste
+      register_callback :layers, :bread
+      register_callback :layers, :cheese
+      register_callback :layers do
+        self.taste
+      end
+    end
+
+    it 'Registers callbacks as symbols or blocks' do
+      Hamburger.callbacks.size.should==3
+      Hamburger.callbacks[0].should==:bread
+      Hamburger.callbacks[1].should==:cheese
+      h = Hamburger.new taste: 'good'
+      h.instance_eval(&Hamburger.callbacks[2]).should=='good'
+    end
+
+  end
+
   class User
     include PopulateMe::Document
     attr_accessor :first_name, :last_name
