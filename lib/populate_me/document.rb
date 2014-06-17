@@ -17,12 +17,18 @@ module PopulateMe
       def documents; @documents ||= []; end
 
       def from_hash hash
+        return nil unless hash.is_a? Hash
         doc = self.new
         hash.each do |k,v|
           doc.set k.to_sym => v
         end
         doc._is_new = false
         doc
+      end
+
+      def [] id
+        hash = self.documents.find{|doc| doc['id']==id }
+        from_hash hash
       end
 
       # def api_get_all
@@ -132,12 +138,17 @@ module PopulateMe
 
     # Deletion
     def delete o={}
+      before_delete
+      perform_delete
+      after_delete
     end
     def perform_delete
       index = self.class.documents.index{|d| d['id']==self.id }
       raise MissingDocumentError, "No document can be found with this ID: #{self.id}" if self.id.nil?||index.nil?
       self.class.documents.delete_at(index)
     end
+    def before_delete; end
+    def after_delete; end
 
   end
 end

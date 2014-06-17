@@ -100,29 +100,9 @@ describe 'PopulateMe::Document' do
     retrieved.should==tom
   end
 
-  class Dodgy
-    include PopulateMe::Document
-    attr_accessor :prohibited, :number
-    def validate
-      self.number = self.number.to_i unless self.number.is_a? Integer
-      error_on(:number, 'Is too high') if self.number==15
-      error_on(:prohibited,'Is not allowed') unless prohibited.nil?
-      error_on(:prohibited,'Is not good') unless prohibited.nil?
-    end
-  end
-
-  it 'Handles validations' do
-    u = Dodgy.new
-    u.errors.should=={}
-    u.valid?.should==true
-    u.prohibited = 'I dare'
-    u.valid?.should==false
-    u.errors[:prohibited].should==['Is not allowed','Is not good']
-    u.prohibited = nil
-    u.valid?.should==true
-    u.number = 15
-    u.number.should==15
-    u.valid?.should==false
+  it 'Returns nil if trying to create from something that is not a Hash' do
+    Tomato.from_hash(nil).should==nil
+    Tomato.from_hash(42).should==nil
   end
 
   class Garlic
@@ -172,6 +152,66 @@ describe 'PopulateMe::Document' do
     Ball.documents.find{|d| d['id']=='yyy' }.should!=nil
     b.perform_delete
     Ball.documents.find{|d| d['id']=='yyy' }.should==nil
+  end
+
+  class Haircut
+    include PopulateMe::Document
+    attr_accessor :name
+  end
+
+  it 'Has a class method to get the entry of a specific ID' do
+    Haircut.new(id: 123, name: 'pigtails').perform_create
+    Haircut.new(id: '123', name: 'spikes').perform_create
+    Haircut[123].name.should=='pigtails'
+    Haircut['123'].name.should=='spikes'
+  end
+
+  class Dodgy
+    include PopulateMe::Document
+    attr_accessor :prohibited, :number
+    def validate
+      self.number = self.number.to_i unless self.number.is_a? Integer
+      error_on(:number, 'Is too high') if self.number==15
+      error_on(:prohibited,'Is not allowed') unless prohibited.nil?
+      error_on(:prohibited,'Is not good') unless prohibited.nil?
+    end
+  end
+
+  it 'Handles validations' do
+    u = Dodgy.new
+    u.errors.should=={}
+    u.valid?.should==true
+    u.prohibited = 'I dare'
+    u.valid?.should==false
+    u.errors[:prohibited].should==['Is not allowed','Is not good']
+    u.prohibited = nil
+    u.valid?.should==true
+    u.number = 15
+    u.number.should==15
+    u.valid?.should==false
+  end
+
+  class Death
+    include PopulateMe::Document
+    attr_accessor :pain_level, :was_alive, :is_dead
+    def before_delete
+      super
+      @was_alive = !self.class[self.id].nil?
+    end
+    def after_delete
+      super
+      @is_dead = self.class[self.id].nil?
+    end
+  end
+
+  it 'Uses callbacks on the high level deletion method' do
+    death = Death.new pain_level: 5, id: '123'
+    death.perform_create
+    Death['123'].pain_level.should==5
+    death.delete
+    Death['123'].should==nil
+    death.was_alive.should==true
+    death.is_dead.should==true
   end
 
 end
