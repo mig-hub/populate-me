@@ -21,55 +21,59 @@ describe 'PopulateMe::Document' do
     attr_accessor :size, :taste, :_hidden
   end
 
-  it 'Can set variables with a hash' do
-    obj = Egg.new
-    obj.set size: 1, taste: 'good'
-    obj.size.should==1
-    obj.taste.should=='good'
-  end
+  describe 'Initializing and setting' do
 
-  it 'Can set variables with string keys' do
-    obj = Egg.new
-    obj.set 'size'=>4, 'taste'=>'good'
-    obj.size.should==4
-    obj.taste.should=='good'
-  end
+    it 'Can set variables with a hash' do
+      obj = Egg.new
+      obj.set size: 1, taste: 'good'
+      obj.size.should==1
+      obj.taste.should=='good'
+    end
 
-  it 'Cannot set variables without an accessor' do
-    obj = Egg.new
-    lambda{ obj.set color: 'blue' }.should.raise(NoMethodError)
-  end
+    it 'Can set variables with string keys' do
+      obj = Egg.new
+      obj.set 'size'=>4, 'taste'=>'good'
+      obj.size.should==4
+      obj.taste.should=='good'
+    end
 
-  it 'Can set values when initializing' do
-    obj = Egg.new size: 1, taste: 'good'
-    obj.size.should==1
-    obj.taste.should=='good'
-    obj.new?.should==true
-  end
+    it 'Cannot set variables without an accessor' do
+      obj = Egg.new
+      lambda{ obj.set color: 'blue' }.should.raise(NoMethodError)
+    end
 
-  it 'Can set _is_new when initializing' do
-    obj = Egg.new size: 1, taste: 'good', _is_new: false
-    obj.size.should==1
-    obj.taste.should=='good'
-    obj.new?.should==false
-  end
+    it 'Can set values when initializing' do
+      obj = Egg.new size: 1, taste: 'good'
+      obj.size.should==1
+      obj.taste.should=='good'
+      obj.new?.should==true
+    end
 
-  it 'Can return a list of persistent instance variables' do
-    # Only keys which do not start with an underscore are persistent
-    obj = Egg.new size: 3, _hidden: 'secret'
-    obj.size.should==3
-    obj.taste.should==nil
-    obj._hidden.should=='secret'
-    obj.persistent_instance_variables.should==[:@size]
-  end
+    it 'Can set _is_new when initializing' do
+      obj = Egg.new size: 1, taste: 'good', _is_new: false
+      obj.size.should==1
+      obj.taste.should=='good'
+      obj.new?.should==false
+    end
 
-  it 'Perform creation into a hash with string keys' do
-    obj = Egg.new
-    obj.to_h.should=={}
-    obj.set size: 1, taste: 'good', _hidden: 'secret'
-    obj._hidden.should=='secret'
-    obj.to_h.should=={'size'=>1,'taste'=>'good'}
-    obj.to_h.should==obj.to_hash
+    it 'Can return a list of persistent instance variables' do
+      # Only keys which do not start with an underscore are persistent
+      obj = Egg.new size: 3, _hidden: 'secret'
+      obj.size.should==3
+      obj.taste.should==nil
+      obj._hidden.should=='secret'
+      obj.persistent_instance_variables.should==[:@size]
+    end
+
+    it 'Turns into a hash with string keys' do
+      obj = Egg.new
+      obj.to_h.should=={}
+      obj.set size: 1, taste: 'good', _hidden: 'secret'
+      obj._hidden.should=='secret'
+      obj.to_h.should=={'size'=>1,'taste'=>'good'}
+      obj.to_h.should==obj.to_hash
+    end
+
   end
 
   class User
@@ -77,32 +81,36 @@ describe 'PopulateMe::Document' do
     attr_accessor :first_name, :last_name
   end
 
-  it 'Can be saved as raw hash' do
-    User.documents.should==[] # Empty by default
-    u = User.new first_name: 'Bob', last_name: 'Mould'
-    u.perform_create
-    u.first_name.should=='Bob'
-    User.documents.size.should==1
-    User.documents[0].should==u.to_h # Data is the hash
-  end
+  describe 'Creation' do
 
-  class Tomato
-    include PopulateMe::Document
-    attr_accessor :taste
-  end
+    it 'Can be saved as raw hash' do
+      User.documents.should==[] # Empty by default
+      u = User.new first_name: 'Bob', last_name: 'Mould'
+      u.perform_create
+      u.first_name.should=='Bob'
+      User.documents.size.should==1
+      User.documents[0].should==u.to_h # Data is the hash
+    end
 
-  it 'Can be recreated from the hash saved' do
-    tom = Tomato.new taste: 'good'
-    tom.perform_create
-    Tomato.documents[0].should==tom.to_h
-    retrieved = Tomato.from_hash(Tomato.documents[0])
-    retrieved.new?.should==false
-    retrieved.should==tom
-  end
+    class Tomato
+      include PopulateMe::Document
+      attr_accessor :taste
+    end
 
-  it 'Returns nil if trying to create from something that is not a Hash' do
-    Tomato.from_hash(nil).should==nil
-    Tomato.from_hash(42).should==nil
+    it 'Can be recreated from the hash saved' do
+      tom = Tomato.new taste: 'good'
+      tom.perform_create
+      Tomato.documents[0].should==tom.to_h
+      retrieved = Tomato.from_hash(Tomato.documents[0])
+      retrieved.new?.should==false
+      retrieved.should==tom
+    end
+
+    it 'Returns nil if trying to create from something that is not a Hash' do
+      Tomato.from_hash(nil).should==nil
+      Tomato.from_hash(42).should==nil
+    end
+
   end
 
   class Garlic
@@ -110,23 +118,27 @@ describe 'PopulateMe::Document' do
     attr_accessor :strength, :shape
   end
 
-  it 'Raises on update if the original does not exist' do
-    g = Garlic.new id: 'xxx', strength: 5
-    lambda{ g.perform_update }.should.raise(PopulateMe::MissingDocumentError)
-  end
+  describe 'Update' do
 
-  it 'Raises on update if the document has no ID' do
-    g = Garlic.new id: 'xxx', strength: 3
-    g.perform_create
-    g.id = nil
-    lambda{ g.perform_update }.should.raise(PopulateMe::MissingDocumentError)
-  end
+    it 'Raises on update if the original does not exist' do
+      g = Garlic.new id: 'xxx', strength: 5
+      lambda{ g.perform_update }.should.raise(PopulateMe::MissingDocumentError)
+    end
 
-  it 'Updates correctly' do
-    g = Garlic.new id: 'xxx', shape: 'curvy'
-    g.perform_update
-    Garlic.documents[0]['shape'].should=='curvy'
-    Garlic.documents[0]['strength'].should==nil
+    it 'Raises on update if the document has no ID' do
+      g = Garlic.new id: 'xxx', strength: 3
+      g.perform_create
+      g.id = nil
+      lambda{ g.perform_update }.should.raise(PopulateMe::MissingDocumentError)
+    end
+
+    it 'Updates correctly' do
+      g = Garlic.new id: 'xxx', shape: 'curvy'
+      g.perform_update
+      Garlic.documents[0]['shape'].should=='curvy'
+      Garlic.documents[0]['strength'].should==nil
+    end
+
   end
 
   class Ball
@@ -134,24 +146,28 @@ describe 'PopulateMe::Document' do
     attr_accessor :diameter
   end
 
-  it 'Raises on delete if the entry does not exist' do
-    b = Ball.new id: 'xxx', diameter: 5
-    lambda{ b.perform_delete }.should.raise(PopulateMe::MissingDocumentError)
-  end
+  describe 'Deletion' do
 
-  it 'Raises on delete if the document has no ID' do
-    b = Ball.new id: 'xxx', diameter: 3
-    b.perform_create
-    b.id = nil
-    lambda{ b.perform_delete }.should.raise(PopulateMe::MissingDocumentError)
-  end
+    it 'Raises on delete if the entry does not exist' do
+      b = Ball.new id: 'xxx', diameter: 5
+      lambda{ b.perform_delete }.should.raise(PopulateMe::MissingDocumentError)
+    end
 
-  it 'Deletes correctly' do
-    b = Ball.new id: 'yyy', diameter: 5
-    b.perform_create
-    Ball.documents.find{|d| d['id']=='yyy' }.should!=nil
-    b.perform_delete
-    Ball.documents.find{|d| d['id']=='yyy' }.should==nil
+    it 'Raises on delete if the document has no ID' do
+      b = Ball.new id: 'xxx', diameter: 3
+      b.perform_create
+      b.id = nil
+      lambda{ b.perform_delete }.should.raise(PopulateMe::MissingDocumentError)
+    end
+
+    it 'Deletes correctly' do
+      b = Ball.new id: 'yyy', diameter: 5
+      b.perform_create
+      Ball.documents.find{|d| d['id']=='yyy' }.should!=nil
+      b.perform_delete
+      Ball.documents.find{|d| d['id']=='yyy' }.should==nil
+    end
+
   end
 
   class Haircut
@@ -159,11 +175,15 @@ describe 'PopulateMe::Document' do
     attr_accessor :name
   end
 
-  it 'Has a class method to get the entry of a specific ID' do
-    Haircut.new(id: 123, name: 'pigtails').perform_create
-    Haircut.new(id: '123', name: 'spikes').perform_create
-    Haircut[123].name.should=='pigtails'
-    Haircut['123'].name.should=='spikes'
+  describe 'Find by ID' do
+
+    it 'Has a class method to get the entry of a specific ID as an object' do
+      Haircut.new(id: 123, name: 'pigtails').perform_create
+      Haircut.new(id: '123', name: 'spikes').perform_create
+      Haircut[123].name.should=='pigtails'
+      Haircut['123'].name.should=='spikes'
+    end
+
   end
 
   class Dodgy
@@ -177,18 +197,22 @@ describe 'PopulateMe::Document' do
     end
   end
 
-  it 'Handles validations' do
-    u = Dodgy.new
-    u.errors.should=={}
-    u.valid?.should==true
-    u.prohibited = 'I dare'
-    u.valid?.should==false
-    u.errors[:prohibited].should==['Is not allowed','Is not good']
-    u.prohibited = nil
-    u.valid?.should==true
-    u.number = 15
-    u.number.should==15
-    u.valid?.should==false
+  describe 'Validation' do
+
+    it 'Handles validations' do
+      u = Dodgy.new
+      u.errors.should=={}
+      u.valid?.should==true
+      u.prohibited = 'I dare'
+      u.valid?.should==false
+      u.errors[:prohibited].should==['Is not allowed','Is not good']
+      u.prohibited = nil
+      u.valid?.should==true
+      u.number = 15
+      u.number.should==15
+      u.valid?.should==false
+    end
+
   end
 
   class Death
@@ -204,14 +228,18 @@ describe 'PopulateMe::Document' do
     end
   end
 
-  it 'Uses callbacks on the high level deletion method' do
-    death = Death.new pain_level: 5, id: '123'
-    death.perform_create
-    Death['123'].pain_level.should==5
-    death.delete
-    Death['123'].should==nil
-    death.was_alive.should==true
-    death.is_dead.should==true
+  describe 'High level deletion' do
+
+    it 'Uses callbacks on the high level deletion method' do
+      death = Death.new pain_level: 5, id: '123'
+      death.perform_create
+      Death['123'].pain_level.should==5
+      death.delete
+      Death['123'].should==nil
+      death.was_alive.should==true
+      death.is_dead.should==true
+    end
+
   end
 
 end
