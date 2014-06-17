@@ -92,14 +92,14 @@ module PopulateMe
     end
     def valid?
       self._errors = {}
-      before_validation
+      before_validate
       validate
-      after_validation
+      after_validate
       self._errors.empty?
     end
     def validate; end
-    def before_validation; end
-    def after_validation; end
+    def before_validate; end
+    def after_validate; end
 
     # Saving
     def save

@@ -188,12 +188,22 @@ describe 'PopulateMe::Document' do
 
   class Dodgy
     include PopulateMe::Document
-    attr_accessor :prohibited, :number
+    attr_accessor :prohibited, :number, :_log
     def validate
       self.number = self.number.to_i unless self.number.is_a? Integer
       error_on(:number, 'Is too high') if self.number==15
       error_on(:prohibited,'Is not allowed') unless prohibited.nil?
       error_on(:prohibited,'Is not good') unless prohibited.nil?
+    end
+    def before_validate
+      super
+      @_log ||= ''
+      @_log << self.errors.size.to_s
+    end
+    def after_validate
+      super
+      @_log ||= ''
+      @_log << self.errors.size.to_s
     end
   end
 
@@ -211,6 +221,12 @@ describe 'PopulateMe::Document' do
       u.number = 15
       u.number.should==15
       u.valid?.should==false
+    end
+
+    it 'Uses callbacks around validation' do
+      d = Dodgy.new prohibited: 'I dare'
+      d.valid?.should==false
+      d._log.should=='01'
     end
 
   end
