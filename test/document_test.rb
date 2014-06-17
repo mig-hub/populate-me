@@ -26,7 +26,11 @@ describe 'PopulateMe::Document' do
     obj.set size: 1, taste: 'good'
     obj.size.should==1
     obj.taste.should=='good'
-    obj.set 'size'=>4
+  end
+
+  it 'Can set variables with string keys' do
+    obj = Egg.new
+    obj.set 'size'=>4, 'taste'=>'good'
     obj.size.should==4
     obj.taste.should=='good'
   end
@@ -40,6 +44,14 @@ describe 'PopulateMe::Document' do
     obj = Egg.new size: 1, taste: 'good'
     obj.size.should==1
     obj.taste.should=='good'
+    obj.new?.should==true
+  end
+
+  it 'Can set _is_new when initializing' do
+    obj = Egg.new size: 1, taste: 'good', _is_new: false
+    obj.size.should==1
+    obj.taste.should=='good'
+    obj.new?.should==false
   end
 
   it 'Can return a list of persistent instance variables' do

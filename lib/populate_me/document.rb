@@ -46,8 +46,8 @@ module PopulateMe
     def new?; self._is_new; end
 
     def initialize attributes=nil 
-      set attributes if attributes
       self._is_new = true
+      set attributes if attributes
       self._errors = {}
     end
 
