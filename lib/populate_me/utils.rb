@@ -76,6 +76,15 @@ module PopulateMe
     end
     module_function :automatic_typecast
 
+    ID_CHARS = ('a'..'z').to_a + ('A'..'Z').to_a + ('0'..'9').to_a
+    ID_SIZE = 16
+    def generate_random_id size=ID_SIZE
+      id = ''
+      size.times{id << ID_CHARS[rand(ID_CHARS.size)]} 
+      id
+    end
+    module_function :generate_random_id
+
   end
 end
 

@@ -153,5 +153,12 @@ describe 'PopulateMe::Utils' do
     end
   end
 
+  describe '#generate_random_id' do
+    it 'Has the correct format' do
+      PopulateMe::Utils.generate_random_id.should =~ /[a-zA-Z0-9]{16}/
+      PopulateMe::Utils.generate_random_id(32).should =~ /[a-zA-Z0-9]{32}/
+    end
+  end
+
 end
 
