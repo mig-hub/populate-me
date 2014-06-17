@@ -12,9 +12,9 @@ module PopulateMe
     end
 
     module ClassMethods
-      attr_accessor :_documents
+      attr_writer :documents
 
-      def documents; self._documents ||= []; end
+      def documents; @documents ||= []; end
 
       def from_hash hash
         doc = self.new
@@ -121,11 +121,9 @@ module PopulateMe
     end
     def before_save; end
     def after_save; end
-    ID_CHARS = ('a'..'z').to_a + ('A'..'Z').to_a + ('0'..'9').to_a
-    ID_SIZE = 16
     def before_create
       if self.id.nil?
-        self.id = ID_SIZE.times{self.id << ID_CHARS[rand(ID_CHARS.size)]} 
+        self.id = Utils::generate_random_id
       end
     end
     def after_create; self._is_new = false; end
