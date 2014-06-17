@@ -7,22 +7,22 @@ module PopulateMe
 
     extend Rack::Utils
 
-    def blank?(s)
+    def blank? s
       s.to_s.strip==''
     end
     module_function :blank?
 
-    def dasherize_class_name(s)
+    def dasherize_class_name s
       s.gsub(/[A-Z]/){|s|"-#{s.downcase}"}[1..-1].gsub('::','-')
     end
     module_function :dasherize_class_name
 
-    def undasherize_class_name(s)
+    def undasherize_class_name s
       s.capitalize.gsub(/\-([a-z])/){|s|$1.upcase}.gsub('-','::')
     end
     module_function :undasherize_class_name
 
-    def resolve_class_name(s,context=Kernel)
+    def resolve_class_name s, context=Kernel
       return nil if blank?(s)
       current, *payload = s.split('::')
       return nil unless context.const_defined?(current)
@@ -35,7 +35,7 @@ module PopulateMe
     end
     module_function :resolve_class_name
 
-    def resolve_dasherized_class_name(s)
+    def resolve_dasherized_class_name s
       return nil if blank?(s)
       resolve_class_name(undasherize_class_name(s)) 
     end
@@ -45,14 +45,14 @@ module PopulateMe
       "ÀÁÂÃÄÅàáâãäåĀāĂăĄąÇçĆćĈĉĊċČčÐðĎďĐđÈÉÊËèéêëĒēĔĕĖėĘęĚěĜĝĞğĠġĢģĤĥĦħÌÍÎÏìíîïĨĩĪīĬĭĮįİıĴĵĶķĸĹĺĻļĽľĿŀŁłÑñŃńŅņŇňŉŊŋÒÓÔÕÖØòóôõöøŌōŎŏŐőŔŕŖŗŘřŚśŜŝŞ"
     ACCENTS_TO = 
       "AAAAAAaaaaaaAaAaAaCcCcCcCcCcDdDdDdEEEEeeeeEeEeEeEeEeGgGgGgGgHhHhIIIIiiiiIiIiIiIiIiJjKkkLlLlLlLlLlNnNnNnNnnNnOOOOOOooooooOoOoOoRrRrRrSsSsSsSssT"
-    def slugify(s,force_lower=true)
+    def slugify s, force_lower=true
       s = s.to_s.tr(ACCENTS_FROM,ACCENTS_TO).tr(' .,;:?!/\'"()[]{}<>','-').gsub(/&/, 'and').gsub(/-+/,'-').gsub(/(^-|-$)/,'')
       s = s.downcase if force_lower
       escape(s)
     end
     module_function :slugify
 
-    def each_stub(obj,&block)
+    def each_stub obj, &block 
       obj.each_with_index do |(k,v),i|
         value = v || k
         if value.is_a?(Hash) || value.is_a?(Array)
@@ -64,7 +64,7 @@ module PopulateMe
     end
     module_function :each_stub
 
-    def automatic_typecast(obj)
+    def automatic_typecast obj 
       return obj unless obj.is_a?(String)
       if obj=='true'
         true
