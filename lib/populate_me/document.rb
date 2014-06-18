@@ -22,9 +22,16 @@ module PopulateMe
 
       def from_hash hash
         return nil unless hash.is_a? Hash
+        hash.delete('_class')
         doc = self.new
         hash.each do |k,v|
-          doc.set k.to_sym => v
+          if v.is_a? Array
+            v.each do |d|
+              doc.__send__(k.to_sym) << Utils.resolve_class_name(d['_class']).from_hash(d)
+            end
+          else
+            doc.set k.to_sym => v
+          end
         end
         doc._is_new = false
         doc
@@ -93,10 +100,14 @@ module PopulateMe
     end
 
     def to_h
-      persistent_instance_variables.inject({}) do |h,var|
+      persistent_instance_variables.inject({'_class'=>self.class.to_s}) do |h,var|
         k = var.to_s[1..-1]
         v = instance_variable_get var
-        h[k] = v
+        if v.is_a? Array
+          h[k] = v.map(&:to_h)
+        else
+          h[k] = v
+        end
         h
       end
     end

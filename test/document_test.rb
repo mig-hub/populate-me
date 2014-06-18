@@ -67,10 +67,10 @@ describe 'PopulateMe::Document' do
 
     it 'Turns into a hash with string keys' do
       obj = Egg.new
-      obj.to_h.should=={}
+      obj.to_h.should=={'_class'=>'Egg'}
       obj.set size: 1, taste: 'good', _hidden: 'secret'
       obj._hidden.should=='secret'
-      obj.to_h.should=={'size'=>1,'taste'=>'good'}
+      obj.to_h.should=={'size'=>1,'taste'=>'good','_class'=>'Egg'}
       obj.to_h.should==obj.to_hash
     end
 
@@ -399,6 +399,60 @@ describe 'PopulateMe::Document' do
       hero._log.should=='Now updated.'
     end
 
+  end
+
+  describe 'Composite documents' do
+
+    class CookBook
+      include PopulateMe::Document
+      attr_accessor :title
+      def recipes; @recipes ||= []; end
+      EXAMPLE = {
+        '_class'=>'CookBook',
+        'title'=>'Cakes',
+        'recipes'=>[
+          {
+            '_class'=>'CookBook::Recipe',
+            'name'=>'Chocolate Cake',
+            'ingredients'=>[{'name'=>'Chocolate','_class'=>'CookBook::Recipe::Ingredient'}]
+          },
+          {
+            '_class'=>'CookBook::Recipe',
+            'name'=>'Pound Cake',
+            'ingredients'=>[{'name'=>'Egg','_class'=>'CookBook::Recipe::Ingredient'}]
+          }
+        ]
+      }
+    end
+    class CookBook::Recipe
+      include PopulateMe::Document
+      attr_accessor :name
+      def ingredients; @ingredients ||= []; end
+    end
+    class CookBook::Recipe::Ingredient
+      include PopulateMe::Document
+      attr_accessor :name
+    end
+
+    it 'Turns into a hash with string keys' do
+      book = CookBook.new title: 'Cakes'
+      rcp1 = CookBook::Recipe.new name: 'Chocolate Cake'
+      rcp2 = CookBook::Recipe.new name: 'Pound Cake'
+      choc = CookBook::Recipe::Ingredient.new name: 'Chocolate'
+      egg = CookBook::Recipe::Ingredient.new name: 'Egg'
+      rcp1.ingredients << choc
+      rcp2.ingredients << egg
+      book.recipes << rcp1
+      book.recipes << rcp2
+      book.to_h.should==CookBook::EXAMPLE
+    end
+
+    it 'Can be recreated from the hash saved' do
+      book = CookBook.from_hash(CookBook::EXAMPLE)
+      book.title.should=='Cakes'
+      book.recipes[1].name.should=='Pound Cake'
+      book.recipes[1].ingredients[0].name=='Egg'
+    end
   end
 
 end
