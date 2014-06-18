@@ -108,6 +108,7 @@ module PopulateMe
     end
     alias_method :to_s, :inspect
 
+    # Callbacks
     def exec_callback name
       name = name.to_sym
       return self if self.class.callbacks[name].nil?
@@ -120,6 +121,12 @@ module PopulateMe
       end
       self
     end
+    def ensure_id # before_create
+      if self.id.nil?
+        self.id = Utils::generate_random_id
+      end
+    end
+    def ensure_not_new; self._is_new = false; end # after_create
 
     # Validation
     def error_on k,v 
@@ -128,28 +135,26 @@ module PopulateMe
     end
     def valid?
       self._errors = {}
-      before_validate
+      exec_callback :before_validate
       validate
-      after_validate
+      exec_callback :after_validate
       self._errors.empty?
     end
     def validate; end
-    def before_validate; end
-    def after_validate; end
 
     # Saving
     def save
-      before_save
+      exec_callback :before_save
       if new?
-        before_create
+        exec_callback :before_create
         id = perform_create
-        after_create
+        exec_callback :after_create
       else
-        before_update
+        exec_callback :before_update
         id = perform_update
-        after_update
+        exec_callback :after_update
       end
-      after_save
+      exec_callback :after_save
       id
     end
     def perform_create
@@ -161,30 +166,18 @@ module PopulateMe
       raise MissingDocumentError, "No document can be found with this ID: #{self.id}" if self.id.nil?||index.nil?
       self.class.documents[index] = self.to_h
     end
-    def before_save; end
-    def after_save; end
-    def before_create
-      if self.id.nil?
-        self.id = Utils::generate_random_id
-      end
-    end
-    def after_create; self._is_new = false; end
-    def before_update; end
-    def after_update; end
 
     # Deletion
     def delete o={}
-      before_delete
+      exec_callback :before_delete
       perform_delete
-      after_delete
+      exec_callback :after_delete
     end
     def perform_delete
       index = self.class.documents.index{|d| d['id']==self.id }
       raise MissingDocumentError, "No document can be found with this ID: #{self.id}" if self.id.nil?||index.nil?
       self.class.documents.delete_at(index)
     end
-    def before_delete; end
-    def after_delete; end
 
   end
 end

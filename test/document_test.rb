@@ -278,13 +278,11 @@ describe 'PopulateMe::Document' do
       error_on(:prohibited,'Is not allowed') unless prohibited.nil?
       error_on(:prohibited,'Is not good') unless prohibited.nil?
     end
-    def before_validate
-      super
+    before :validate do
       @_log ||= ''
       @_log << self.errors.size.to_s
     end
-    def after_validate
-      super
+    after :validate do
       @_log ||= ''
       @_log << self.errors.size.to_s
     end
@@ -317,12 +315,10 @@ describe 'PopulateMe::Document' do
   class Death
     include PopulateMe::Document
     attr_accessor :pain_level, :was_alive, :is_dead
-    def before_delete
-      super
+    before :delete do
       @was_alive = !self.class[self.id].nil?
     end
-    def after_delete
-      super
+    after :delete do
       @is_dead = self.class[self.id].nil?
     end
   end
