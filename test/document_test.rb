@@ -328,8 +328,10 @@ describe 'PopulateMe::Document' do
     it 'Uses callbacks on the high level deletion method' do
       death = Death.new pain_level: 5, id: '123'
       death.perform_create
+      death._is_new = false
       Death['123'].pain_level.should==5
       death.delete
+      death.new?.should==true
       Death['123'].should==nil
       death.was_alive.should==true
       death.is_dead.should==true

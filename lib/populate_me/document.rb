@@ -9,6 +9,9 @@ module PopulateMe
 
     def self.included base 
       base.extend ClassMethods
+      base.before :create, :ensure_id
+      base.after :create, :ensure_not_new
+      base.after :delete, :ensure_new
     end
 
     module ClassMethods
@@ -126,6 +129,7 @@ module PopulateMe
         self.id = Utils::generate_random_id
       end
     end
+    def ensure_new; self._is_new = true; end # after_delete
     def ensure_not_new; self._is_new = false; end # after_create
 
     # Validation
