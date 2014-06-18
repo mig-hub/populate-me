@@ -81,19 +81,80 @@ describe 'PopulateMe::Document' do
     class Hamburger
       include PopulateMe::Document
       attr_accessor :taste
+
       register_callback :layers, :bread
       register_callback :layers, :cheese
       register_callback :layers do
         self.taste
       end
+
+      register_callback :after_cook, :add_salad
+      register_callback :after_cook do
+        taste << ' with more cheese'
+      end
+      def add_salad
+        taste << ' with salad'
+      end
+
+      register_callback :after_eat do
+        taste << ' stomach'
+      end
+      register_callback :after_eat, prepend: true do
+        taste << ' my'
+      end
+      register_callback :after_eat, :prepend_for, prepend: true
+      def prepend_for
+        taste << ' for'
+      end
+
+      before :digest do
+        taste << ' taste'
+      end
+      before :digest, :add_dot
+      before :digest, prepend: true do
+        taste << ' the'
+      end
+      before :digest, :prepend_was, prepend: true
+      after :digest do
+        taste << ' taste'
+      end
+      after :digest, :add_dot
+      after :digest, prepend: true do
+        taste << ' the'
+      end
+      after :digest, :prepend_was, prepend: true
+      def add_dot; taste << '.'; end
+      def prepend_was; taste << ' was'; end
     end
 
     it 'Registers callbacks as symbols or blocks' do
-      Hamburger.callbacks.size.should==3
-      Hamburger.callbacks[0].should==:bread
-      Hamburger.callbacks[1].should==:cheese
+      Hamburger.callbacks[:layers].size.should==3
+      Hamburger.callbacks[:layers][0].should==:bread
+      Hamburger.callbacks[:layers][1].should==:cheese
       h = Hamburger.new taste: 'good'
-      h.instance_eval(&Hamburger.callbacks[2]).should=='good'
+      h.instance_eval(&Hamburger.callbacks[:layers][2]).should=='good'
+    end
+
+    it 'Executes symbol or block callbacks' do
+      h = Hamburger.new taste: 'good'
+      h.exec_callback('after_cook').taste.should=='good with salad with more cheese'
+    end
+
+    it 'Does not raise if executing a callback which does not exist' do
+      h = Hamburger.new taste: 'good'
+      h.exec_callback(:after_burn).taste.should=='good'
+    end
+
+    it 'Has an option to prepend when registering callbacks' do
+      h = Hamburger.new taste: 'good'
+      h.exec_callback(:after_eat).taste.should=='good for my stomach'
+    end
+
+    it 'Has callback shortcuts for before and after' do
+      h = Hamburger.new taste: 'good'
+      h.exec_callback(:before_digest).taste.should=='good was the taste.'
+      h.taste = 'good'
+      h.exec_callback(:after_digest).taste.should=='good was the taste.'
     end
 
   end

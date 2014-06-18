@@ -32,12 +32,26 @@ module PopulateMe
         from_hash hash
       end
 
-      def register_callback name, item=nil, &block
+      # Callbacks
+      def register_callback name, item=nil, options={}, &block
         name = name.to_sym
-        item = block if item.nil?
+        if block_given?
+          options = item || {}
+          item = block
+        end
         @callbacks ||= {}
         @callbacks[name] ||= []
-        @callbacks[name] << item
+        if options[:prepend]
+          @callbacks[name].unshift item
+        else
+          @callbacks[name] << item
+        end
+      end
+      def before name, item=nil, options={}, &block
+        register_callback "before_#{name}", item, options, &block
+      end
+      def after name, item=nil, options={}, &block
+        register_callback "after_#{name}", item, options, &block
       end
 
       # def api_get_all
@@ -93,6 +107,19 @@ module PopulateMe
       "#<#{self.class}:#{to_h.inspect}>"
     end
     alias_method :to_s, :inspect
+
+    def exec_callback name
+      name = name.to_sym
+      return self if self.class.callbacks[name].nil?
+      self.class.callbacks[name].each do |job|
+        if job.respond_to?(:call)
+          self.instance_eval &job
+        else
+          self.__send__(job)
+        end
+      end
+      self
+    end
 
     # Validation
     def error_on k,v 
