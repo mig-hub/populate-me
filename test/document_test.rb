@@ -258,6 +258,17 @@ describe 'PopulateMe::Document' do
     attr_accessor :name
   end
 
+  describe 'Comparison' do
+
+    it 'Consider equal 2 documents with the same data' do
+      Haircut.new.should==Haircut.new
+      Haircut.new(name: 'shaved').should==Haircut.new(name: 'shaved')
+      Haircut.new.should!=nil
+      Haircut.new.should!=String.new
+    end
+
+  end
+
   describe 'Find by ID' do
 
     it 'Has a class method to get the entry of a specific ID as an object' do
@@ -265,6 +276,10 @@ describe 'PopulateMe::Document' do
       Haircut.new(id: '123', name: 'spikes').perform_create
       Haircut[123].name.should=='pigtails'
       Haircut['123'].name.should=='spikes'
+    end
+
+    it 'Returns nil if document does not exist' do
+      Haircut['abc'].should==nil
     end
 
   end
@@ -335,6 +350,53 @@ describe 'PopulateMe::Document' do
       Death['123'].should==nil
       death.was_alive.should==true
       death.is_dead.should==true
+    end
+
+  end
+
+  class SuperHero
+    include PopulateMe::Document
+    attr_accessor :name, :power, :_log
+    def validate
+      error_on(:power,'Needed') if power.nil?
+    end
+
+    before(:save) { @_log = '' }
+    before(:create) { @_log << 'Just ' }
+    after(:create) { @_log << 'born' }
+    before(:update) { @_log << 'Now ' }
+    after(:update) { @_log << 'updated' }
+    after(:save) { @_log << '.' }
+  end
+
+  describe 'High level saving' do
+
+    it 'Creates or updates depending on if the document is new or not' do
+      hero = SuperHero.new name: 'Hulk', power: 'anger'
+      hero.save
+      SuperHero.documents.size.should==1
+      hero.power = 'uncontrolled anger'
+      hero.save
+      SuperHero.documents.size.should==1
+      SuperHero.documents[0]['power'].should=='uncontrolled anger'
+    end
+
+    it 'Does not save if the document is not valid' do
+      hero = SuperHero.new id: 'spidey', name: 'Spiderman'
+      hero.valid?.should==false
+      hero.save
+      SuperHero['spidey'].should==nil
+    end
+
+    it 'Uses the callbacks' do
+      hero = SuperHero.new name: 'Torch', power: 'fire'
+      hero.save
+      hero.id.should!=nil
+      hero.new?.should==false
+      hero._log.should=='Just born.'
+      hero.power = 'flying fire'
+      hero.save
+      hero._log.should=='Now updated.'
     end
 
   end

@@ -103,6 +103,7 @@ module PopulateMe
     alias_method :to_hash, :to_h
 
     def == other
+      return false unless other.respond_to?(:to_h)
       other.to_h==to_h
     end
 
@@ -148,6 +149,7 @@ module PopulateMe
 
     # Saving
     def save
+      return unless valid?
       exec_callback :before_save
       if new?
         exec_callback :before_create
