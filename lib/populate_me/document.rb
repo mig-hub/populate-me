@@ -21,12 +21,14 @@ module PopulateMe
       def documents; @documents ||= []; end
 
       def from_hash hash
-        return nil unless hash.is_a? Hash
+        raise(TypeError, "#{hash} is not a Hash") unless hash.is_a? Hash
+        hash = hash.dup # Leave original untouched
         hash.delete('_class')
         doc = self.new
         hash.each do |k,v|
           if v.is_a? Array
             v.each do |d|
+              raise d.inspect if d['_class'].nil?
               obj =  Utils.resolve_class_name(d['_class']).from_hash(d)
               doc.__send__(k.to_sym) << obj
             end
@@ -40,6 +42,7 @@ module PopulateMe
 
       def [] id
         hash = self.documents.find{|doc| doc['id']==id }
+        return nil if hash.nil?
         from_hash hash
       end
 
@@ -94,6 +97,14 @@ module PopulateMe
     def set attributes
       attributes.each{|k,v| __send__ "#{k}=", v }
       self
+    end
+
+    def embeded_docs
+      persistent_instance_variables.map do |var|
+        instance_variable_get var
+      end.find_all do |val|
+        val.is_a? Array
+      end.flatten
     end
 
     def persistent_instance_variables
@@ -155,7 +166,10 @@ module PopulateMe
       exec_callback :before_validate
       validate
       exec_callback :after_validate
-      self._errors.empty?
+      return false unless self._errors.empty?
+      embeded_docs.reduce true do |result,d|
+        result &= d.valid?
+      end
     end
     def validate; end
 

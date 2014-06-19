@@ -189,9 +189,9 @@ describe 'PopulateMe::Document' do
       retrieved.should==tom
     end
 
-    it 'Returns nil if trying to create from something that is not a Hash' do
-      Tomato.from_hash(nil).should==nil
-      Tomato.from_hash(42).should==nil
+    it 'Raises if trying to create from something that is not a Hash' do
+      lambda{Tomato.from_hash(nil)}.should.raise(TypeError)
+      lambda{Tomato.from_hash(42)}.should.raise(TypeError)
     end
 
   end
@@ -401,7 +401,7 @@ describe 'PopulateMe::Document' do
 
   end
 
-  describe 'Composite documents' do
+  describe 'Composite document' do
 
     class CookBook
       include PopulateMe::Document
@@ -432,6 +432,9 @@ describe 'PopulateMe::Document' do
     class CookBook::Recipe::Ingredient
       include PopulateMe::Document
       attr_accessor :name
+      def validate
+        error_on(:name,'Dangerous') if self.name=='Poison'
+      end
     end
 
     it 'Turns into a hash with string keys' do
@@ -453,6 +456,22 @@ describe 'PopulateMe::Document' do
       book.recipes[1].name.should=='Pound Cake'
       book.recipes[1].ingredients[0].name=='Egg'
     end
+
+    it 'Validates a document if embeded documents are valid' do
+      book = CookBook.from_hash(CookBook::EXAMPLE)
+      book.recipes[0].ingredients[0].valid?.should==true
+      book.recipes[0].valid?.should==true
+      book.valid?.should==true
+    end
+
+    it 'Does not validate a document if embeded documents are not valid' do
+      book = CookBook.from_hash(CookBook::EXAMPLE)
+      book.recipes[0].ingredients[0].name = 'Poison'
+      book.recipes[0].ingredients[0].valid?.should==false
+      book.recipes[0].valid?.should==false
+      book.valid?.should==false
+    end
+
   end
 
 end
