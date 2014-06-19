@@ -66,11 +66,11 @@ describe 'PopulateMe::Utils' do
       PopulateMe::Utils.resolve_class_name('String').should==String
       PopulateMe::Utils.resolve_class_name('PopulateMe::Utils').should==PopulateMe::Utils
     end
-    it 'Returns nil if the constant does not exist' do
-      PopulateMe::Utils.resolve_class_name('Strang').should==nil
-      PopulateMe::Utils.resolve_class_name('PopulateMe::Yootils').should==nil
-      PopulateMe::Utils.resolve_class_name('').should==nil
-      PopulateMe::Utils.resolve_class_name(nil).should==nil
+    it 'Raise if the constant does not exist' do
+      lambda{PopulateMe::Utils.resolve_class_name('Strang')}.should.raise(NameError)
+      lambda{PopulateMe::Utils.resolve_class_name('PopulateMe::Yootils')}.should.raise(NameError)
+      lambda{PopulateMe::Utils.resolve_class_name('')}.should.raise(TypeError)
+      lambda{PopulateMe::Utils.resolve_class_name(nil)}.should.raise(TypeError)
     end
   end
 
@@ -79,11 +79,11 @@ describe 'PopulateMe::Utils' do
       PopulateMe::Utils.resolve_dasherized_class_name('string').should==String
       PopulateMe::Utils.resolve_dasherized_class_name('populate-me--utils').should==PopulateMe::Utils
     end
-    it 'Returns nil if the constant does not exist' do
-      PopulateMe::Utils.resolve_dasherized_class_name('strang').should==nil
-      PopulateMe::Utils.resolve_dasherized_class_name('populate-me--yootils').should==nil
-      PopulateMe::Utils.resolve_dasherized_class_name('').should==nil
-      PopulateMe::Utils.resolve_dasherized_class_name(nil).should==nil
+    it 'Raise if the constant does not exist' do
+      lambda{PopulateMe::Utils.resolve_dasherized_class_name('strang')}.should.raise(NameError)
+      lambda{PopulateMe::Utils.resolve_dasherized_class_name('populate-me--yootils')}.should.raise(NameError)
+      lambda{PopulateMe::Utils.resolve_dasherized_class_name('')}.should.raise(TypeError)
+      lambda{PopulateMe::Utils.resolve_dasherized_class_name(nil)}.should.raise(TypeError)
     end
   end
 

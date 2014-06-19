@@ -23,9 +23,7 @@ module PopulateMe
     module_function :undasherize_class_name
 
     def resolve_class_name s, context=Kernel
-      return nil if blank?(s)
-      current, *payload = s.split('::')
-      return nil unless context.const_defined?(current)
+      current, *payload = s.to_s.split('::')
       const = context.const_get(current)
       if payload.empty?
         const
@@ -36,8 +34,7 @@ module PopulateMe
     module_function :resolve_class_name
 
     def resolve_dasherized_class_name s
-      return nil if blank?(s)
-      resolve_class_name(undasherize_class_name(s)) 
+      resolve_class_name(undasherize_class_name(s.to_s)) 
     end
     module_function :resolve_dasherized_class_name
 
