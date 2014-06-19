@@ -27,7 +27,8 @@ module PopulateMe
         hash.each do |k,v|
           if v.is_a? Array
             v.each do |d|
-              doc.__send__(k.to_sym) << Utils.resolve_class_name(d['_class']).from_hash(d)
+              obj =  Utils.resolve_class_name(d['_class']).from_hash(d)
+              doc.__send__(k.to_sym) << obj
             end
           else
             doc.set k.to_sym => v
