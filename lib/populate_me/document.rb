@@ -9,6 +9,10 @@ module PopulateMe
 
     def self.included base 
       base.extend ClassMethods
+      [:save,:create,:update,:delete].each do |cb|
+        base.before cb, :recurse_callback
+        base.after cb, :recurse_callback
+      end
       base.before :create, :ensure_id
       base.after :create, :ensure_not_new
       base.after :delete, :ensure_new
@@ -99,14 +103,6 @@ module PopulateMe
       self
     end
 
-    def embeded_docs
-      persistent_instance_variables.map do |var|
-        instance_variable_get var
-      end.find_all do |val|
-        val.is_a? Array
-      end.flatten
-    end
-
     def persistent_instance_variables
       instance_variables.select{|k| k !~ /^@_/ }
     end
@@ -125,6 +121,14 @@ module PopulateMe
     end
     alias_method :to_hash, :to_h
 
+    def embeded_docs
+      persistent_instance_variables.map do |var|
+        instance_variable_get var
+      end.find_all do |val|
+        val.is_a? Array
+      end.flatten
+    end
+
     def == other
       return false unless other.respond_to?(:to_h)
       other.to_h==to_h
@@ -141,12 +145,18 @@ module PopulateMe
       return self if self.class.callbacks[name].nil?
       self.class.callbacks[name].each do |job|
         if job.respond_to?(:call)
-          self.instance_eval &job
+          self.instance_exec name, &job
         else
-          self.__send__(job)
+          meth = self.method(job)
+          meth.arity==1 ? meth.call(name) : meth.call
         end
       end
       self
+    end
+    def recurse_callback name
+      embeded_docs.each do |d|
+        d.exec_callback name
+      end
     end
     def ensure_id # before_create
       if self.id.nil?

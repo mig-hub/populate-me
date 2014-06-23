@@ -125,6 +125,14 @@ describe 'PopulateMe::Document' do
       after :digest, :prepend_was, prepend: true
       def add_dot; taste << '.'; end
       def prepend_was; taste << ' was'; end
+
+      before :argument do |name|
+        taste << " #{name}"
+      end
+      after :argument, :after_with_arg
+      def after_with_arg(name)
+        taste << " #{name}"
+      end
     end
 
     it 'Registers callbacks as symbols or blocks' do
@@ -155,6 +163,12 @@ describe 'PopulateMe::Document' do
       h.exec_callback(:before_digest).taste.should=='good was the taste.'
       h.taste = 'good'
       h.exec_callback(:after_digest).taste.should=='good was the taste.'
+    end
+
+    it 'Optionally takes the callback name as an argument' do
+      h = Hamburger.new taste: 'good'
+      h.exec_callback(:before_argument).taste.should=='good before_argument'
+      h.exec_callback(:after_argument).taste.should=='good before_argument after_argument'
     end
 
   end
@@ -423,17 +437,34 @@ describe 'PopulateMe::Document' do
           }
         ]
       }
+      before :cook, :recurse_callback
     end
     class CookBook::Recipe
       include PopulateMe::Document
-      attr_accessor :name
+      attr_accessor :name, :_log
       def ingredients; @ingredients ||= []; end
+      before :cook, :recurse_callback
+      before :cook do
+        @_log = 'Learn'
+      end
     end
     class CookBook::Recipe::Ingredient
       include PopulateMe::Document
-      attr_accessor :name
+      attr_accessor :name, :_log
       def validate
         error_on(:name,'Dangerous') if self.name=='Poison'
+      end
+      before :cook do
+        @_log = 'Smell'
+      end
+
+      [:save,:create,:update,:delete].each do |cb|
+        before cb, :log_cb
+        after cb, :log_cb
+      end
+      def log_cb name
+        @_log ||= ''
+        @_log << "#{name} "
       end
     end
 
@@ -470,6 +501,31 @@ describe 'PopulateMe::Document' do
       book.recipes[0].ingredients[0].valid?.should==false
       book.recipes[0].valid?.should==false
       book.valid?.should==false
+    end
+
+    it 'Has a special method for recursively execute a callback' do
+      book = CookBook.from_hash(CookBook::EXAMPLE)
+      book.recipes[0].ingredients[0]._log.should==nil
+      book.recipes[0]._log.should==nil
+      book.exec_callback(:before_cook)
+      book.recipes[0].ingredients[0]._log.should=='Smell'
+      book.recipes[0]._log.should=='Learn'
+    end
+
+    it 'Has all the default recursive callbacks registered' do
+      # [:save,:create,:update].each do |cb|
+      #   CookBook.callbacks["before_#{cb}".to_sym].include?(:recurse_callback).should==true
+      #   CookBook.callbacks["after_#{cb}".to_sym].include?(:recurse_callback).should==true
+      # end
+      book = CookBook.from_hash(CookBook::EXAMPLE)
+      expected_log = ''
+      [:save,:create,:update,:delete].each do |cb|
+        [:before, :after].each do |when_cb|
+          book.exec_callback("#{when_cb}_#{cb}")
+          expected_log << "#{when_cb}_#{cb} "
+        end
+      end
+      book.recipes[0].ingredients[0]._log.should==expected_log
     end
 
   end
