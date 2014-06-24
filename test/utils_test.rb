@@ -125,6 +125,12 @@ describe 'PopulateMe::Utils' do
       end
       before.should==after
     end
+
+    it 'Raises a TypeError if The object is not appropriate' do
+      lambda{ PopulateMe::Utils.each_stub(nil) }.should.raise(TypeError)
+      lambda{ PopulateMe::Utils.each_stub('yo') }.should.raise(TypeError)
+      lambda{ PopulateMe::Utils.each_stub(4) }.should.raise(TypeError)
+    end
   end
 
   describe '#automatic_typecast' do

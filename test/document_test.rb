@@ -208,6 +208,9 @@ describe 'PopulateMe::Document' do
       lambda{Tomato.from_hash(42)}.should.raise(TypeError)
     end
 
+    # it 'Can be created from Post' do
+    # end
+
   end
 
   class Garlic

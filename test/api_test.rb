@@ -24,6 +24,7 @@ describe 'PopulateMe::API' do
   #   - The class is responsible for conversion
   #   - So a mix of different classes of IDs is not possible
   # - instance.to_h
+  # - instance.save
   # - instance.delete
 
   def should_not_found(res)
@@ -33,6 +34,15 @@ describe 'PopulateMe::API' do
     res.headers['X-Cascade'].should=='pass'
     json['success'].should==false
     json['message'].should=='Not Found'
+  end
+  
+  def successful_creation(res,obj)
+    json = JSON.parse(res.body)
+    res.content_type.should=='application/json'
+    res.status.should==201
+    json['success'].should==true
+    json['message'].should=='Created Successfully'
+    json['data'].should==obj.to_h
   end
 
   def successful_instance(res,obj)
@@ -50,6 +60,15 @@ describe 'PopulateMe::API' do
     json['success'].should==true
     json['message'].should=='Deleted Successfully'
     json['data'].should==obj.to_h
+  end
+
+  describe 'POST /:model' do
+
+    it 'Creates successfully' do
+      res = API.post('/band', {params: {data: {id: '4', name: 'Neurosis'}}})
+      successful_creation(res,Band['4'])
+    end
+
   end
 
   describe 'GET /:model/:id' do

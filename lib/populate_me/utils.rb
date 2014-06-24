@@ -50,6 +50,7 @@ module PopulateMe
     module_function :slugify
 
     def each_stub obj, &block 
+      raise TypeError, 'PopulateMe::Utils.each_stub expects an object which respond to each_with_index' unless obj.respond_to?(:each_with_index)
       obj.each_with_index do |(k,v),i|
         value = v || k
         if value.is_a?(Hash) || value.is_a?(Array)

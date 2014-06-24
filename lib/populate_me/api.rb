@@ -13,6 +13,14 @@ class PopulateMe::API < Sinatra::Base
   get '/:model' do
   end
 
+  post '/:model' do
+    model_class = resolve_model_class(params[:model])
+    model_instance = model_class.from_post(params[:data])
+    model_instance.save
+    status 201
+    {'success'=>true,'message'=>'Created Successfully','data'=>model_instance.to_h}.to_json
+  end
+
   get '/:model/:id' do
     if params['form']=='true'
     end
@@ -34,6 +42,9 @@ class PopulateMe::API < Sinatra::Base
   end
 
   error do
+    puts
+    puts env['sinatra.error'].inspect
+    puts
     {'success'=>false,'message'=>env['sinatra.error'].message}.to_json
   end
 

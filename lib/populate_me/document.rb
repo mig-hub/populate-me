@@ -44,6 +44,15 @@ module PopulateMe
         doc
       end
 
+      def from_post hash
+        # Utils.each_stub hash do |object,key_index,value|
+        #   object[key_index] = Utils.automatic_typecast value
+        # end
+        doc = from_hash hash
+        doc._is_new = true
+        doc
+      end
+
       def [] id
         hash = self.documents.find{|doc| doc['id']==id }
         return nil if hash.nil?
