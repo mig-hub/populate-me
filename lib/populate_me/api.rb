@@ -4,6 +4,8 @@ require 'json'
 
 class PopulateMe::API < Sinatra::Base
 
+  set :show_exceptions, false
+
   before do
     content_type 'application/json'
   end
@@ -22,7 +24,7 @@ class PopulateMe::API < Sinatra::Base
   delete '/:model/:id' do
     model_class = resolve_model_class(params[:model])
     model_instance = resolve_model_instance(model_class,params[:id])
-    model_instance = model_instance.api_delete
+    model_instance.delete
     {'success'=>true,'message'=>'Deleted Successfully','data'=>model_instance.to_h}.to_json
   end
 
@@ -40,13 +42,13 @@ class PopulateMe::API < Sinatra::Base
     include PopulateMe::Utils
 
     def resolve_model_class(name)
-      model_class = resolve_dasherized_class_name(name)
-      halt(404) unless model_class.respond_to?(:api_get)
+      model_class = resolve_dasherized_class_name(name) rescue nil
+      halt(404) unless model_class.respond_to?(:[])
       model_class
     end
 
     def resolve_model_instance(model_class,id)
-      instance = model_class.api_get(id)
+      instance = model_class[id]
       halt(404) if instance.nil?
       instance
     end
