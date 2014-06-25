@@ -166,5 +166,44 @@ describe 'PopulateMe::Utils' do
     end
   end
 
+  describe '#nl2br' do
+    it 'Puts unclosed tags by default' do
+      PopulateMe::Utils.nl2br("Hello\nworld").should=='Hello<br>world'
+      PopulateMe::Utils.nl2br("\nHello\nworld\n").should=='<br>Hello<br>world<br>'
+    end
+    it 'Can put closed tags instead' do
+      # Only if implementation is short enough
+      PopulateMe::Utils.nl2br("Hello\nworld",'<br/>').should=='Hello<br/>world'
+      PopulateMe::Utils.nl2br("\nHello\nworld\n",'<br/>').should=='<br/>Hello<br/>world<br/>'
+    end
+  end
+
+  describe '#automatic_html' do
+    it 'Works properly' do
+      input = "Hello\nme@site.co.uk\nNot the begining me@site.co.uk\nme@site.co.uk not the end\nwww.site.co.uk\nVisit www.site.co.uk\nwww.site.co.uk rules\nhttp://www.site.co.uk\nVisit http://www.site.co.uk\nhttp://www.site.co.uk rules"
+      output = "Hello<br><a href='mailto:me&#64;site.co.uk'>me&#64;site.co.uk</a><br>Not the begining <a href='mailto:me&#64;site.co.uk'>me&#64;site.co.uk</a><br><a href='mailto:me&#64;site.co.uk'>me&#64;site.co.uk</a> not the end<br><a href='http://www.site.co.uk' target='_blank'>www.site.co.uk</a><br>Visit <a href='http://www.site.co.uk' target='_blank'>www.site.co.uk</a><br><a href='http://www.site.co.uk' target='_blank'>www.site.co.uk</a> rules<br><a href='http://www.site.co.uk' target='_blank'>http://www.site.co.uk</a><br>Visit <a href='http://www.site.co.uk' target='_blank'>http://www.site.co.uk</a><br><a href='http://www.site.co.uk' target='_blank'>http://www.site.co.uk</a> rules"
+      PopulateMe::Utils.automatic_html(input).should==output
+    end
+  end
+
+  describe '#truncate' do
+    it 'Limit to the right amount of letters' do
+      PopulateMe::Utils.truncate('abc defg hijklmnopqrstuvwxyz',3).should=='abc...'
+    end
+    it 'Does not cut words' do
+      PopulateMe::Utils.truncate('abcdefg hijklmnopqrstuvwxyz',3).should=='abcdefg...'
+    end
+    it 'Removes HTML tags' do
+      PopulateMe::Utils.truncate('<br>abc<a href=#>def</a>g hijklmnopqrstuvwxyz',3).should=='abcdefg...'
+    end
+    it 'Can replace the ellipsis by anything' do
+      PopulateMe::Utils.truncate('abc defg hijklmnopqrstuvwxyz',3,'!').should=='abc!'
+      PopulateMe::Utils.truncate('abc defg hijklmnopqrstuvwxyz',3,'').should=='abc'
+    end
+    it 'Does not print the ellipsis if the string is already short enough' do
+      PopulateMe::Utils.truncate('abc def',50).should=='abc def'
+    end
+  end
+
 end
 

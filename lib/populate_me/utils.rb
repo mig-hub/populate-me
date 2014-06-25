@@ -83,6 +83,29 @@ module PopulateMe
     end
     module_function :generate_random_id
 
+    def nl2br s, br='<br>'
+      s.to_s.gsub(/\n/,br)
+    end
+    module_function :nl2br
+
+    def automatic_html s, br='<br>'
+      replaced = s.to_s.
+      gsub(/\b((https?:\/\/|ftps?:\/\/|www\.)([A-Za-z0-9\-_=%&@\?\.\/]+))\b/) do |str|
+        url = $2=="www." ? "http://#{$1}" : $1
+        "<a href='#{url}' target='_blank'>#{$1}</a>"
+      end.
+      gsub(/([^\s]+@[^\s]*[a-zA-Z])/) do |str|
+        "<a href='mailto:#{$1.downcase}'>#{$1}</a>"
+      end
+      nl2br(replaced,br).gsub("@", "&#64;")
+    end
+    module_function :automatic_html
+
+    def truncate(s,c=320,ellipsis='...')
+      s.to_s.gsub(/<[^>]*>/, '').gsub(/\n/, ' ').sub(/^(.{#{c}}\w*).*$/m, '\1'+ellipsis)
+    end
+    module_function :truncate
+
   end
 end
 
