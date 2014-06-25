@@ -15,7 +15,7 @@ class PopulateMe::API < Sinatra::Base
 
   post '/:model' do
     model_class = resolve_model_class(params[:model])
-    model_instance = model_class.from_post(params[:data])
+    model_instance = model_class.new.set_from_hash(params[:data])
     model_instance.save
     status 201
     {'success'=>true,'message'=>'Created Successfully','data'=>model_instance.to_h}.to_json
@@ -27,6 +27,14 @@ class PopulateMe::API < Sinatra::Base
     model_class = resolve_model_class(params[:model])
     model_instance = resolve_model_instance(model_class,params[:id])
     {'success'=>true,'data'=>model_instance.to_h}.to_json
+  end
+
+  put '/:model/:id' do
+    model_class = resolve_model_class(params[:model])
+    model_instance = resolve_model_instance(model_class,params[:id])
+    model_instance.set_from_hash(params[:data])
+    model_instance.save
+    {'success'=>true,'message'=>'Updated Successfully','data'=>model_instance.to_h}.to_json
   end
 
   delete '/:model/:id' do

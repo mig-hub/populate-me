@@ -4,7 +4,7 @@ $:.unshift File.expand_path('../../lib', __FILE__)
 require 'populate_me/document'
 class Band
   include PopulateMe::Document
-  attr_accessor :name
+  attr_accessor :name, :awsome
 end
 Band.new(id: '1', name: 'Gang of Four').save
 Band.new(id: '2', name: 'Autolux').save
@@ -53,6 +53,16 @@ describe 'PopulateMe::API' do
     json['data'].should==obj.to_h
   end
 
+  def successful_update(res,obj)
+    json = JSON.parse(res.body)
+    res.content_type.should=='application/json'
+    res.status.should==200
+    json['success'].should==true
+    json['message'].should=='Updated Successfully'
+    json['data']['id'].should==obj.id
+    json['data'].should!=obj.to_h
+  end
+
   def successful_deletion(res,obj)
     json = JSON.parse(res.body)
     res.content_type.should=='application/json'
@@ -95,6 +105,18 @@ describe 'PopulateMe::API' do
     it 'Sends the instance if it exists' do
       res = API.get('/band/2')
       successful_instance(res,Band['2'])
+    end
+  end
+
+  describe 'PUT /:model/:id' do
+    it 'Sends not-found if the instance does not exist' do
+      res = API.put('/band/666')
+      should_not_found(res)
+    end
+    it 'Returns an update response when the instance exists' do
+      obj = Band['3']
+      res = API.put('/band/3', {params: {data: {awsome: 'yes'}}})
+      successful_update(res,obj)
     end
   end
 

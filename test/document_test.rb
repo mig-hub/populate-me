@@ -203,6 +203,12 @@ describe 'PopulateMe::Document' do
       retrieved.should==tom
     end
 
+    it 'Can mark the document as new or not when recreating from hash' do
+      retrieved = Tomato.from_hash(Tomato.documents[0].merge('_is_new'=>true))
+      retrieved.new?.should==true
+      retrieved.to_h.should==Tomato.documents[0]
+    end
+
     it 'Raises if trying to create from something that is not a Hash' do
       lambda{Tomato.from_hash(nil)}.should.raise(TypeError)
       lambda{Tomato.from_hash(42)}.should.raise(TypeError)

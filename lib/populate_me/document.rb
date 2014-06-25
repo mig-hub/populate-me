@@ -25,23 +25,7 @@ module PopulateMe
       def documents; @documents ||= []; end
 
       def from_hash hash
-        raise(TypeError, "#{hash} is not a Hash") unless hash.is_a? Hash
-        hash = hash.dup # Leave original untouched
-        hash.delete('_class')
-        doc = self.new
-        hash.each do |k,v|
-          if v.is_a? Array
-            v.each do |d|
-              raise d.inspect if d['_class'].nil?
-              obj =  Utils.resolve_class_name(d['_class']).from_hash(d)
-              doc.__send__(k.to_sym) << obj
-            end
-          else
-            doc.set k.to_sym => v
-          end
-        end
-        doc._is_new = false
-        doc
+        self.new(_is_new: false).set_from_hash hash
       end
 
       def from_post hash
@@ -49,8 +33,6 @@ module PopulateMe
         #   object[key_index] = Utils.automatic_typecast value
         # end
         doc = from_hash hash
-        doc._is_new = true
-        doc
       end
 
       def [] id
@@ -109,6 +91,23 @@ module PopulateMe
 
     def set attributes
       attributes.each{|k,v| __send__ "#{k}=", v }
+      self
+    end
+
+    def set_from_hash hash
+      raise(TypeError, "#{hash} is not a Hash") unless hash.is_a? Hash
+      hash = hash.dup # Leave original untouched
+      hash.delete('_class')
+      hash.each do |k,v|
+        if v.is_a? Array
+          v.each do |d|
+            obj =  Utils.resolve_class_name(d['_class']).new.set_from_hash(d)
+            self.__send__(k.to_sym) << obj
+          end
+        else
+          self.set k.to_sym => v
+        end
+      end
       self
     end
 
