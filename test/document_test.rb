@@ -16,6 +16,38 @@ describe 'PopulateMe::Document' do
   # in memory. Which means it is only for tests and conceptual
   # understanding.
 
+  describe 'Descriptive methods' do
+
+    module Catalogue; end
+    module Catalogue::Chapter; end
+    class Catalogue::Chapter::AttachedFile
+      include PopulateMe::Document
+      attr_accessor :name, :size
+      label :name
+    end
+
+    it 'Has a plural friendly name on Class::to_s' do
+      # Simple plural (override if exception)
+      Catalogue::Chapter::AttachedFile.name.should=='Catalogue::Chapter::AttachedFile'
+      Catalogue::Chapter::AttachedFile.to_s.should=='Catalogue Chapter Attached Files'
+    end
+
+    it 'Uses the label variable as a description for instances when there is one' do
+      file = Catalogue::Chapter::AttachedFile.new
+      file.name = 'file.pdf'
+      file.size = '300KB'
+      file.to_s.should=='file.pdf'
+    end
+
+    it 'Uses a default name instead when the label field is blank or not set' do
+      file = Catalogue::Chapter::AttachedFile.new
+      file.to_s.should==file.inspect
+      Catalogue::Chapter::AttachedFile.label_field = nil
+      file.to_s.should==file.inspect
+    end
+
+  end
+
   class Egg
     include PopulateMe::Document
     attr_accessor :size, :taste, :_hidden

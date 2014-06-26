@@ -20,7 +20,15 @@ module PopulateMe
 
     module ClassMethods
       attr_writer :documents
-      attr_accessor :callbacks
+      attr_accessor :callbacks, :label_field
+
+      def to_s
+        super.gsub(/[A-Z]/, ' \&')[1..-1].gsub('::','')+'s'
+      end
+
+      def label(sym)
+        @label_field = sym.to_sym
+      end
 
       def documents; @documents ||= []; end
 
@@ -90,7 +98,9 @@ module PopulateMe
     end
 
     def set attributes
-      attributes.each{|k,v| __send__ "#{k}=", v }
+      attributes.dup.each do |k,v| 
+        __send__ "#{k}=", v
+      end
       self
     end
 
@@ -102,10 +112,10 @@ module PopulateMe
         if v.is_a? Array
           v.each do |d|
             obj =  Utils.resolve_class_name(d['_class']).new.set_from_hash(d)
-            self.__send__(k.to_sym) << obj
+            __send__(k.to_sym) << obj
           end
         else
-          self.set k.to_sym => v
+          set k.to_sym => v
         end
       end
       self
@@ -116,7 +126,7 @@ module PopulateMe
     end
 
     def to_h
-      persistent_instance_variables.inject({'_class'=>self.class.to_s}) do |h,var|
+      persistent_instance_variables.inject({'_class'=>self.class.name}) do |h,var|
         k = var.to_s[1..-1]
         v = instance_variable_get var
         if v.is_a? Array
@@ -143,9 +153,14 @@ module PopulateMe
     end
 
     def inspect
-      "#<#{self.class}:#{to_h.inspect}>"
+      "#<#{self.class.name}:#{to_h.inspect}>"
     end
-    alias_method :to_s, :inspect
+
+    def to_s
+      return inspect if self.class.label_field.nil?
+      me = __send__(self.class.label_field)
+      Utils.blank?(me) ? inspect : me
+    end
 
     # Callbacks
     def exec_callback name
