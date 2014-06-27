@@ -23,8 +23,10 @@ module PopulateMe
       attr_accessor :callbacks, :label_field
 
       def to_s
-        super.gsub(/[A-Z]/, ' \&')[1..-1].gsub('::','')+'s'
+        super.gsub(/[A-Z]/, ' \&')[1..-1].gsub('::','')
       end
+
+      def to_s_plural; "#{self.to_s}s"; end
 
       def label(sym)
         @label_field = sym.to_sym

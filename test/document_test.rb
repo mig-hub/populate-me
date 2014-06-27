@@ -26,10 +26,14 @@ describe 'PopulateMe::Document' do
       label :name
     end
 
-    it 'Has a plural friendly name on Class::to_s' do
+    it 'Has a friendly name on Class::to_s' do
       # Simple plural (override if exception)
       Catalogue::Chapter::AttachedFile.name.should=='Catalogue::Chapter::AttachedFile'
-      Catalogue::Chapter::AttachedFile.to_s.should=='Catalogue Chapter Attached Files'
+      Catalogue::Chapter::AttachedFile.to_s.should=='Catalogue Chapter Attached File'
+    end
+
+    it 'Has a plural version which only adds a `s` by default' do
+      Catalogue::Chapter::AttachedFile.to_s_plural.should=='Catalogue Chapter Attached Files'
     end
 
     it 'Uses the label variable as a description for instances when there is one' do
