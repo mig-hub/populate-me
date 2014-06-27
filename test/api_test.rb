@@ -5,10 +5,18 @@ require 'populate_me/document'
 class Band
   include PopulateMe::Document
   attr_accessor :name, :awsome
+  def members; @members ||= []; end
+end
+class Band::Member
+  include PopulateMe::Document
+  attr_accessor :name
 end
 Band.new(id: '1', name: 'Gang of Four').save
 Band.new(id: '2', name: 'Autolux').save
-Band.new(id: '3', name: 'Ramones').save
+ramones = Band.new(id: '3', name: 'Ramones')
+ramones.members << Band::Member.new(name: 'Joey')
+ramones.members << Band::Member.new(name: 'Deedee Ramone')
+ramones.save
 
 require 'populate_me/api'
 API = Rack::MockRequest.new(PopulateMe::API.new)
@@ -34,49 +42,57 @@ describe 'PopulateMe::API' do
     res.headers['X-Cascade'].should=='pass'
     json['success'].should==false
     json['message'].should=='Not Found'
+    json
   end
   
-  def successful_creation(res,obj)
+  def successful_creation(res)
     json = JSON.parse(res.body)
     res.content_type.should=='application/json'
     res.status.should==201
     json['success'].should==true
     json['message'].should=='Created Successfully'
-    json['data'].should==obj.to_h
+    json
   end
 
-  def successful_instance(res,obj)
+  def successful_instance(res)
     json = JSON.parse(res.body)
     res.content_type.should=='application/json'
     res.status.should==200
     json['success'].should==true
-    json['data'].should==obj.to_h
+    json
   end
 
-  def successful_update(res,obj)
+  def successful_update(res)
     json = JSON.parse(res.body)
     res.content_type.should=='application/json'
     res.status.should==200
     json['success'].should==true
     json['message'].should=='Updated Successfully'
-    json['data']['id'].should==obj.id
-    json['data'].should!=obj.to_h
+    json
   end
 
-  def successful_deletion(res,obj)
+  def successful_deletion(res)
     json = JSON.parse(res.body)
     res.content_type.should=='application/json'
     res.status.should==200
     json['success'].should==true
     json['message'].should=='Deleted Successfully'
-    json['data'].should==obj.to_h
+    json
   end
 
   describe 'POST /:model' do
 
     it 'Creates successfully' do
       res = API.post('/band', {params: {data: {id: '4', name: 'Neurosis'}}})
-      successful_creation(res,Band['4'])
+      json = successful_creation(res)
+      json['data'].should==Band['4'].to_h
+    end
+
+    it 'Can create an doc even if no data is sent' do
+      count = Band.documents.size
+      res = API.post '/band'
+      successful_creation(res)
+      Band.documents.size.should==(count+1)
     end
 
   end
@@ -104,20 +120,31 @@ describe 'PopulateMe::API' do
     end
     it 'Sends the instance if it exists' do
       res = API.get('/band/2')
-      successful_instance(res,Band['2'])
+      json = successful_instance(res)
+      json['data'].should==Band['2'].to_h
     end
   end
 
   describe 'PUT /:model/:id' do
-    it 'Sends not-found if the instance does not exist' do
-      res = API.put('/band/666')
-      should_not_found(res)
-    end
-    it 'Returns an update response when the instance exists' do
-      obj = Band['3']
-      res = API.put('/band/3', {params: {data: {awsome: 'yes'}}})
-      successful_update(res,obj)
-    end
+    # it 'Sends not-found if the instance does not exist' do
+    #   res = API.put('/band/666')
+    #   should_not_found(res)
+    # end
+    # it 'Updates documents and embeded documents which are included' do
+    #   obj = Band['3']
+    #   res = API.put('/band/3', {params: {data: {awsome: 'yes'}}})
+    #   successful_update(res)
+    #   res = API.put('/band/3', {params: {data: {name: 'The Ramones'}}})
+    #   successful_update(res)
+    #   res = API.put('/band/3', {params: {data: {members: [{id: obj.members[0].id, name: 'Joey Ramone'}]}}})
+    #   successful_update(res)
+    #   obj = Band['3']
+    #   obj.awsome.should=='yes'
+    #   obj.name.should=='The Ramones'
+    #   obj.members.size.should==2
+    #   obj.members[0].name.should=='Joey Ramone'
+    #   obj.members[1].name.should=='Deedee Ramone'
+    # end
   end
 
   describe 'DELETE /:model/:id' do
@@ -128,7 +155,8 @@ describe 'PopulateMe::API' do
     it 'Returns a deletion response when the instance exists' do
       obj = Band['1']
       res = API.delete('/band/1')
-      successful_deletion(res,obj)
+      json = successful_deletion(res)
+      json['data'].should==obj.to_h
     end
   end
 end

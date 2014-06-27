@@ -15,15 +15,15 @@ class PopulateMe::API < Sinatra::Base
 
   post '/:model' do
     model_class = resolve_model_class(params[:model])
-    model_instance = model_class.new.set_from_hash(params[:data])
+    model_instance = model_class.new.set_from_hash(params[:data]||{})
     model_instance.save
     status 201
     {'success'=>true,'message'=>'Created Successfully','data'=>model_instance.to_h}.to_json
   end
 
   get '/:model/:id' do
-    if params['form']=='true'
-    end
+    # if params['form']=='true'
+    # end
     model_class = resolve_model_class(params[:model])
     model_instance = resolve_model_instance(model_class,params[:id])
     {'success'=>true,'data'=>model_instance.to_h}.to_json
