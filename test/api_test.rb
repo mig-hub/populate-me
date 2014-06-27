@@ -95,6 +95,12 @@ describe 'PopulateMe::API' do
       Band.documents.size.should==(count+1)
     end
 
+    it 'Redirects if destination is given' do
+      res = API.post '/band', {params: {'_destination'=>'http://example.org/anywhere'}}
+      res.status.should==302
+      res.header['Location'].should=='http://example.org/anywhere'
+    end
+
   end
 
   describe 'GET /:model/:id' do
@@ -157,6 +163,11 @@ describe 'PopulateMe::API' do
       res = API.delete('/band/1')
       json = successful_deletion(res)
       json['data'].should==obj.to_h
+    end
+    it 'Redirects if destination is given' do
+      res = API.delete('/band/2', {params: {'_destination'=>'http://example.org/anywhere'}})
+      res.status.should==302
+      res.header['Location'].should=='http://example.org/anywhere'
     end
   end
 end

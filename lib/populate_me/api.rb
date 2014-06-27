@@ -10,6 +10,10 @@ class PopulateMe::API < Sinatra::Base
     content_type 'application/json'
   end
 
+  after do
+    redirect(params['_destination']) unless params['_destination'].nil?
+  end
+
   get '/:model' do
   end
 
