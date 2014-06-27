@@ -6,7 +6,8 @@ require 'populate_me'
 require 'populate_me/document'
 class BlogPost
   include PopulateMe::Document
-
+  attr_accessor :title, :content, :published
+  label :title
 end
 
 # Rackup ##########
@@ -20,14 +21,21 @@ class Admin < PopulateMe::Admin
   set :app_file, __FILE__
   set :menu, [ ['Blog Posts', '/list/blog-post'] ]
   get '/' do
-    redirect('/')
+    redirect('/admin/menu')
   end
   get '/menu' do
     @menu = settings.menu
     erb :home, layout: !request.xhr?
   end
   get '/list/:model' do
-    model_class = resolve_model_class(params[:model])
+    @model_class = resolve_model_class(params[:model])
+    @documents = @model_class.documents.map{|d| @model_class.from_hash(d) }
+    erb :list, layout: !request.xhr?
+  end
+  get '/form/:model' do
+    @model_class = resolve_model_class(params[:model])
+    @model_instance = @model_class.new
+    erb :form, layout: !request.xhr?
   end
 end
 

@@ -4,6 +4,8 @@ require 'json'
 
 class PopulateMe::API < Sinatra::Base
 
+  use Rack::MethodOverride
+
   set :show_exceptions, false
 
   before do

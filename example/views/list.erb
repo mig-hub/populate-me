@@ -1,0 +1,19 @@
+<h1><%= @model_class.to_s_plural %> <a href="<%= request.script_name %>/form/<%= params[:model] %>">+</a></h1>
+<ol>
+  <% @documents.each do |doc| %>
+    <li>
+      <header>
+        <%= doc %>
+      </header>
+      <footer>
+        <a href="<%= settings.api_path %>/<%= params[:model] %>/<%= doc.id %>">Show</a><br>
+        <a href='<%= request.script_name %>/form/<%= params[:model] %>/<%= doc.id %>'>Edit</a><br>
+        <form action="<%= settings.api_path %>/<%= params[:model] %>/<%= doc.id %>?_method=DELETE&_destination=<%= escape request.url %>" method="POST" accept-charset="utf-8">
+          <input type="hidden" name="_method" value="DELETE" />
+          <input type="submit" name="" value="Delete" />
+        </form>
+      </footer>
+    </li>
+  <% end %>
+</ol>
+
