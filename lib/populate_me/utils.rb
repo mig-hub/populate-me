@@ -101,10 +101,22 @@ module PopulateMe
     end
     module_function :automatic_html
 
-    def truncate(s,c=320,ellipsis='...')
+    def truncate s,c=320,ellipsis='...'
       s.to_s.gsub(/<[^>]*>/, '').gsub(/\n/, ' ').sub(/^(.{#{c}}\w*).*$/m, '\1'+ellipsis)
     end
     module_function :truncate
+
+    def display_price int
+      raise(TypeError, 'The price needs to be the price in cents/pence as an integer') unless int.is_a?(Integer)
+      ("%.2f" % (int/100.0)).sub(/\.00/, '').reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse
+    end
+    module_function :display_price
+
+    def parse_price string
+      raise(TypeError, 'The price needs to be parsed from a String') unless string.is_a?(String)
+      ("%.2f" % string.gsub(/[^\d\.\-]/, '')).gsub(/\./,'').to_i
+    end
+    module_function :parse_price
 
   end
 end

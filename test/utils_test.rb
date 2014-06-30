@@ -205,5 +205,38 @@ describe 'PopulateMe::Utils' do
     end
   end
 
+  describe '#display_price' do
+    it 'Turns a price number in cents/pence into a displayable one' do
+      PopulateMe::Utils.display_price(4595).should=='45.95'
+    end
+    it 'Removes cents if it is 00' do
+      PopulateMe::Utils.display_price(7000).should=='70'
+    end
+    it 'Adds comma delimiters on thousands' do
+      PopulateMe::Utils.display_price(1234567890).should=='12,345,678.90'
+    end
+    it 'Works with negative numbers' do
+      PopulateMe::Utils.display_price(-140000).should=='-1,400'
+    end
+    it 'Raises when argument is not int' do
+      lambda{PopulateMe::Utils.display_price('abc')}.should.raise(TypeError)
+    end
+  end
+
+  describe '#parse_price' do
+    it 'Parses a string and find the price in cents/pence' do
+      PopulateMe::Utils.parse_price('45.95').should==4595
+    end
+    it 'Works when you omit the cents/pence' do
+      PopulateMe::Utils.parse_price('28').should==2800
+    end
+    it 'Ignores visual help but works with negative prices' do
+      PopulateMe::Utils.parse_price('   £-12,345,678.90   ').should==-1234567890
+    end
+    it 'Raises when argument is not string' do
+      lambda{PopulateMe::Utils.parse_price(42)}.should.raise(TypeError)
+    end
+  end
+
 end
 
