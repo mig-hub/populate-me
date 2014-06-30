@@ -8,6 +8,11 @@ class BlogPost
   include PopulateMe::Document
   attr_accessor :title, :content, :published
   label :title
+  def authors; @authors ||= []; end
+end
+class BlogPost::Author
+  include PopulateMe::Document
+  attr_accessor :name
 end
 
 # Rackup ##########

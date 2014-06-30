@@ -1,27 +1,26 @@
 <h1>New <%= @model_class %></h1>
 <form action="<%= settings.api_path %>/<%= params[:model] %>" method="post" accept-charset="utf-8">
 
-  <label>
-    Title<br>
-    <input type="text" name="data[title]" value="" placeholder='Title' />
-  </label>
+  <input type="text" name="data[title]" value="" placeholder='Title' /><br>
 
-  <label>
-    Content<br>
-    <textarea name="data[content]" rows="8" cols="40" placeholder='Content'></textarea>
-  </label>
+  <textarea name="data[content]" rows="8" cols="40" placeholder='Content'></textarea><br>
 
   <label>
     Published<br>
     <input type="hidden" name="data[published]" value="false" />
     <input type="checkbox" name="data[published]" value="true" />
-  </label>
+  </label><br>
+
+  <input type="hidden" name="data[authors][][_class]" value="BlogPost::Author" />
+  <input type="text" name="data[authors][][name]" value="" placeholder='Primary author' /><br>
+  <input type="hidden" name="data[authors][][_class]" value="BlogPost::Author" />
+  <input type="text" name="data[authors][][name]" value="" placeholder='Secondary author' /><br>
 
   <input type="hidden" name="_destination" value="<%= request.script_name %>/list/<%= params[:model] %>" />
   <input type="submit" name="" value="Save" />
 </form>
 
 <style type="text/css" media="all">
-  label { display: block; margin: 2em 0; }
+  <%# label { display: block; margin: 2em 0; } %>
 </style>
 
