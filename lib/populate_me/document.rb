@@ -34,8 +34,15 @@ module PopulateMe
 
       def documents; @documents ||= []; end
 
-      def from_hash hash
+      def from_hash hash, o={}
+        hash = typecast(hash) if o[:typecast].true?
         self.new(_is_new: false).set_from_hash hash
+      end
+
+      def typecast(hash)
+        Utils.each_stub hash do |object,key_index,value|
+          object[key_index] = Utils.automatic_typecast value
+        end
       end
 
       def from_post hash
