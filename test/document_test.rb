@@ -54,25 +54,25 @@ describe 'PopulateMe::Document' do
 
   class Couch
     include PopulateMe::Document
-    slot :colour, required: true
-    slot :capacity, type: :integer
-    slot :price, type: :price, required: true
-    slot :available, type: :boolean
+    field :colour, required: true
+    field :capacity, type: :integer
+    field :price, type: :price, required: true
+    field :available, type: :boolean
   end
 
-  describe 'Attributes' do
+  describe 'Fields' do
 
-    it 'Can declare attributes and options about them in one go' do
-      Couch.slots.size.should==4
-      Couch.slots.keys.should==[:colour, :capacity, :price, :available]
-      Couch.slots[:available][:type].should==:boolean
-      Couch.slots[:price][:required].should==true
+    it 'Can declare fields and options about them in one go' do
+      Couch.fields.size.should==4
+      Couch.fields.keys.should==[:colour, :capacity, :price, :available]
+      Couch.fields[:available][:type].should==:boolean
+      Couch.fields[:price][:required].should==true
       couch = Couch.new
       couch.price = 300
       couch.price.should==300
     end
 
-    it 'Uses the first slot as label when label field is not specified' do
+    it 'Uses the first field as label when label field is not specified' do
       couch = Couch.new
       couch.colour = 'White'
       couch.to_s.should=='White'

@@ -19,7 +19,7 @@ module PopulateMe
     end
 
     module ClassMethods
-      attr_writer :slots, :documents
+      attr_writer :fields, :documents
       attr_accessor :callbacks, :label_field
 
       def to_s
@@ -32,13 +32,13 @@ module PopulateMe
         @label_field = sym.to_sym
       end
 
-      def slots; @slots ||= {}; end
-      def slot name, attributes={}
+      def fields; @fields ||= {}; end
+      def field name, attributes={}
         attr_accessor name
-        self.slots[name] = attributes
+        self.fields[name] = attributes
       end
       def label_field
-        @label_field || self.slots.keys[0]
+        @label_field || self.fields.keys[0]
       end
 
       def documents; @documents ||= []; end
