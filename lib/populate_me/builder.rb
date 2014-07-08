@@ -35,7 +35,7 @@ module PopulateMe
       end
     end
 
-    def _fragment_escape_entities(s)
+    def _fragment_escape_entities s
       s.to_s.gsub(/&/, '&amp;').gsub(/"/, '&quot;').gsub(/'/, '&apos;').gsub(/</, '&lt;').gsub(/>/, '&gt;')
     end
     
@@ -49,6 +49,23 @@ module PopulateMe
     def write(s=''); @to_s << s; end
     def doctype; write "<!DOCTYPE html>\n"; end
     def comment(s=''); write "\n<!-- #{s} -->\n"; end
+
+    # Form helpers
+
+    def input_for obj, field, o={}
+      o = obj.class.fields[field].merge(o) if obj.class.respond_to?(:fields)
+      return if o[:form_field]==false
+      o[:input_name] ||= "#{o[:input_name_prefix]||'data'}[#{field}]"
+      o[:input_value] ||= obj.__send__(field)
+      o[:input_value] = Utils.html_escape(o[:input_value]) if (o[:input_value].is_a?(String) && o[:html_escape]!=false)
+      type_method = "#{o[:type]||'string'}_input_for"
+      return __send__(type_method,obj,field,o) if (o[:wrap_input]==false||o[:type]==:hidden)
+    end
+    def boolean_input_for obj, field, o={}
+      input(type: :hidden, name: o[:input_name], value: 'false')
+      input(type: :checkbox, name: o[:input_name], value: 'true', checked: o[:input_value])
+    end
+
   end
 end
 

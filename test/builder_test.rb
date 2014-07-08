@@ -188,5 +188,37 @@ describe 'PopulateMe::Builder' do
     s.fail_summary.should=="<article><h1><name /></h1><p>\n<!--  -->\n</p></article>"
   end
 
+  describe 'Form helpers' do
+
+    class Ticket
+      attr_accessor :place, :price, :authorized, :position
+    end
+
+    class BusTicket < Ticket
+      def self.fields
+        {
+          place: {},
+          price: {},
+          authorized: {type: :boolean, form_field: false},
+          position: {form_field: false}
+        }
+      end
+    end
+
+    it 'Builds no input for a field if the option is used' do
+      ticket = Ticket.new
+      PopulateMe::Builder.create{ input_for(ticket,:place, form_field: false) }.should==''
+    end
+
+    it 'Uses fields attributes as a start for the options when it exists' do
+      ticket = BusTicket.new
+      PopulateMe::Builder.create{ input_for(ticket,:authorized) }.should==''
+      PopulateMe::Builder.create{ input_for(ticket,:authorized,form_field: true, wrap_input: false) }.should=="<input type='hidden' name='data[authorized]' value='false' /><input type='checkbox' name='data[authorized]' value='true' />"
+      ticket.authorized = true
+      PopulateMe::Builder.create{ input_for(ticket,:authorized,form_field: true, wrap_input: false) }.should=="<input type='hidden' name='data[authorized]' value='false' /><input type='checkbox' name='data[authorized]' value='true' checked='true' />"
+    end
+
+  end
+
 end
 

@@ -209,11 +209,11 @@ module PopulateMe
 
     # Forms
     def default_form
-      self.class.fields.reduce('') do |out, (k,v)|
-
+      Builder.create_here do |b|
+        self.class.fields.each do |k,v|
+          b.build_input(k,v)
+        end
       end
-    end
-    def form_input_for
     end
 
     # Validation
