@@ -207,6 +207,15 @@ module PopulateMe
     def ensure_new; self._is_new = true; end # after_delete
     def ensure_not_new; self._is_new = false; end # after_create
 
+    # Forms
+    def default_form
+      self.class.fields.reduce('') do |out, (k,v)|
+
+      end
+    end
+    def form_input_for
+    end
+
     # Validation
     def error_on k,v 
       self._errors[k] = (self._errors[k]||[]) << v
