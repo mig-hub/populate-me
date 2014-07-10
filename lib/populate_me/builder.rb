@@ -62,6 +62,9 @@ module PopulateMe
     def string_input_for obj, field, o={}
       input(type: :text, name: o[:input_name], value: o[:input_value], required: o[:required])
     end
+    def text_input_for obj, field, o={}
+      textarea(name: o[:input_name], required: o[:required]) { o[:input_value] }
+    end
     def boolean_input_for obj, field, o={}
       input(type: :hidden, name: o[:input_name], value: 'false')
       input(type: :checkbox, name: o[:input_name], value: 'true', checked: o[:input_value])

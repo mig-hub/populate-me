@@ -223,6 +223,18 @@ describe 'PopulateMe::Builder' do
       builder_input_for(ticket, :place, wrap_input: false, type: :string, required: true).should=="<input type='text' name='data[place]' value='B52' required='true' />"
     end
 
+    it 'Can build a text input' do
+      ticket = Ticket.new
+      builder_input_for(ticket, :place, wrap_input: false, type: :text).should=="<textarea name='data[place]'></textarea>"
+      ticket.place = "B\n5\n2"
+      builder_input_for(ticket, :place, wrap_input: false, type: :text).should=="<textarea name='data[place]'>B\n5\n2</textarea>"
+    end
+
+    it 'Builds a string input by default if type is not specified' do
+      ticket = Ticket.new
+      builder_input_for(ticket, :place, wrap_input: false).should=="<input type='text' name='data[place]' />"
+    end
+
     it 'Can build boolean inputs' do
       ticket = Ticket.new
       builder_input_for(ticket,:place, wrap_input: false, type: :boolean).should=="<input type='hidden' name='data[place]' value='false' /><input type='checkbox' name='data[place]' value='true' />"
@@ -235,6 +247,9 @@ describe 'PopulateMe::Builder' do
       builder_input_for(ticket,:authorized).should==''
       builder_input_for(ticket,:authorized,form_field: true, wrap_input: false).should=="<input type='hidden' name='data[authorized]' value='false' /><input type='checkbox' name='data[authorized]' value='true' />"
     end
+
+    # Can avoid escape HTML
+    # Can be wrapped
 
   end
 
