@@ -1,7 +1,8 @@
 # encoding: utf-8
 
 require 'bacon'
-require File.expand_path('../../lib/populate_me/builder', __FILE__)
+$:.unshift File.expand_path('../../lib', __FILE__)
+require "populate_me/builder"
 
 describe 'PopulateMe::Builder' do
 
@@ -95,7 +96,7 @@ describe 'PopulateMe::Builder' do
       a(:href => "http://example.org/?a=one&b=two") {
         "Click here"
       }
-    }.should == "<a href='http://example.org/?a=one&amp;b=two'>Click here</a>"
+    }.should == "<a href='http:&#x2F;&#x2F;example.org&#x2F;?a=one&amp;b=two'>Click here</a>"
   end
   
   it "Should accept attributes in a string" do
@@ -190,6 +191,10 @@ describe 'PopulateMe::Builder' do
 
   describe 'Form helpers' do
 
+    def builder_input_for obj, field, o={}
+      PopulateMe::Builder.create{ input_for(obj, field, o) }
+    end
+
     class Ticket
       attr_accessor :place, :price, :authorized, :position
     end
@@ -207,15 +212,28 @@ describe 'PopulateMe::Builder' do
 
     it 'Builds no input for a field if the option is used' do
       ticket = Ticket.new
-      PopulateMe::Builder.create{ input_for(ticket,:place, form_field: false) }.should==''
+      builder_input_for(ticket,:place, form_field: false).should==''
+    end
+
+    it 'Can build string input' do
+      ticket = Ticket.new
+      builder_input_for(ticket, :place, wrap_input: false, type: :string).should=="<input type='text' name='data[place]' />"
+      ticket.place = 'B52'
+      builder_input_for(ticket, :place, wrap_input: false, type: :string).should=="<input type='text' name='data[place]' value='B52' />"
+      builder_input_for(ticket, :place, wrap_input: false, type: :string, required: true).should=="<input type='text' name='data[place]' value='B52' required='true' />"
+    end
+
+    it 'Can build boolean inputs' do
+      ticket = Ticket.new
+      builder_input_for(ticket,:place, wrap_input: false, type: :boolean).should=="<input type='hidden' name='data[place]' value='false' /><input type='checkbox' name='data[place]' value='true' />"
+      ticket.place = true
+      builder_input_for(ticket,:place, wrap_input: false, type: :boolean).should=="<input type='hidden' name='data[place]' value='false' /><input type='checkbox' name='data[place]' value='true' checked='true' />"
     end
 
     it 'Uses fields attributes as a start for the options when it exists' do
       ticket = BusTicket.new
-      PopulateMe::Builder.create{ input_for(ticket,:authorized) }.should==''
-      PopulateMe::Builder.create{ input_for(ticket,:authorized,form_field: true, wrap_input: false) }.should=="<input type='hidden' name='data[authorized]' value='false' /><input type='checkbox' name='data[authorized]' value='true' />"
-      ticket.authorized = true
-      PopulateMe::Builder.create{ input_for(ticket,:authorized,form_field: true, wrap_input: false) }.should=="<input type='hidden' name='data[authorized]' value='false' /><input type='checkbox' name='data[authorized]' value='true' checked='true' />"
+      builder_input_for(ticket,:authorized).should==''
+      builder_input_for(ticket,:authorized,form_field: true, wrap_input: false).should=="<input type='hidden' name='data[authorized]' value='false' /><input type='checkbox' name='data[authorized]' value='true' />"
     end
 
   end
