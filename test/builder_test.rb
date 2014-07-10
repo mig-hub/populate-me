@@ -223,16 +223,29 @@ describe 'PopulateMe::Builder' do
       builder_input_for(ticket, :place, wrap_input: false, type: :string, required: true).should=="<input type='text' name='data[place]' value='B52' required='true' />"
     end
 
+    it 'Builds a string input by default if type is not specified' do
+      ticket = Ticket.new
+      builder_input_for(ticket, :place, wrap_input: false).should=="<input type='text' name='data[place]' />"
+    end
+
+    it 'Builds a string input by default if type is not recognized' do
+      ticket = Ticket.new
+      builder_input_for(ticket, :place, wrap_input: false, type: :unknown).should=="<input type='text' name='data[place]' />"
+    end
+
+    it 'Can send attributes to the default input type' do
+      ticket = Ticket.new
+      builder_input_for(
+        ticket, :place, wrap_input: false, type: :integer,
+        input_attributes: {type: :number, min: '0', max: '10', step: '1'}
+      ).should=="<input type='number' name='data[place]' min='0' max='10' step='1' />"
+    end
+
     it 'Can build a text input' do
       ticket = Ticket.new
       builder_input_for(ticket, :place, wrap_input: false, type: :text).should=="<textarea name='data[place]'></textarea>"
       ticket.place = "B\n5\n2"
       builder_input_for(ticket, :place, wrap_input: false, type: :text).should=="<textarea name='data[place]'>B\n5\n2</textarea>"
-    end
-
-    it 'Builds a string input by default if type is not specified' do
-      ticket = Ticket.new
-      builder_input_for(ticket, :place, wrap_input: false).should=="<input type='text' name='data[place]' />"
     end
 
     it 'Can build boolean inputs' do

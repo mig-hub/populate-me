@@ -56,11 +56,18 @@ module PopulateMe
       o[:input_name] ||= "#{o[:input_name_prefix]||'data'}[#{field}]"
       o[:input_value] ||= obj.__send__(field)
       o[:input_value] = Rack::Utils.escape_html(o[:input_value]) if (o[:input_value].is_a?(String) && o[:html_escape]!=false)
-      type_method = "#{o[:type]||'string'}_input_for"
+      o[:type] ||= :string
+      type_method = "#{o[:type]}_input_for"
+      type_method = 'string_input_for' unless self.respond_to?(type_method)
       return __send__(type_method,obj,field,o) if (o[:wrap_input]==false||o[:type]==:hidden)
     end
     def string_input_for obj, field, o={}
-      input(type: :text, name: o[:input_name], value: o[:input_value], required: o[:required])
+      attributes = { 
+        type: :text, name: o[:input_name], 
+        value: o[:input_value], required: o[:required]
+      }
+      attributes = attributes.merge(o[:input_attributes]) unless o[:input_attributes].nil?
+      input(attributes)
     end
     def text_input_for obj, field, o={}
       textarea(name: o[:input_name], required: o[:required]) { o[:input_value] }
