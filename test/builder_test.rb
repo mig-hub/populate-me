@@ -197,6 +197,18 @@ describe 'PopulateMe::Builder' do
 
     class Ticket
       attr_accessor :place, :price, :authorized, :position
+      def up_or_down
+        ['Up','Down']
+      end
+      def up_or_down_class
+        [['Up','up_class'],['Down','down_class']]
+      end
+      def with_integer
+        [3]
+      end
+      def with_multiple
+        ['A','B']
+      end
     end
 
     class BusTicket < Ticket
@@ -253,6 +265,42 @@ describe 'PopulateMe::Builder' do
       builder_input_for(ticket,:place, wrap_input: false, type: :boolean).should=="<input type='hidden' name='data[place]' value='false' /><input type='checkbox' name='data[place]' value='true' />"
       ticket.place = true
       builder_input_for(ticket,:place, wrap_input: false, type: :boolean).should=="<input type='hidden' name='data[place]' value='false' /><input type='checkbox' name='data[place]' value='true' checked='true' />"
+    end
+
+    it 'Can build select inputs' do
+      ticket = Ticket.new
+      builder_input_for(ticket, :place, wrap_input: false, type: :select, select_options: ['Yes','No']).should=="<select name='data[place]'><option value='Yes'>Yes</option><option value='No'>No</option></select>"
+      ticket.place = 'Blah'
+      builder_input_for(ticket, :place, wrap_input: false, type: :select, select_options: ['Yes','No']).should=="<select name='data[place]'><option value='Yes'>Yes</option><option value='No'>No</option></select>"
+      ticket.place = 'Yes'
+      builder_input_for(ticket, :place, wrap_input: false, type: :select, select_options: ['Yes','No']).should=="<select name='data[place]'><option value='Yes' selected='true'>Yes</option><option value='No'>No</option></select>"
+    end
+
+    it 'Can take the select options from a document method' do
+      ticket = Ticket.new
+      builder_input_for(ticket, :place, wrap_input: false, type: :select, select_options: :up_or_down).should=="<select name='data[place]'><option value='Up'>Up</option><option value='Down'>Down</option></select>"
+    end
+
+    it 'Keeps class of select options for comparison' do
+      ticket = Ticket.new
+      ticket.place = 3
+      builder_input_for(ticket, :place, wrap_input: false, type: :select, select_options: :with_integer).should=="<select name='data[place]'><option value='3' selected='true'>3</option></select>"
+      ticket.place = '3'
+      builder_input_for(ticket, :place, wrap_input: false, type: :select, select_options: :with_integer).should=="<select name='data[place]'><option value='3'>3</option></select>"
+    end
+
+    it 'Can have the select option display something different from what is really sent' do
+      ticket = Ticket.new
+      builder_input_for(ticket, :place, wrap_input: false, type: :select, select_options: :up_or_down_class).should=="<select name='data[place]'><option value='up_class'>Up</option><option value='down_class'>Down</option></select>"
+    end
+
+    it 'Can build a multiple select input' do
+      ticket = Ticket.new
+      builder_input_for(ticket, :place, wrap_input: false, type: :select, select_options: :with_multiple, multiple: true).should=="<select name='data[place]' multiple='true'><option value='A'>A</option><option value='B'>B</option></select>"
+      ticket.place = 'A'
+      builder_input_for(ticket, :place, wrap_input: false, type: :select, select_options: :with_multiple, multiple: true).should=="<select name='data[place]' multiple='true'><option value='A' selected='true'>A</option><option value='B'>B</option></select>"
+      ticket.place = ['A','B']
+      builder_input_for(ticket, :place, wrap_input: false, type: :select, select_options: :with_multiple, multiple: true).should=="<select name='data[place]' multiple='true'><option value='A' selected='true'>A</option><option value='B' selected='true'>B</option></select>"
     end
 
     it 'Uses fields attributes as a start for the options when it exists' do

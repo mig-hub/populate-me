@@ -76,6 +76,20 @@ module PopulateMe
       input(type: :hidden, name: o[:input_name], value: 'false')
       input(type: :checkbox, name: o[:input_name], value: 'true', checked: o[:input_value])
     end
+    def select_input_for obj, field, o={}
+      # o[:input_name] << '[]' if o[:multiple]
+      select(name: o[:input_name], multiple: o[:multiple]) do
+        o[:select_options] = obj.__send__(o[:select_options]) if o[:select_options].is_a?(Symbol)
+        select_options = o[:select_options].dup
+        if select_options.is_a?(Array)
+          select_options.each do |op|
+            key,val = op.is_a?(Array) ? [op[0],op[1]] : [op,op]
+            selected = (val==o[:input_value] || (o[:input_value].is_a?(Array)&&o[:input_value].include?(val))) 
+            option(value: val, selected: selected) { key.to_s }
+          end
+        end
+      end
+    end
 
   end
 end
