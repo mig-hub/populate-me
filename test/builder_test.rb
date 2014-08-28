@@ -196,7 +196,7 @@ describe 'PopulateMe::Builder' do
     end
 
     class Ticket
-      attr_accessor :place, :price, :authorized, :position
+      attr_accessor :place, :price, :qr, :authorized, :position
       def up_or_down
         ['Up','Down']
       end
@@ -216,6 +216,7 @@ describe 'PopulateMe::Builder' do
         {
           place: {},
           price: {},
+          qr: {type: :attachment},
           authorized: {type: :boolean, form_field: false},
           position: {form_field: false}
         }
@@ -301,6 +302,13 @@ describe 'PopulateMe::Builder' do
       builder_input_for(ticket, :place, wrap_input: false, type: :select, select_options: :with_multiple, multiple: true).should=="<select name='data[place]' multiple='true'><option value='A' selected='true'>A</option><option value='B'>B</option></select>"
       ticket.place = ['A','B']
       builder_input_for(ticket, :place, wrap_input: false, type: :select, select_options: :with_multiple, multiple: true).should=="<select name='data[place]' multiple='true'><option value='A' selected='true'>A</option><option value='B' selected='true'>B</option></select>"
+    end
+
+    it 'Can build an attachment input' do
+      ticket = Ticket.new
+      html = builder_input_for(ticket, :qr, wrap_input: false, type: :attachment)
+      html.should.include?("<input type='checkbox' name='data[qr]' value='nil'>Delete this file</input><br />")
+      html.should.include?("<input type='file' name='data[qr]' />")
     end
 
     it 'Uses fields attributes as a start for the options when it exists' do

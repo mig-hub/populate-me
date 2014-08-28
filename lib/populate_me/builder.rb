@@ -90,6 +90,11 @@ module PopulateMe
         end
       end
     end
+    def attachment_input_for obj, field, o={}
+      input(type: :checkbox, name: o[:input_name], value: :nil) { 'Delete this file' }
+      br
+      input(type: :file, name: o[:input_name])
+    end
 
   end
 end
