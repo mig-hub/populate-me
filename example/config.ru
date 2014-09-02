@@ -15,17 +15,14 @@ class BlogPost::Author
   attr_accessor :name
 end
 
-# Rackup ##########
+# Admin ##########
 
 require "populate_me/admin"
 class Admin < PopulateMe::Admin
-  set :menu, [ ['Blog Posts', '/list/blog-post'] ]
+  # set :menu, [ ['Blog Posts', '/list/blog-post'] ]
+  set :menu, [['Sub 1', [['Sub 1', '/admin/api/version'], ['Sub 2', '/admin/api/version']]]]
   get '/' do
     redirect('/admin/menu')
-  end
-  get '/menu' do
-    @menu = settings.menu
-    erb :home, layout: !request.xhr?
   end
   get '/list/:model' do
     @model_class = resolve_model_class(params[:model])
@@ -39,7 +36,5 @@ class Admin < PopulateMe::Admin
   end
 end
 
-map '/admin' do
-  run Admin
-end
+run Admin
 
