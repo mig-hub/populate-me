@@ -1,5 +1,6 @@
 require 'sinatra/base'
 require 'populate_me/utils'
+require 'populate_me/version'
 require 'json'
 
 class PopulateMe::API < Sinatra::Base
@@ -14,6 +15,11 @@ class PopulateMe::API < Sinatra::Base
 
   after do
     redirect(params['_destination']) unless params['_destination'].nil?
+  end
+
+  get '/version' do
+    status 200
+    {'success'=>true, 'version'=>PopulateMe::VERSION}.to_json
   end
 
   get '/:model' do

@@ -80,6 +80,17 @@ describe 'PopulateMe::API' do
     json
   end
 
+  describe 'GET /version' do
+    it 'Returns the PopulateMe version' do
+      res = API.get('/version')
+      json = JSON.parse(res.body)
+      res.content_type.should=='application/json'
+      res.status.should==200
+      json['success'].should==true
+      json['version'].should==PopulateMe::VERSION
+    end
+  end
+
   describe 'POST /:model' do
 
     it 'Creates successfully' do
