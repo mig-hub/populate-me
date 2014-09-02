@@ -23,5 +23,11 @@ describe 'PopulateMe::Admin' do
     json['version'].should==PopulateMe::VERSION
   end
 
+  it 'Has assets available on /__assets__' do
+    res = REQ.get('/__assets__/css/main.css')
+    res.status.should==200
+    res.content_type.should=='text/css'
+  end
+
 end
 
