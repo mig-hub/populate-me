@@ -17,13 +17,8 @@ end
 
 # Rackup ##########
 
-map '/api' do
-  run PopulateMe::API
-end
-
 require "populate_me/admin"
 class Admin < PopulateMe::Admin
-  set :app_file, __FILE__
   set :menu, [ ['Blog Posts', '/list/blog-post'] ]
   get '/' do
     redirect('/admin/menu')

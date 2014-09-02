@@ -44,7 +44,7 @@ module PopulateMe
       def documents; @documents ||= []; end
 
       def from_hash hash, o={}
-        hash = typecast(hash) if o[:typecast].true?
+        hash = typecast(hash) if o[:typecast]
         self.new(_is_new: false).set_from_hash hash
       end
 

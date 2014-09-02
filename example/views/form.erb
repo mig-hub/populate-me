@@ -1,5 +1,5 @@
 <h1>New <%= @model_class %></h1>
-<form action="<%= settings.api_path %>/<%= params[:model] %>" method="post" accept-charset="utf-8">
+<form action="<%= request.script_name %>/api/<%= params[:model] %>" method="post" accept-charset="utf-8">
 
   <input type="text" name="data[title]" value="" placeholder='Title' /><br>
 
