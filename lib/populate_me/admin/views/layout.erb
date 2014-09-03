@@ -1,0 +1,19 @@
+<%# encoding: utf-8 %>
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title><%= @meta_title %></title>
+  </head>
+  <body>
+
+    <ol id='finder'>
+      <li class='column'><%= yield %></li>
+    </ol>
+
+    <script src="http://code.jquery.com/jquery-1.10.2.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="<%= request.script_name %>/__assets__/js/columnav.js" type="text/javascript" charset="utf-8"></script>
+    <script src="<%= request.script_name %>/__assets__/js/main.js" type="text/javascript" charset="utf-8"></script>
+  </body>
+</html>
+

@@ -1,0 +1,7 @@
+<%# encoding: utf-8 %>
+<ol>
+  <% @level_menu.each do |l| %>
+    <li><a href="<%= l[:href] %>" class='column-push'><%= l[:title] %></a></li>
+  <% end %>
+</ol>
+
