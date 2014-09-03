@@ -27,10 +27,10 @@ class PopulateMe::Admin < Sinatra::Base
     @level_menu = settings.menu.dup
     @levels = params[:splat].reject{|s|blank?(s)}
     @levels.each do |l|
-      @level_menu = @level_menu.assoc(unescape(l))[1]
+      @level_menu = @level_menu.find{|item| slugify(item[0])==l}[1]
     end
     @level_menu.map! do |l|
-      href = l[1].is_a?(String) ? l[1] : "#{request.script_name}/menu#{@levels.map{|l|'/'+l}.join}/#{escape(l[0])}" 
+      href = l[1].is_a?(String) ? l[1] : "#{request.script_name}/menu#{@levels.map{|l|'/'+l}.join}/#{slugify(l[0])}" 
       {
         title: l[0],
         href: href
