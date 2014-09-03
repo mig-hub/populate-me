@@ -12,13 +12,6 @@ class PopulateMe::Admin < Sinatra::Base
   # Load API helpers
   helpers PopulateMe::API::Helpers
   helpers do
-    def menu_href(key, value)
-      return value if value.is_a?(String)
-      if value.is_a?(Array)
-        return "#{request.script_name}/menu/#{params[:splat].join('/')}#{'/' unless params[:splat].empty?}#{escape(key)}" 
-      end
-      raise "The admin menu is not correctly formated"
-    end
   end
   # Make all templates in admin/views accessible with their basename
   Dir["#{File.expand_path('../admin/views',__FILE__)}/*.erb"].each do |f|
@@ -30,16 +23,17 @@ class PopulateMe::Admin < Sinatra::Base
   before do
     @meta_title = "Populate Me"
   end
-  get '/menu/?*' do
-    @level_menu = settings.menu
-    params[:splat].each do |l|
-      next if blank?(l)
+  get '/menu/?*?' do
+    @level_menu = settings.menu.dup
+    @levels = params[:splat].reject{|s|blank?(s)}
+    @levels.each do |l|
       @level_menu = @level_menu.assoc(unescape(l))[1]
     end
     @level_menu.map! do |l|
+      href = l[1].is_a?(String) ? l[1] : "#{request.script_name}/menu#{@levels.map{|l|'/'+l}.join}/#{escape(l[0])}" 
       {
         title: l[0],
-        href: menu_href(l[0],l[1])
+        href: href
       }
     end
     erb :menu, layout: !request.xhr?

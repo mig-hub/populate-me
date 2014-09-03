@@ -20,7 +20,12 @@ end
 require "populate_me/admin"
 class Admin < PopulateMe::Admin
   # set :menu, [ ['Blog Posts', '/list/blog-post'] ]
-  set :menu, [['Sub 1', [['Sub 1', '/admin/api/version'], ['Sub 2', '/admin/api/version']]]]
+  set :menu, [
+    ['Sub 1', [
+      ['Sub Sub 1', '/api/version'], 
+      ['Sub Sub 2', '/api/version']
+    ]]
+  ]
   get '/' do
     redirect('/admin/menu')
   end
