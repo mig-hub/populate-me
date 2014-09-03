@@ -21,7 +21,7 @@ module PopulateMe
                 js = <<-EOJS
                 <script type="text/javascript" charset="utf-8">
                   $(function(){
-                    $( "##{m.field_id_for(c)}" ).autocomplete({source: ["#{values.map{|v|v.gsub(/"/,'')}.join('","')}"]});
+                    $( "##{m.field_id_for(c)}" ).autocomplete({source: ["#{values.map{|v|v.to_s.gsub(/"/,'')}.join('","')}"]});
                   });
                 </script>
                 EOJS
@@ -121,7 +121,7 @@ module PopulateMe
                     .autocomplete({
                       minLength: 0,
                       source: function( request, response ) {
-                        response($.ui.autocomplete.filter(["#{values.map{|v|v.gsub(/"/,'')}.join('","')}"], request.term.split(/,\s*/).pop()));
+                        response($.ui.autocomplete.filter(["#{values.map{|v|v.to_s.gsub(/"/,'')}.join('","')}"], request.term.split(/,\s*/).pop()));
                       },
                       focus: function() { return false; },
                       select: function( event, ui ) {
