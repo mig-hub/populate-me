@@ -102,6 +102,9 @@ module PopulateMe
       #   @documents << inst.to_h
       #   inst
       # end
+      def all
+        self.documents.map{|d| self.from_hash(d) }
+      end
     end
 
     attr_accessor :id, :_errors, :_is_new
@@ -207,15 +210,6 @@ module PopulateMe
     def ensure_new; self._is_new = true; end # after_delete
     def ensure_not_new; self._is_new = false; end # after_create
 
-    # Forms
-    def default_form
-      Builder.create_here do |b|
-        self.class.fields.each do |k,v|
-          b.build_input(k,v)
-        end
-      end
-    end
-
     # Validation
     def error_on k,v 
       self._errors[k] = (self._errors[k]||[]) << v
@@ -269,6 +263,35 @@ module PopulateMe
       index = self.class.documents.index{|d| d['id']==self.id }
       raise MissingDocumentError, "No document can be found with this ID: #{self.id}" if self.id.nil?||index.nil?
       self.class.documents.delete_at(index)
+    end
+
+    # Related to the Admin interface #############
+
+    def to_admin_url
+      "#{dasherize_class_name(self.class.name)}/#{id}"
+    end
+
+    # Admin list
+    def to_admin_list_item o={}
+      Builder.create_here do |b|
+        b.li do
+          b.a href: "#{o[:request].script_name}/form/#{to_admin_url}", class: 'column-push' do
+            self.to_s
+          end
+        end
+      end
+    end
+
+    # Forms
+    def default_form o={}
+      Builder.create_here do |b|
+        self.class.fields.each do |k,v|
+          b.build_input(k,v)
+        end
+      end
+    end
+    def to_admin_form o={}
+      default_form o
     end
 
   end

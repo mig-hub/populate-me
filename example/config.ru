@@ -6,28 +6,23 @@ require 'populate_me'
 require 'populate_me/document'
 class BlogPost
   include PopulateMe::Document
-  attr_accessor :title, :content, :published
-  label :title
+  field :title
+  field :content, type: :text
+  field :published, type: :boolean
   def authors; @authors ||= []; end
 end
 class BlogPost::Author
   include PopulateMe::Document
-  attr_accessor :name
+  field :name
 end
 
 # Admin ##########
 
 require "populate_me/admin"
 class Admin < PopulateMe::Admin
-  # set :menu, [ ['Blog Posts', '/list/blog-post'] ]
-  set :menu, [
-    ['Sub 1', [
-      ['Sub Sub 1', '/api/version'], 
-      ['Sub Sub 2', '/api/version']
-    ]]
-  ]
+  set :menu, [ ['Blog Posts', '/list/blog-post'] ]
   get '/' do
-    redirect('/admin/menu')
+    redirect('/menu')
   end
   get '/list/:model' do
     @model_class = resolve_model_class(params[:model])

@@ -38,5 +38,10 @@ class PopulateMe::Admin < Sinatra::Base
     end
     erb :menu, layout: !request.xhr?
   end
+  get '/list/:class_name' do
+    @model_class = resolve_model_class(params[:class_name])
+    @documents = @model_class.all
+    erb :list, layout: !request.xhr?
+  end
 end
 
