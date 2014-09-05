@@ -1,0 +1,11 @@
+<%# encoding: utf-8 %>
+<h1>
+  <%= @model_class.to_s_plural %>
+  <a href="<%= request.script_name %>/form/<%= params[:class_name] %>" class='column-push'>+</a>
+</h1>
+<ol>
+  <% @documents.each do |d| %>
+    <%= d.to_admin_list_item(request: request, params: params) %>
+  <% end %>
+</ol>
+

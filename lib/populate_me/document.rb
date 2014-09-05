@@ -266,17 +266,27 @@ module PopulateMe
     end
 
     # Related to the Admin interface #############
+    require "populate_me/builder"
 
     def to_admin_url
-      "#{dasherize_class_name(self.class.name)}/#{id}"
+      "#{Utils.dasherize_class_name(self.class.name)}/#{id}"
     end
 
     # Admin list
     def to_admin_list_item o={}
       Builder.create_here do |b|
         b.li do
-          b.a href: "#{o[:request].script_name}/form/#{to_admin_url}", class: 'column-push' do
-            self.to_s
+          b.header do
+            b.a href: "#{o[:request].script_name}/form/#{to_admin_url}", class: 'column-push' do
+              self.to_s
+            end
+          end
+          b.footer do
+            b.form action: "#{ o[:request].script_name }/api/#{ o[:params][:class_name] }/#{ self.id }", method: "POST", 'accept-charset'=> "utf-8" do
+              b.input type: :hidden, name: "_method", value: "DELETE"
+              b.input type: :hidden, name: "destination", value: o[:request].url
+              b.input type: :submit, name: "", value: "X"
+            end
           end
         end
       end
@@ -285,8 +295,8 @@ module PopulateMe
     # Forms
     def default_form o={}
       Builder.create_here do |b|
-        self.class.fields.each do |k,v|
-          b.build_input(k,v)
+        self.class.fields.keys.each do |k|
+          b.input_for(self,k)
         end
       end
     end

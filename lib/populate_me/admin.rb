@@ -23,6 +23,9 @@ class PopulateMe::Admin < Sinatra::Base
   before do
     @meta_title = "Populate Me"
   end
+  get '/' do
+    redirect('/menu')
+  end
   get '/menu/?*?' do
     @level_menu = settings.menu.dup
     @levels = params[:splat].reject{|s|blank?(s)}
@@ -42,6 +45,16 @@ class PopulateMe::Admin < Sinatra::Base
     @model_class = resolve_model_class(params[:class_name])
     @documents = @model_class.all
     erb :list, layout: !request.xhr?
+  end
+  get '/form/:class_name' do
+    @model_class = resolve_model_class(params[:class_name])
+    @model_instance = @model_class.new
+    erb :form, layout: !request.xhr?
+  end
+  get '/form/:class_name/:id' do
+    @model_class = resolve_model_class(params[:class_name])
+    @model_instance = resolve_model_instance(@model_class,params[:id])
+    erb :form, layout: !request.xhr?
   end
 end
 

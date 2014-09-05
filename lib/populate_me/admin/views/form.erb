@@ -1,0 +1,12 @@
+<%# encoding: utf-8 %>
+
+<% if @model_instance.new? %>
+  <h1>New <%= @model_class %></h1>
+<% else %>
+  <h1><%= @model_instance %></h1>
+<% end %>
+<form action="<%= request.script_name %>/api/<%= params[:class_name] %>" method="post" accept-charset="utf-8">
+  <%= @model_instance.to_admin_form(request: request, params: params) %>
+  <input type="submit" value="<%= @model_instance.new? ? 'Create' : 'Update' %>" />
+</form>
+
