@@ -275,18 +275,13 @@ module PopulateMe
     # Admin list
     def to_admin_list_item o={}
       Builder.create_here do |b|
-        b.li do
-          b.header do
-            b.a href: "#{o[:request].script_name}/form/#{to_admin_url}", class: 'column-push' do
-              self.to_s
-            end
+        b.li class: 'admin-list-item' do
+          b.a href: "#{o[:request].script_name}/form/#{to_admin_url}", class: 'column-push' do
+            self.to_s
           end
-          b.footer do
-            b.form action: "#{ o[:request].script_name }/api/#{ o[:params][:class_name] }/#{ self.id }", method: "POST", 'accept-charset'=> "utf-8" do
-              b.input type: :hidden, name: "_method", value: "DELETE"
-              b.input type: :hidden, name: "destination", value: o[:request].url
-              b.input type: :submit, name: "", value: "X"
-            end
+          b.write(' ')
+          b.a href: "#{o[:request].script_name}/api/#{to_admin_url}", class: 'admin-delete-btn' do
+            'X'
           end
         end
       end
