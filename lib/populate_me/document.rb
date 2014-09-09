@@ -280,7 +280,7 @@ module PopulateMe
             self.to_s
           end
           b.write(' ')
-          b.a href: "#{o[:request].script_name}/api/#{to_admin_url}", class: 'admin-delete-btn' do
+          b.button type: :button, value: "#{o[:request].script_name}/api/#{to_admin_url}", class: 'admin-delete' do
             'X'
           end
         end
