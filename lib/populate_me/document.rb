@@ -44,15 +44,14 @@ module PopulateMe
       def documents; @documents ||= []; end
 
       def from_hash hash, o={}
-        hash = typecast(hash) if o[:typecast]
-        self.new(_is_new: false).set_from_hash hash
+        self.new(_is_new: false).set_from_hash hash, o
       end
 
-      def typecast(hash)
-        Utils.each_stub hash do |object,key_index,value|
-          object[key_index] = Utils.automatic_typecast value
-        end
-      end
+      # def typecast(hash)
+      #   Utils.each_stub hash do |object,key_index,value|
+      #     object[key_index] = Utils.automatic_typecast value
+      #   end
+      # end
 
       def from_post hash
         # Utils.each_stub hash do |object,key_index,value|
@@ -125,7 +124,7 @@ module PopulateMe
       self
     end
 
-    def set_from_hash hash
+    def set_from_hash hash, o={}
       raise(TypeError, "#{hash} is not a Hash") unless hash.is_a? Hash
       hash = hash.dup # Leave original untouched
       hash.delete('_class')
@@ -136,6 +135,7 @@ module PopulateMe
             __send__(k.to_sym) << obj
           end
         else
+          v = Utils.automatic_typecast(v) if o[:typecast]
           set k.to_sym => v
         end
       end
@@ -206,6 +206,7 @@ module PopulateMe
       if self.id.nil?
         self.id = Utils::generate_random_id
       end
+      self
     end
     def ensure_new; self._is_new = true; end # after_delete
     def ensure_not_new; self._is_new = false; end # after_create
@@ -269,7 +270,7 @@ module PopulateMe
     require "populate_me/builder"
 
     def to_admin_url
-      "#{Utils.dasherize_class_name(self.class.name)}/#{id}"
+      "#{Utils.dasherize_class_name(self.class.name)}/#{id}".sub(/\/$/,'')
     end
 
     # Admin list

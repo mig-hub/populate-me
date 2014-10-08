@@ -99,6 +99,12 @@ describe 'PopulateMe::API' do
       json['data'].should==Band['4'].to_h
     end
 
+    it 'Typecasts before creating' do
+      res = API.post('/band', {params: {data: {name: 'Arcade Fire', awsome: 'true'}}})
+      json = successful_creation(res)
+      json['data']['awsome'].should==true
+    end
+
     it 'Can create an doc even if no data is sent' do
       count = Band.documents.size
       res = API.post '/band'
