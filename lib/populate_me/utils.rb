@@ -70,6 +70,8 @@ module PopulateMe
         false
       elsif obj==''
         nil
+      else
+        obj
       end
     end
     module_function :automatic_typecast

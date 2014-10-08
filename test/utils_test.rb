@@ -145,7 +145,8 @@ describe 'PopulateMe::Utils' do
     TYPECAST_CASES = [
       ['true',true],
       ['false',false],
-      ['',nil]
+      ['',nil],
+      ['fack','fack']
     ]
     it 'Knows how to convert recognizable datatypes in strings' do
       TYPECAST_CASES.each do |c|
