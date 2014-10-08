@@ -5,8 +5,11 @@
 <% else %>
   <h1><%= @model_instance %></h1>
 <% end %>
-<form action="<%= request.script_name %>/api/<%= params[:class_name] %>" method="<%= @model_instance.new? ? 'POST' : 'PUT' %>" accept-charset="utf-8" class='admin-<%= @model_instance.new? ? 'post' : 'put' %>'>
+<form action="<%= request.script_name %>/api/<%= @model_instance.to_admin_url %>" method="<%= @model_instance.new? ? 'POST' : 'PUT' %>" accept-charset="utf-8" class='admin-<%= @model_instance.new? ? 'post' : 'put' %>'>
   <%= @model_instance.to_admin_form(request: request, params: params) %>
+  <% unless @model_instance.new? %>
+    <input type="hidden" name="_method" value="PUT" />
+  <% end %>
   <input type="submit" value="<%= @model_instance.new? ? 'Create' : 'Update' %>" />
 </form>
 
