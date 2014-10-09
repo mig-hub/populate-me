@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <title><%= @meta_title %></title>
-    <link rel="stylesheet" href="/__assets__/css/main.css" type="text/css" media='screen' />
+    <link rel="stylesheet" href="<%= request.script_name %>/__assets__/css/main.css" type="text/css" media='screen' />
   </head>
   <body>
 
@@ -12,8 +12,38 @@
       <li class='column'><%= yield %></li>
     </ol>
 
+    <!-- Templates -->
+    <script id="template-menu" type="x-tmpl-mustache">
+      <h1>{{page_title}}</h1>
+      <ol>
+        {{#items}}
+          <li><a href="{{href}}" class='column-push'>{{title}}</a></li>
+        {{/items}}
+      </ol>
+    </script>
+    <script id="template-list" type="x-tmpl-mustache">
+      <h1>
+        {{page_title}}
+      </h1>
+      <a href="<%= request.script_name %>/form/{{dasherized_class_name}}" class='column-push'>+</a>
+      <ol>
+        {{#items}}{{>document}}{{/items}}
+      </ol>
+    </script>
+    <script id="template-document" type="x-tmpl-mustache">
+      <li class='admin-list-item'>
+        <a href="<%= request.script_name %>/form/{{admin_url}}" class='column-push'>{{to_s}}</a>
+        <button type='button' class='admin-delete' value='<%= request.script_name %>/api/{{admin_url}}'>x</button>
+      </li>
+    </script>
+
+    <!-- JS -->
     <script src="http://code.jquery.com/jquery-1.10.2.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="<%= request.script_name %>/__assets__/js/mustache.js" type="text/javascript" charset="utf-8"></script>
     <script src="<%= request.script_name %>/__assets__/js/columnav.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript">
+      window.admin_path = "<%= request.script_name %>";
+    </script>
     <script src="<%= request.script_name %>/__assets__/js/main.js" type="text/javascript" charset="utf-8"></script>
   </body>
 </html>

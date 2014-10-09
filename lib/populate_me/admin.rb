@@ -1,4 +1,5 @@
 require 'populate_me/api'
+require "json"
 
 class PopulateMe::Admin < Sinatra::Base
   # Mount assets on /__assets__
@@ -24,7 +25,8 @@ class PopulateMe::Admin < Sinatra::Base
     @meta_title = "Populate Me"
   end
   get '/' do
-    redirect('/menu')
+    # redirect('/menu')
+    erb ""
   end
   get '/menu/?*?' do
     @level_menu = settings.menu.dup
@@ -39,7 +41,13 @@ class PopulateMe::Admin < Sinatra::Base
         href: href
       }
     end
-    erb :menu, layout: !request.xhr?
+    # erb :menu, layout: !request.xhr?
+    content_type :json
+    {
+      action: 'menu',
+      page_title: 'Menu',
+      items: @level_menu
+    }.to_json
   end
   get '/list/:class_name' do
     @model_class = resolve_model_class(params[:class_name])
