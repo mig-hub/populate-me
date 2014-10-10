@@ -48,10 +48,7 @@ class PopulateMe::Admin < Sinatra::Base
     end
     @level_menu.map! do |l|
       href = l[1].is_a?(String) ? l[1] : "#{request.script_name}/menu#{@levels.map{|l|'/'+l}.join}/#{slugify(l[0])}" 
-      {
-        title: l[0],
-        href: href
-      }
+      { title: l[0], href: href }
     end
     {
       template: 'template_menu',
@@ -63,18 +60,21 @@ class PopulateMe::Admin < Sinatra::Base
   get '/list/:class_name' do
     @model_class = resolve_model_class(params[:class_name])
     @documents = @model_class.all
+    content_type :html
     erb :list, layout: !request.xhr?
   end
 
   get '/form/:class_name' do
     @model_class = resolve_model_class(params[:class_name])
     @model_instance = @model_class.new
+    content_type :html
     erb :form, layout: !request.xhr?
   end
 
   get '/form/:class_name/:id' do
     @model_class = resolve_model_class(params[:class_name])
     @model_instance = resolve_model_instance(@model_class,params[:id])
+    content_type :html
     erb :form, layout: !request.xhr?
   end
 
