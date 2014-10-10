@@ -20,7 +20,9 @@ end
 
 require "populate_me/admin"
 class Admin < PopulateMe::Admin
-  set :menu, [ ['Blog Posts', '/list/blog-post'] ]
+  set :menu, [ 
+    ['Blog Posts', '/list/blog-post'],
+  ]
 end
 
 run Admin

@@ -3,13 +3,15 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title><%= @meta_title %></title>
+    <title><%= settings.meta_title %></title>
     <link rel="stylesheet" href="<%= request.script_name %>/__assets__/css/main.css" type="text/css" media='screen' />
   </head>
   <body>
 
     <ol id='finder'>
-      <li class='column'><%= yield %></li>
+      <li class='column'>
+        <h1>Welcome</h1>
+      </li>
     </ol>
 
     <!-- Templates -->
@@ -43,6 +45,7 @@
     <script src="<%= request.script_name %>/__assets__/js/columnav.js" type="text/javascript" charset="utf-8"></script>
     <script type="text/javascript">
       window.admin_path = "<%= request.script_name %>";
+      window.index_path = "<%= settings.index_path %>";
     </script>
     <script src="<%= request.script_name %>/__assets__/js/main.js" type="text/javascript" charset="utf-8"></script>
   </body>

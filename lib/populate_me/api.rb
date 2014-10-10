@@ -10,7 +10,7 @@ class PopulateMe::API < Sinatra::Base
   set :show_exceptions, false
 
   before do
-    content_type 'application/json'
+    content_type :json
   end
 
   after do
