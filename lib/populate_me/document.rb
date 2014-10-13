@@ -275,17 +275,10 @@ module PopulateMe
 
     # Admin list
     def to_admin_list_item o={}
-      Builder.create_here do |b|
-        b.li class: 'admin-list-item' do
-          b.a href: "#{o[:request].script_name}/form/#{to_admin_url}", class: 'column-push' do
-            self.to_s
-          end
-          b.write(' ')
-          b.button type: :button, value: "#{o[:request].script_name}/api/#{to_admin_url}", class: 'admin-delete' do
-            'X'
-          end
-        end
-      end
+      {
+        admin_url: to_admin_url,
+        title: to_s
+      }
     end
 
     # Forms

@@ -60,9 +60,17 @@ class PopulateMe::Admin < Sinatra::Base
 
   get '/list/:class_name' do
     @model_class = resolve_model_class(params[:class_name])
-    @documents = @model_class.all
-    content_type :html
-    erb :list, layout: !request.xhr?
+    @documents = @model_class.all # will need filter at some point
+    items = @documents.map {|d| d.to_admin_list_item }
+    {
+      template: 'template_list',
+      page_title: @model_class.to_s_plural,
+      dasherized_class_name: params[:class_name],
+      # 'sortable'=> @model_class.sortable_on_that_page?(@r),
+      # 'command_plus'=> !@model_class.populate_config[:no_plus],
+      # 'command_search'=> !@model_class.populate_config[:no_search],
+      items: items,
+    }.to_json
   end
 
   get '/form/:class_name' do

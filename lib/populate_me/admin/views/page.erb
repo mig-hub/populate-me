@@ -29,12 +29,12 @@
       </h1>
       <a href="<%= request.script_name %>/form/{{dasherized_class_name}}" class='column-push'>+</a>
       <ol>
-        {{#items}}{{>document}}{{/items}}
+        {{#items}}{{>template_document}}{{/items}}
       </ol>
     </script>
     <script id="template-document" type="x-tmpl-mustache">
       <li class='admin-list-item'>
-        <a href="<%= request.script_name %>/form/{{admin_url}}" class='column-push'>{{to_s}}</a>
+        <a href="<%= request.script_name %>/form/{{admin_url}}" class='column-push'>{{title}}</a>
         <button type='button' class='admin-delete' value='<%= request.script_name %>/api/{{admin_url}}'>x</button>
       </li>
     </script>
