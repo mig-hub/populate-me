@@ -27,6 +27,7 @@ class PopulateMe::Admin < Sinatra::Base
   end
 
   # Settings
+  set :show_exceptions, false
   set :meta_title, 'Populate Me'
   set :index_path, '/menu'
 
@@ -41,19 +42,19 @@ class PopulateMe::Admin < Sinatra::Base
 
   get '/menu/?*?' do
     page_title = 'Menu'
-    @level_menu = settings.menu.dup
-    @levels = params[:splat].reject{|s|blank?(s)}
-    @levels.each do |l|
-      page_title, @level_menu = @level_menu.find{|item| slugify(item[0])==l}
+    current_level = settings.menu.dup
+    levels = params[:splat][0].split('/')
+    levels.each do |l|
+      page_title, current_level = current_level.find{|item| slugify(item[0])==l}
     end
-    @level_menu.map! do |l|
-      href = l[1].is_a?(String) ? l[1] : "#{request.script_name}/menu#{@levels.map{|l|'/'+l}.join}/#{slugify(l[0])}" 
+    items = current_level.map do |l|
+      href = l[1].is_a?(String) ? l[1] : "#{request.script_name}/menu#{levels.map{|l|'/'+l}.join}/#{slugify(l[0])}" 
       { title: l[0], href: href }
     end
     {
       template: 'template_menu',
       page_title: page_title,
-      items: @level_menu
+      items: items
     }.to_json
   end
 
