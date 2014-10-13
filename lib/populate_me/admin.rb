@@ -76,15 +76,25 @@ class PopulateMe::Admin < Sinatra::Base
   get '/form/:class_name' do
     @model_class = resolve_model_class(params[:class_name])
     @model_instance = @model_class.new
-    content_type :html
-    erb :form, layout: !request.xhr?
+    {
+      template: 'template_form',
+      page_title: "New #{@model_class}",
+      admin_url: @model_instance.to_admin_url,
+      is_new: true,
+      form_fields: @model_instance.to_admin_form(request: request, params: params)
+    }.to_json
   end
 
   get '/form/:class_name/:id' do
     @model_class = resolve_model_class(params[:class_name])
     @model_instance = resolve_model_instance(@model_class,params[:id])
-    content_type :html
-    erb :form, layout: !request.xhr?
+    {
+      template: 'template_form',
+      page_title: @model_instance.to_s,
+      admin_url: @model_instance.to_admin_url,
+      is_new: false,
+      form_fields: @model_instance.to_admin_form(request: request, params: params)
+    }.to_json
   end
 
   not_found do
