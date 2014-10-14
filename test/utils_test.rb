@@ -104,6 +104,23 @@ describe 'PopulateMe::Utils' do
     end
   end
 
+  describe '#label_for_field' do
+
+    # Returns a friendly name for a field name
+
+    LABEL_CASES = [
+      ['hello', 'Hello'],
+      ['hello-world_1234', 'Hello World 1234'],
+      [:hello_world, 'Hello World']
+    ]
+
+    it 'Returns an ideal title case version of the field name' do
+      LABEL_CASES.each do |label_case|
+        PopulateMe::Utils.label_for_field(label_case[0]).should==label_case[1]
+      end
+    end
+  end
+
   describe '#each_stub' do
     
     # For iterating through end objects of a nested hash/array

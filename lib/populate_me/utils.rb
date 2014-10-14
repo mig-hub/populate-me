@@ -49,6 +49,11 @@ module PopulateMe
     end
     module_function :slugify
 
+    def label_for_field field_name
+      field_name.to_s.scan(/[a-zA-Z0-9]+/).map(&:capitalize).join(' ')
+    end
+    module_function :label_for_field
+
     def each_stub obj, &block 
       raise TypeError, 'PopulateMe::Utils.each_stub expects an object which respond to each_with_index' unless obj.respond_to?(:each_with_index)
       obj.each_with_index do |(k,v),i|
