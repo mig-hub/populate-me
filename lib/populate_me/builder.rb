@@ -60,8 +60,8 @@ module PopulateMe
       type_method = "#{o[:type]}_input_for"
       type_method = 'string_input_for' unless self.respond_to?(type_method)
       return __send__(type_method,obj,field,o) if (o[:wrap_input]==false||o[:type]==:hidden)
-      div do
-        label { field.to_s }
+      div class: 'field' do
+        label { field.to_s.scan(/[a-zA-Z0-9]+/).map(&:capitalize).join(' ') }
         br
         __send__(type_method,obj,field,o)
       end

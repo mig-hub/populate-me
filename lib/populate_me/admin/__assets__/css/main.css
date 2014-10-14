@@ -1,2 +1,128 @@
+/* General */
+
+html, body {
+  margin: 0;
+  padding: 0;
+  color: #002b36;
+  background: #eee8d5;
+  height: 100%;
+  font-family: 'Avenir', sans-serif;
+}
+
+body {
+  line-height: 1.5em;
+}
+
+#finder {
+  height: 100%;
+}
+
+.column {
+  background: #fdf6e3;
+  height: 100%;
+  min-width: 250px;
+  overflow: auto;
+  box-shadow: 0px 0px 10px #657b83;
+}
+
+.column > h1, .menu, .documents,
+form, .new-document-btn { /* Column padding */
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+.column > h1 {
+  font-size: 1.5em;
+  font-weight: normal;
+  margin-top: 1em;
+  margin-bottom: 1.5em;
+}
+
+ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: #002b36;
+  text-decoration: none;
+  border-bottom: 1px solid #002b36;
+}
+a:hover, a.selected {
+  /* Blue */
+  color: #268bd2;
+  /* Green/Blue */
+  /* color: #2aa198; */
+}
+
 button { cursor: pointer; }
+
+/* Lists */
+
+.new-document-btn {
+  border: 0;
+  margin-bottom: 1em;
+}
+
+button.admin-delete {
+  border: 0px;
+  background: #eee8d5;
+  color: #002b36;
+}
+button.admin-delete:hover {
+  color: #fdf6e3;
+  background: #dc322f;
+}
+
+[type=submit] {
+  border: 0px;
+  background: #eee8d5;
+  color: #002b36;
+}
+[type=submit]:hover {
+  color: #fdf6e3;
+  background: #859900;
+}
+
+/* Forms */
+
+form {
+  margin-bottom: 2em;
+}
+
+.field {
+  margin-bottom: 1em;
+}
+
+input[type=text], input[type=email],
+textarea {
+  /* border: 1px solid #002b36; */
+  border: 0px;
+  color: #93a1a1;
+  /* color: #839496; */
+  background: #eee8d5;
+  width: 250px;
+  padding: 5px;
+  font-size: 1em;
+}
+input[type=text]:focus, input[type=email]:focus,
+textarea:focus {
+  color: #002b36;
+}
+
+textarea {
+  height: 4em;
+}
+
+
+         /\
+        / *\
+       /  # \
+      / *    \
+     /   #    \
+    / #     *  \
+   / *     #    \
+  /______________\
+
 
