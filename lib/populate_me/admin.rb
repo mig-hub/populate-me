@@ -1,19 +1,33 @@
 require 'populate_me/api'
 require "json"
+begin
+  require "cerberus"
+rescue LoadError
+  puts "Cerberus not loaded."
+end
 
 class PopulateMe::Admin < Sinatra::Base
 
-  # Mount assets on /__assets__
-  use Rack::Static, :urls=>['/__assets__'], :root=>File.expand_path('../admin',__FILE__)
-
-  # Mount the API on /api
-  use Rack::Builder do 
-    map('/api'){ run PopulateMe::API }
-  end
+  # Settings
+  set :app_file, nil # Need to be set when subclassed
+  set :show_exceptions, false
+  set :meta_title, 'Populate Me'
+  set :index_path, '/menu'
+  enable :cerberus
+  set :cerberus_active, Proc.new{
+    const_defined?(:Cerberus) &&
+    ENV['CERBERUS_PASS'] &&
+    settings.cerberus?
+  }
+  set :logout_path, Proc.new{ settings.cerberus_active ? '/logout' : false }
 
   # Load API helpers
   helpers PopulateMe::API::Helpers
   helpers do
+    def user_name
+      return 'Anonymous' if session.nil?||session[:populate_me_user].nil?
+      session[:populate_me_user]
+    end
   end
 
   # Make all templates in admin/views accessible with their basename
@@ -22,17 +36,6 @@ class PopulateMe::Admin < Sinatra::Base
       File.read(f)
     end
   end
-
-  # Settings
-  set :app_file, nil # Need to be set when subclassed
-  set :show_exceptions, false
-  set :meta_title, 'Populate Me'
-  set :index_path, '/menu'
-  set :logout_path, '/logout'
-  set :user_name, Proc.new{ # Works with rack-cerberus
-    return 'Anonymous' unless settings.sessions
-    session[:cerberus_user]||'Anonymous'
-  }
 
   before do
     content_type :json
@@ -110,6 +113,39 @@ class PopulateMe::Admin < Sinatra::Base
     puts env['sinatra.error'].inspect
     puts
     {'success'=>false,'message'=>env['sinatra.error'].message}.to_json
+  end
+
+  class << self
+
+    private
+
+    def setup_default_middleware builder
+      # Override the Sinatra method
+      super builder
+      setup_populate_me_middleware builder
+    end
+
+    def setup_populate_me_middleware builder
+      # Authentication
+      setup_cerberus builder
+      # Mount assets on /__assets__
+      builder.use Rack::Static, :urls=>['/__assets__'], :root=>File.expand_path('../admin',__FILE__)
+      # Mount the API on /api
+      builder.use Rack::Builder do 
+        map('/api'){ run PopulateMe::API }
+      end
+    end
+
+    def setup_cerberus builder
+      return unless cerberus_active
+      cerberus_settings = settings.cerberus==true ? {} : settings.cerberus
+      builder.use Cerberus, cerberus_settings do |user,pass,req|
+        authenticated = pass==ENV['CERBERUS_PASS']
+        req.env['rack.session']['populate_me_user'] = user if authenticated
+        authenticated
+      end
+    end
+
   end
 
 end
