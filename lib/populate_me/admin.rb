@@ -11,9 +11,6 @@ class PopulateMe::Admin < Sinatra::Base
     map('/api'){ run PopulateMe::API }
   end
 
-  # Reset :app_file so that it will be correct when class is inherited
-  set :app_file, nil
-
   # Load API helpers
   helpers PopulateMe::API::Helpers
   helpers do
@@ -27,9 +24,15 @@ class PopulateMe::Admin < Sinatra::Base
   end
 
   # Settings
+  set :app_file, nil # Need to be set when subclassed
   set :show_exceptions, false
   set :meta_title, 'Populate Me'
   set :index_path, '/menu'
+  set :logout_path, '/logout'
+  set :user_name, Proc.new{ # Works with rack-cerberus
+    return 'Anonymous' unless settings.sessions
+    session[:cerberus_user]||'Anonymous'
+  }
 
   before do
     content_type :json

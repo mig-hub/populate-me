@@ -25,8 +25,8 @@ body {
   box-shadow: 0px 0px 10px #657b83;
 }
 
-.column > h1, .menu, .documents,
-form, .new-document-btn { /* Column padding */
+.column > h1, .column > ol,
+.column > form, .column > p { /* Column padding */
   margin-left: 20px;
   margin-right: 20px;
 }

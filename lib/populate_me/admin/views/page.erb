@@ -9,7 +9,10 @@
   <body>
 
     <ol id='finder'><li class='column'>
-        <h1>Welcome</h1>
+      <h1>Welcome<br><%= settings.user_name %></h1>
+      <% unless settings.logout_path.nil? %>
+        <p><a href="<%= request.script_name %><%= settings.logout_path %>">Logout</a></p>
+      <% end %>
     </li></ol>
 
     <!-- Templates -->
