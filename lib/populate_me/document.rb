@@ -276,6 +276,8 @@ module PopulateMe
     # Admin list
     def to_admin_list_item o={}
       {
+        class_name: self.class.name,
+        id: self.id,
         admin_url: to_admin_url,
         title: to_s
       }
