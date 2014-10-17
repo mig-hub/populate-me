@@ -6,6 +6,9 @@ class Band
   include PopulateMe::Document
   attr_accessor :name, :awsome
   def members; @members ||= []; end
+  def validate
+    error_on(:name,"WFT") if self.name=='ZZ Top'
+  end
 end
 class Band::Member
   include PopulateMe::Document
@@ -51,6 +54,15 @@ describe 'PopulateMe::API' do
     res.status.should==201
     json['success'].should==true
     json['message'].should=='Created Successfully'
+    json
+  end
+
+  def invalid_instance(res)
+    json = JSON.parse(res.body)
+    res.content_type.should=='application/json'
+    res.status.should==400
+    json['success'].should==false
+    json['message'].should=='Invalid Document'
     json
   end
 
@@ -105,11 +117,18 @@ describe 'PopulateMe::API' do
       json['data']['awsome'].should==true
     end
 
-    it 'Can create an doc even if no data is sent' do
+    it 'Can create a doc even if no data is sent' do
       count = Band.documents.size
       res = API.post '/band'
       successful_creation(res)
       Band.documents.size.should==(count+1)
+    end
+
+    it 'Fails if the doc is invalid' do
+      count = Band.documents.size
+      res = API.post('/band', {params: {data: {name: 'ZZ Top'}}})
+      invalid_instance(res)
+      Band.documents.size.should==count
     end
 
     it 'Redirects if destination is given' do
@@ -149,16 +168,28 @@ describe 'PopulateMe::API' do
   end
 
   describe 'PUT /:model/:id' do
-    # it 'Sends not-found if the instance does not exist' do
-    #   res = API.put('/band/666')
-    #   should_not_found(res)
-    # end
-    # it 'Updates documents and embeded documents which are included' do
+    it 'Sends not-found if the instance does not exist' do
+      res = API.put('/band/666')
+      should_not_found(res)
+    end
+    it 'Fails if the document is invalid' do
+      res = API.put('/band/2', {params: {data: {name: 'ZZ Top'}}})
+      invalid_instance(res)
+      Band['2'].name.should!='ZZ Top'
+    end
+    it 'Updates documents' do
+      res = API.put('/band/3', {params: {data: {awsome: 'yes'}}})
+      successful_update(res)
+      res = API.put('/band/3', {params: {data: {name: 'The Ramones'}}})
+      successful_update(res)
+      obj = Band['3']
+      obj.awsome.should=='yes'
+      obj.name.should=='The Ramones'
+      obj.members.size.should==2
+      obj.members[0].name.should=='Joey'
+    end
+    # it 'Updates embeded documents' do
     #   obj = Band['3']
-    #   res = API.put('/band/3', {params: {data: {awsome: 'yes'}}})
-    #   successful_update(res)
-    #   res = API.put('/band/3', {params: {data: {name: 'The Ramones'}}})
-    #   successful_update(res)
     #   res = API.put('/band/3', {params: {data: {members: [{id: obj.members[0].id, name: 'Joey Ramone'}]}}})
     #   successful_update(res)
     #   obj = Band['3']
