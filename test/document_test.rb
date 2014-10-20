@@ -89,9 +89,10 @@ describe 'PopulateMe::Document' do
     it 'Can declare list fields' do
       Couch.fields[:places][:max].should==5
       couch = Couch.new
-      couch.places.should==[]
       couch.places << CouchPlace.new
       couch.places.size.should==1
+      couch = Couch.new
+      couch.places.should==[]
     end
 
   end
