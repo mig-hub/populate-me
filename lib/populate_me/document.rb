@@ -34,7 +34,15 @@ module PopulateMe
 
       def fields; @fields ||= {}; end
       def field name, attributes={}
-        attr_accessor name
+        if attributes[:type]==:list
+          define_method(name) do
+            list = instance_variable_get("@#{name}")
+            instance_variable_set("@#{name}",[]) if list.nil?
+            instance_variable_get("@#{name}")
+          end
+        else
+          attr_accessor name
+        end
         self.fields[name] = attributes
       end
       def label_field
