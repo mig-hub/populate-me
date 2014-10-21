@@ -85,6 +85,19 @@ button.admin-delete:hover {
   background: #859900;
 }
 
+.documents {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.documents .sortable-placeholder {
+  border: 1px dashed #002b36;
+  background: none;
+}
+
 /* Forms */
 
 form {

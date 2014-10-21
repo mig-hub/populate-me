@@ -8,10 +8,10 @@ class BlogPost
   include PopulateMe::Document
   field :title
   field :content, type: :text
-  field :authors, type: :list
+  # field :authors, type: :list
   field :published, type: :boolean
   def validate
-    error_on(:content,'Cannot be blank') if PopulateMe::Utils.blank?(self.content)
+    # error_on(:content,'Cannot be blank') if PopulateMe::Utils.blank?(self.content)
   end
 end
 class BlogPost::Author
