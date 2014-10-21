@@ -6,6 +6,7 @@ require 'mongo'
 MONGO = Mongo::Connection.new
 DB    = MONGO['populate-me-test']
 
+
 describe 'PopulateMe::Mongo' do
   # PopulateMe::Mongo is the Mongo specific extention for 
   # Document.
@@ -19,30 +20,33 @@ describe 'PopulateMe::Mongo' do
   end
 
 
-
-
   it 'Includes Document Module' do 
     CatFish.to_s.should == "Cat Fish"
     CatFish.new(name: "Fred").to_s.should == "Fred"
   end
 
-
   describe 'Data base connection' do 
+
 
     it 'Should have db set by default' do 
       CatFish.db.should == DB
     end
 
-    it 'Should override db' do 
-      FAKEDB = MONGO['fake-populate-me-db']
-      CatFish.db(FAKEDB)
-      CatFish.db.should == FAKEDB
-      CatFish.db(DB)
-      CatFish.db.should == DB
-    end
+    # it 'Should override db' do 
+    #   FAKEDB = MONGO['fake-populate-me-db']
+    #   CatFish.db(FAKEDB)
+    #   CatFish.db.should == FAKEDB
+    #   CatFish.db(DB)
+    #   CatFish.db.should == DB
+    # end
 
-    # it 'Should raise DB not set ! error if DB not set' do 
-
+    # it 'Should raise DB not set! error if DB not set' do
+    #   TEMP = DB
+    #   # Object.remove_const :DB
+    #   Object.send(:remove_const, :DB)
+    #   lambda { CatFish.db }.should.raise(StandardError)
+    #   DB = TEMP
+    #   CatFish.db.should == DB
     # end
 
     it 'Should set db collection to class name by default' do 
@@ -62,35 +66,37 @@ describe 'PopulateMe::Mongo' do
   end
 
 
-  # describe 'CRUD' do 
-  #   it 'Should create' do
-  #     fred = CatFish.new(id: "lll", name: "Fred")
-  #     fred.perform_create
-  #     fredo = CatFish.documents.find{|d| d['id']=='lll'}
-  #     fredo['name'].should == "Fred"
-  #   end
+  describe 'CRUD' do 
+    it 'Should create' do
+      fred = CatFish.new(id: "lll", name: "Fred")
+      fred.perform_create
+      jerry = CatFish.new(id: "mmm", name: "Jerry")
+      id = jerry.perform_create
 
-  #   it 'Should update' do 
-  #     jason = CatFish.new(id: "vvv", name: "jason")
-  #     jason.perform_create
-  #     jason.name = "billy"
-  #     jason.perform_update
-  #     CatFish.documents.find{|d| d['id']=='vvv'}['name'].should=='billy'
-  #   end
+      CatFish.collection.size.should == 2
+    end
 
-  #   it 'Should delete' do
-  #     herbert = CatFish.new id: "ccc", name: "herbert"
-  #     herbert.perform_create
-  #     CatFish.documents.find{|d| d['id']=='ccc'}.should!=nil
-  #     herbert.perform_delete
-  #     CatFish.documents.find{|d| d['id']=='ccc'}.should==nil
-  #   end
+    it 'Should update' do 
+      jason = CatFish.new(name: "jason")
+      @id = jason.perform_create
+      jason.name = "billy"
+      jason.perform_update
+      CatFish.collection.find_one({_id: @id})['name'].should== jason.name
+    end
 
-  #   it 'Should not save to the document class variable' do 
-  #     CatFish.documents.should == []
-  #   end
-  # end
+    # it 'Should delete' do
+    #   herbert = CatFish.new id: "ccc", name: "herbert"
+    #   herbert.perform_create
+    #   CatFish.documents.find{|d| d['id']=='ccc'}.should!=nil
+    #   herbert.perform_delete
+    #   CatFish.documents.find{|d| d['id']=='ccc'}.should==nil
+    # end
+
+    # it 'Should not save to the document class variable' do 
+    #   CatFish.documents.should == []
+    # end
+  end
 
 end
 
-MONGO.drop_database['populate-me-test']
+MONGO.drop_database('populate-me-test')

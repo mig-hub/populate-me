@@ -14,7 +14,6 @@ module PopulateMe
     module ClassMethods
       include Document::ClassMethods
 
-
       def collection_name name=nil
         if name==nil
           @collection_name ||= self.name
@@ -23,13 +22,15 @@ module PopulateMe
         end
       end
 
-      def db new_db=nil
-        if new_db==nil
-          raise "DB not set !" if !defined?(DB)
-          @db ||= DB 
-        else
-          @db = new_db
-        end
+      # def db new_db=nil
+      #   if new_db==nil
+      #     # raise(StandardError, "DB not set!") if !defined?(:DB)
+      #     @db ||= DB 
+      #   else
+      #     @db = new_db
+      #   end
+      def db 
+        DB
       end
 
       def collection
@@ -38,16 +39,27 @@ module PopulateMe
 
     end
 
+    def set_from_hash hash, o={}
+      super
+    end
+
+    def to_h
+      super
+    end
+    
+
     def perform_create
-      self.id
+      id = self.class.collection.insert(self.to_h)
+      self.to_h['_id'] = id
     end
 
     def perform_update
-      self.id
+      id = self.class.collection.update({id: self.to_h['_id']}, self.to_h)
+      self.to_h['_id'] = id
     end
 
     def perform_delete
-      self.id
+      
     end
     
   end
