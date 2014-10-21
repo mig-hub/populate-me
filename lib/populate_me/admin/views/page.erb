@@ -34,7 +34,7 @@
         <a href="<%= request.script_name %>/form/{{dasherized_class_name}}" class='column-push new-document-btn'>+</a>
       </p>
       <ol class='documents'>
-        {{#items}}{{>template_document}}{{/items}}
+        {{#items}}{{#custom_partial}}template_document{{/custom_partial}}{{/items}}
       </ol>
     </script>
 
