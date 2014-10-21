@@ -62,7 +62,7 @@ module PopulateMe
     end
 
     def perform_delete
-      
+      self.class.collection.remove({'_id'=> self.id}, {justOne: true})
     end
     
   end

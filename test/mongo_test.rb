@@ -96,17 +96,17 @@ describe 'PopulateMe::Mongo' do
       CatFish.collection.find_one({'_id'=> jason.id})['name'].should== "billy"
     end
 
-    # it 'Should delete' do
-    #   herbert = CatFish.new id: "ccc", name: "herbert"
-    #   herbert.perform_create
-    #   CatFish.documents.find{|d| d['id']=='ccc'}.should!=nil
-    #   herbert.perform_delete
-    #   CatFish.documents.find{|d| d['id']=='ccc'}.should==nil
-    # end
+    it 'Should delete' do
+      herbert = CatFish.new(name: "herbert")
+      herbert.perform_create
+      CatFish.collection.find_one({"_id"=> herbert.id}).should!=nil
+      herbert.perform_delete
+      CatFish.collection.find_one({"_id"=> herbert.id}).should==nil
+    end
 
-    # it 'Should not save to the document class variable' do 
-    #   CatFish.documents.should == []
-    # end
+    it 'Should not save to the document class variable' do 
+      CatFish.documents.should == []
+    end
   end
 
 end
