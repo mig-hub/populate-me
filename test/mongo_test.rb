@@ -4,6 +4,7 @@ require 'populate_me/mongo'
 require 'mongo'
 
 MONGO = Mongo::Connection.new
+MONGO.drop_database('populate-me-test')
 DB    = MONGO['populate-me-test']
 
 
@@ -23,6 +24,11 @@ describe 'PopulateMe::Mongo' do
   it 'Includes Document Module' do 
     CatFish.to_s.should == "Cat Fish"
     CatFish.new(name: "Fred").to_s.should == "Fred"
+  end
+
+  it "Has _id as persistent variable if set" do 
+    CatFish.new(name: "hank").persistent_instance_variables.should == [:@name]
+    CatFish.new(id: "bbbbb", name: "honk").persistent_instance_variables.should == [:@_id, :@name]
   end
 
   describe 'Data base connection' do 
@@ -49,7 +55,7 @@ describe 'PopulateMe::Mongo' do
     #   CatFish.db.should == DB
     # end
 
-    it 'Should set db collection to class name by default' do 
+    it 'Should set DB collection to class name by default' do 
       CatFish.collection_name.should == "CatFish"
     end
 
@@ -71,17 +77,23 @@ describe 'PopulateMe::Mongo' do
       fred = CatFish.new(id: "lll", name: "Fred")
       fred.perform_create
       jerry = CatFish.new(id: "mmm", name: "Jerry")
-      id = jerry.perform_create
+      jerry.perform_create
+      CatFish.collection.count.should == 2
+    end
 
-      CatFish.collection.size.should == 2
+
+    it 'Should create with custom id' do 
+      tom = CatFish.new(id: "dddd", name: "tom")
+      id = tom.perform_create
+      id.should == "dddd"
     end
 
     it 'Should update' do 
       jason = CatFish.new(name: "jason")
-      @id = jason.perform_create
+      jason.perform_create
       jason.name = "billy"
       jason.perform_update
-      CatFish.collection.find_one({_id: @id})['name'].should== jason.name
+      CatFish.collection.find_one({'_id'=> jason.id})['name'].should== "billy"
     end
 
     # it 'Should delete' do

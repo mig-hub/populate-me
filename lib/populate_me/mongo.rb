@@ -39,23 +39,26 @@ module PopulateMe
 
     end
 
-    def set_from_hash hash, o={}
-      super
-    end
+    attr_accessor :_id
 
-    def to_h
-      super
+    def id; @_id; end
+    def id= value; @_id = value; end
+
+    def persistent_instance_variables
+      if instance_variable_get(:@_id).nil?
+        super
+      else
+        [:@_id]+super
+      end
     end
-    
 
     def perform_create
-      id = self.class.collection.insert(self.to_h)
-      self.to_h['_id'] = id
+      self.id = self.class.collection.insert(self.to_h) 
     end
 
     def perform_update
-      id = self.class.collection.update({id: self.to_h['_id']}, self.to_h)
-      self.to_h['_id'] = id
+      self.class.collection.update({'_id'=> self.id}, self.to_h)
+      self.id
     end
 
     def perform_delete
