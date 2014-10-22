@@ -34,7 +34,7 @@
         <a href="<%= request.script_name %>/form/{{dasherized_class_name}}" class='column-push new-document-btn'>+</a>
       </p>
       <ol class='documents'>
-        {{#items}}{{#custom_partial}}template_document{{/custom_partial}}{{/items}}
+        {{#items}}{{#custom_partial_or_default}}template_document{{/custom_partial_or_default}}{{/items}}
       </ol>
     </script>
 
@@ -48,12 +48,46 @@
     <script id="template-form" type="x-tmpl-mustache">
       <h1>{{page_title}}</h1>
       <form action="<%= request.script_name %>/api/{{admin_url}}" method="POST" accept-charset="utf-8" class='admin-{{#is_new}}post{{/is_new}}{{^is_new}}put{{/is_new}}'>
-        {{{form_fields}}}
+        {{#custom_partial_or_default}}template_form_fields{{/custom_partial_or_default}}
         {{^is_new}}
           <input type="hidden" name="_method" value="PUT" />
         {{/is_new}}
         <input type="submit" value="{{#is_new}}Create{{/is_new}}{{^is_new}}Update{{/is_new}}" />
       </form>
+    </script>
+
+    <script id="template-form-fields" type="x-tmpl-mustache">
+      {{#fields}}
+        {{>template_form_field}}
+      {{/fields}}
+    </script>
+
+    <script id="template-form-field" type="x-tmpl-mustache">
+      {{#wrap}}
+        <div class='field'>
+          <label>{{label}}</label>
+          <br>
+          {{#adapted_field}}{{/adapted_field}}
+        </div>
+      {{/wrap}}
+      {{^wrap}}
+        {{#adapted_field}}{{/adapted_field}}
+      {{/wrap}}
+    </script>
+    
+    <script id="template-string-field" type="x-tmpl-mustache">
+      <input{{build_input_attributes}} />
+    </script>
+
+    <script id="template-text-field" type="x-tmpl-mustache">
+      <textarea name='{{input_name}}' {{#required}}required='{{required}}'{{/required}}>
+        {{input_value}}
+      </textarea>
+    </script>
+
+    <script id="template-boolean-field" type="x-tmpl-mustache">
+      <input type='hidden' name='{{input_name}}' value='false'/>
+      <input type='checkbox' name='{{input_name}}' value='true' {{#input_value}}checked='{{input_value}}'{{/input_value}} />
     </script>
 
     <!-- JS -->

@@ -299,7 +299,33 @@ module PopulateMe
       end
     end
     def to_admin_form o={}
-      default_form o
+      # merge input_attributes with defaults
+      items = []
+      if self.class.respond_to? :fields
+        self.class.fields.each do |k,v|
+          unless v[:form_field]==false
+            settings = v.dup
+            settings[:field_name] = k
+            settings[:wrap] ||= true
+            settings[:wrap] = false if settings[:type]==:hidden
+            settings[:label] ||= PopulateMe::Utils.label_for_field k
+            settings[:input_name] = "#{o[:input_name_prefix]||'data'}[#{k}]"
+            if settings[:type]==:list
+              settings[:items] = self.__send__(k).map {|embeded|
+               embeded.to_admin_form(o.merge(input_name_prefix: settings[:input_name]))
+              }
+            else
+              settings[:input_value] = self.__send__ k
+              settings[:input_attributes] = {
+                type: 'text', name: o[:input_name],
+                value: o[:input_value], required: o[:required]
+              }.merge(settings[:input_attributes]||{})
+            end
+            items << settings
+          end
+        end
+      end
+      items
     end
 
   end
