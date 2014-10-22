@@ -72,7 +72,7 @@ describe 'PopulateMe::Mongo' do
   end
 
 
-  describe 'CRUD' do 
+  describe 'Low level CRUD' do 
     it 'Should create' do
       fred = CatFish.new(id: "lll", name: "Fred")
       fred.perform_create
@@ -80,7 +80,6 @@ describe 'PopulateMe::Mongo' do
       jerry.perform_create
       CatFish.collection.count.should == 2
     end
-
 
     it 'Should create with custom id' do 
       tom = CatFish.new(id: "dddd", name: "tom")
@@ -96,6 +95,19 @@ describe 'PopulateMe::Mongo' do
       CatFish.collection.find_one({'_id'=> jason.id})['name'].should== "billy"
     end
 
+
+    it "Should get correct item" do 
+      jackson_id = CatFish.new(name: "jackson").perform_create
+      CatFish[jackson_id].name.should == "jackson"
+      CatFish[jackson_id.to_s].name.should == "jackson"
+      CatFish["nonexistentid"].should == nil
+
+      regular_fish_id = CatFish.new(id: 87, name: "regular").perform_create
+      # need to test with .to_s
+      CatFish[regular_fish_id].name.should == "regular"
+    end
+
+
     it 'Should delete' do
       herbert = CatFish.new(name: "herbert")
       herbert.perform_create
@@ -106,6 +118,16 @@ describe 'PopulateMe::Mongo' do
 
     it 'Should not save to the document class variable' do 
       CatFish.documents.should == []
+    end
+  end
+
+  describe 'High level CRUD' do 
+    it 'Should use after_save callback' do 
+      danny = CatFish.new(name: "danny")
+      danny.new?.should == true
+      danny.save
+      CatFish.collection.find_one({"_id"=> danny.id}).should != nil
+      danny.new?.should == false
     end
   end
 

@@ -3,9 +3,15 @@ $:.unshift File.expand_path('../../lib', __FILE__)
 
 # Models ##########
 
-require 'populate_me/document'
+require 'populate_me/mongo'
+require 'mongo'
+
+MONGO = Mongo::Connection.new
+DB    = MONGO['blog-populate-me-test']
+
+
 class BlogPost
-  include PopulateMe::Document
+  include PopulateMe::Mongo
   field :title
   field :content, type: :text
   field :published, type: :boolean
@@ -15,7 +21,7 @@ class BlogPost
   end
 end
 class BlogPost::Author
-  include PopulateMe::Document
+  include PopulateMe::Mongo
   field :name
 end
 

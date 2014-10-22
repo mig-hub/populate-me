@@ -8,12 +8,15 @@ module PopulateMe
     include Document 
 
     def self.included base 
+      Document.included(base)
       base.extend ClassMethods
     end
 
     module ClassMethods
       include Document::ClassMethods
 
+
+      # Mongo specific method
       def collection_name name=nil
         if name==nil
           @collection_name ||= self.name
@@ -29,12 +32,25 @@ module PopulateMe
       #   else
       #     @db = new_db
       #   end
+
+      # Mongo specific method
       def db 
         DB
       end
 
+      # Mongo specific method
       def collection
         db[collection_name]
+      end
+
+      def [] theid
+        theid = BSON::ObjectId.from_string(theid) if BSON::ObjectId.legal?(theid)
+        hash = self.collection.find_one({'_id'=> theid})
+        hash.nil? ? nil : from_hash(hash) 
+      end
+
+      def all
+        self.collection.find.map{|d| self.from_hash(d) }
       end
 
     end
@@ -62,8 +78,16 @@ module PopulateMe
     end
 
     def perform_delete
+      # index = self.class.collection.find_one({'_id'=> self.id})
+      raise MissingDocumentError, "No document can be found with this ID: #{self.id}" if self.id.nil?
       self.class.collection.remove({'_id'=> self.id}, {justOne: true})
     end
     
   end
 end
+
+
+#  TODO 
+# take care of DB 
+# take care of before and after callbacks
+
