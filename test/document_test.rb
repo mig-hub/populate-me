@@ -57,14 +57,20 @@ describe 'PopulateMe::Document' do
     field :colour, required: true
     field :capacity, type: :integer
     field :price, type: :price, required: true
+    field :places, type: :list, max: 5
     field :available, type: :boolean
+  end
+
+  class CouchPlace
+    include PopulateMe::Document
+    field :position, type: :integer
   end
 
   describe 'Fields' do
 
     it 'Can declare fields and options about them in one go' do
-      Couch.fields.size.should==4
-      Couch.fields.keys.should==[:colour, :capacity, :price, :available]
+      Couch.fields.size.should==5
+      Couch.fields.keys.should==[:colour, :capacity, :price, :places, :available]
       Couch.fields[:available][:type].should==:boolean
       Couch.fields[:price][:required].should==true
       couch = Couch.new
@@ -78,6 +84,15 @@ describe 'PopulateMe::Document' do
       couch.to_s.should=='White'
       Couch.label_field = :capacity
       couch.to_s.should==couch.inspect
+    end
+
+    it 'Can declare list fields' do
+      Couch.fields[:places][:max].should==5
+      couch = Couch.new
+      couch.places << CouchPlace.new
+      couch.places.size.should==1
+      couch = Couch.new
+      couch.places.should==[]
     end
 
   end
@@ -245,11 +260,11 @@ describe 'PopulateMe::Document' do
       include PopulateMe::Document
     end
 
-    it 'Builds no input for a field with the form option set to false' do
-    end
+    # it 'Builds no input for a field with the form option set to false' do
+    # end
 
-    it 'Lets you override the the settings of a field' do
-    end
+    # it 'Lets you override the the settings of a field' do
+    # end
 
   end
 

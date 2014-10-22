@@ -14,10 +14,10 @@ class BlogPost
   include PopulateMe::Mongo
   field :title
   field :content, type: :text
+  # field :authors, type: :list
   field :published, type: :boolean
-  def authors; @authors ||= []; end
   def validate
-    error_on(:content,'Cannot be blank') if PopulateMe::Utils.blank?(self.content)
+    # error_on(:content,'Cannot be blank') if PopulateMe::Utils.blank?(self.content)
   end
 end
 class BlogPost::Author

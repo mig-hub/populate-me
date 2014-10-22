@@ -16,6 +16,7 @@
     </li></ol>
 
     <!-- Templates -->
+
     <script id="template-menu" type="x-tmpl-mustache">
       <h1>{{page_title}}</h1>
       <ol class='menu'>
@@ -24,6 +25,7 @@
         {{/items}}
       </ol>
     </script>
+
     <script id="template-list" type="x-tmpl-mustache">
       <h1>
         {{page_title}}
@@ -32,15 +34,17 @@
         <a href="<%= request.script_name %>/form/{{dasherized_class_name}}" class='column-push new-document-btn'>+</a>
       </p>
       <ol class='documents'>
-        {{#items}}{{>template_document}}{{/items}}
+        {{#items}}{{#custom_partial}}template_document{{/custom_partial}}{{/items}}
       </ol>
     </script>
+
     <script id="template-document" type="x-tmpl-mustache">
       <li class='admin-list-item {{class_name}}-{{id}}'>
         <a href="<%= request.script_name %>/form/{{admin_url}}" class='column-push'>{{title}}</a>
         <button type='button' class='admin-delete' value='<%= request.script_name %>/api/{{admin_url}}'>x</button>
       </li>
     </script>
+
     <script id="template-form" type="x-tmpl-mustache">
       <h1>{{page_title}}</h1>
       <form action="<%= request.script_name %>/api/{{admin_url}}" method="POST" accept-charset="utf-8" class='admin-{{#is_new}}post{{/is_new}}{{^is_new}}put{{/is_new}}'>
@@ -56,6 +60,7 @@
     <script src="http://code.jquery.com/jquery-1.10.2.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="<%= request.script_name %>/__assets__/js/mustache.js" type="text/javascript" charset="utf-8"></script>
     <script src="<%= request.script_name %>/__assets__/js/columnav.js" type="text/javascript" charset="utf-8"></script>
+    <script src="<%= request.script_name %>/__assets__/js/sortable.js" type="text/javascript" charset="utf-8"></script>
     <script type="text/javascript">
       window.admin_path = "<%= request.script_name %>";
       window.index_path = "<%= settings.index_path %>";
