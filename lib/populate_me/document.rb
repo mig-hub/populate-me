@@ -317,8 +317,8 @@ module PopulateMe
             else
               settings[:input_value] = self.__send__ k
               settings[:input_attributes] = {
-                type: 'text', name: o[:input_name],
-                value: o[:input_value], required: o[:required]
+                type: 'text', name: settings[:input_name],
+                value: settings[:input_value], required: settings[:required]
               }.merge(settings[:input_attributes]||{})
             end
             items << settings

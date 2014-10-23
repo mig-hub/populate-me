@@ -87,7 +87,7 @@ class PopulateMe::Admin < Sinatra::Base
       page_title: "New #{@model_class}",
       admin_url: @model_instance.to_admin_url,
       is_new: true,
-      form_fields: @model_instance.to_admin_form(request: request, params: params)
+      fields: @model_instance.to_admin_form(request: request, params: params)
     }.to_json
   end
 
@@ -99,7 +99,7 @@ class PopulateMe::Admin < Sinatra::Base
       page_title: @model_instance.to_s,
       admin_url: @model_instance.to_admin_url,
       is_new: false,
-      form_fields: @model_instance.to_admin_form(request: request, params: params)
+      fields: @model_instance.to_admin_form(request: request, params: params)
     }.to_json
   end
 
