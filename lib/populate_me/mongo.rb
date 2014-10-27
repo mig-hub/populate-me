@@ -1,6 +1,5 @@
 require 'populate_me/document'
 
-
 module PopulateMe
 
   module Mongo
@@ -14,7 +13,6 @@ module PopulateMe
 
     module ClassMethods
       include Document::ClassMethods
-
 
       # Mongo specific method
       def collection_name name=nil
