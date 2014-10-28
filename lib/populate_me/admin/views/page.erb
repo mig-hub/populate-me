@@ -56,6 +56,12 @@
       </form>
     </script>
 
+    <script id="template-embeded-form" type="x-tmpl-mustache">
+      <li>
+        {{#custom_partial_or_default}}template_form_fields{{/custom_partial_or_default}}
+      </li>
+    </script>
+
     <script id="template-form-fields" type="x-tmpl-mustache">
       {{#fields}}
         {{>template_form_field}}
@@ -86,6 +92,22 @@
     <script id="template-boolean-field" type="x-tmpl-mustache">
       <input type='hidden' name='{{input_name}}' value='false'/>
       <input type='checkbox' name='{{input_name}}' value='true' {{#input_value}}checked='{{input_value}}'{{/input_value}} />
+    </script>
+
+    <script id="template-list-field" type="x-tmpl-mustache">
+      <fieldset>
+        <legend>{{label}}</legend>
+        {{#dasherized_class_name}}
+          <p>
+          <a href="<%= request.script_name %>/form/{{dasherized_class_name}}?input_name_prefix={{input_name}}[]&embeded=true" class='new-embeded-document-btn'>+</a>
+          </p>
+        {{/dasherized_class_name}}
+        <ol class='embeded-documents'>
+          {{#items}}
+            {{>template_embeded_form}}
+          {{/items}}
+        </ol>
+      </fieldset>
     </script>
 
     <!-- JS -->

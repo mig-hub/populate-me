@@ -254,20 +254,6 @@ describe 'PopulateMe::Document' do
 
   end
 
-  describe 'Forms' do
-
-    class Event
-      include PopulateMe::Document
-    end
-
-    # it 'Builds no input for a field with the form option set to false' do
-    # end
-
-    # it 'Lets you override the the settings of a field' do
-    # end
-
-  end
-
   class User
     include PopulateMe::Document
     attr_accessor :first_name, :last_name

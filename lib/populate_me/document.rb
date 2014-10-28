@@ -137,6 +137,7 @@ module PopulateMe
       hash.delete('_class')
       hash.each do |k,v|
         if v.is_a? Array
+          __send__(k.to_sym).clear
           v.each do |d|
             obj =  Utils.resolve_class_name(d['_class']).new.set_from_hash(d)
             __send__(k.to_sym) << obj
@@ -281,6 +282,19 @@ module PopulateMe
     end
 
     # Admin list
+    module ClassMethods
+      def to_admin_list o={}
+        {
+          template: 'template_list',
+          page_title: self.to_s_plural,
+          dasherized_class_name: PopulateMe::Utils.dasherize_class_name(self.name),
+          # 'sortable'=> self.sortable_on_that_page?(@r),
+          # 'command_plus'=> !self.populate_config[:no_plus],
+          # 'command_search'=> !self.populate_config[:no_search],
+          items: self.all.map {|d| d.to_admin_list_item },
+        }
+      end
+    end
     def to_admin_list_item o={}
       {
         class_name: self.class.name,
@@ -291,28 +305,42 @@ module PopulateMe
     end
 
     # Forms
-    def default_form o={}
-      Builder.create_here do |b|
-        self.class.fields.keys.each do |k|
-          b.input_for(self,k)
-        end
-      end
-    end
+    # def default_form o={}
+    #   Builder.create_here do |b|
+    #     self.class.fields.keys.each do |k|
+    #       b.input_for(self,k)
+    #     end
+    #   end
+    # end
     def to_admin_form o={}
-      # merge input_attributes with defaults
-      items = []
+      input_name_prefix = o[:input_name_prefix]||'data'
+      items = [{
+        field_name: :_class,
+        type: :hidden,
+        wrap: false,
+        input_name: "#{input_name_prefix}[_class]",
+        input_value: self.class.name,
+        input_attributes: {
+          type: 'hidden',
+          name: "#{input_name_prefix}[_class]",
+          value: self.class.name
+        }
+      }]
       if self.class.respond_to? :fields
         self.class.fields.each do |k,v|
           unless v[:form_field]==false
             settings = v.dup
             settings[:field_name] = k
             settings[:wrap] ||= true
-            settings[:wrap] = false if settings[:type]==:hidden
+            settings[:wrap] = false if [:hidden,:list].include?(settings[:type])
             settings[:label] ||= PopulateMe::Utils.label_for_field k
-            settings[:input_name] = "#{o[:input_name_prefix]||'data'}[#{k}]"
+            settings[:input_name] = "#{input_name_prefix}[#{k}]"
             if settings[:type]==:list
+              unless settings[:class].nil?
+                settings[:dasherized_class_name] = PopulateMe::Utils.dasherize_class_name(settings[:class].to_s)
+              end
               settings[:items] = self.__send__(k).map {|embeded|
-               embeded.to_admin_form(o.merge(input_name_prefix: settings[:input_name]))
+               embeded.to_admin_form(o.merge(input_name_prefix: settings[:input_name]+'[]'))
               }
             else
               settings[:input_value] = self.__send__ k
@@ -325,7 +353,13 @@ module PopulateMe
           end
         end
       end
-      items
+      {
+        template: "template#{'_embeded' if o[:embeded]}_form",
+        page_title: self.new? ? "New #{self.class}" : self.to_s,
+        admin_url: self.to_admin_url,
+        is_new: self.new?,
+        fields: items
+      }
     end
 
   end

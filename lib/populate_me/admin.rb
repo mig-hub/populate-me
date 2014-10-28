@@ -65,42 +65,22 @@ class PopulateMe::Admin < Sinatra::Base
   end
 
   get '/list/:class_name' do
-    @model_class = resolve_model_class(params[:class_name])
-    @documents = @model_class.all # will need filter at some point
-    items = @documents.map {|d| d.to_admin_list_item }
-    {
-      template: 'template_list',
-      page_title: @model_class.to_s_plural,
-      dasherized_class_name: params[:class_name],
-      # 'sortable'=> @model_class.sortable_on_that_page?(@r),
-      # 'command_plus'=> !@model_class.populate_config[:no_plus],
-      # 'command_search'=> !@model_class.populate_config[:no_search],
-      items: items,
-    }.to_json
+    @model_class = resolve_model_class params[:class_name]
+    @model_class.to_admin_list.to_json
   end
 
-  get '/form/:class_name' do
-    @model_class = resolve_model_class(params[:class_name])
-    @model_instance = @model_class.new
-    {
-      template: 'template_form',
-      page_title: "New #{@model_class}",
-      admin_url: @model_instance.to_admin_url,
-      is_new: true,
-      fields: @model_instance.to_admin_form(request: request, params: params)
-    }.to_json
-  end
-
-  get '/form/:class_name/:id' do
-    @model_class = resolve_model_class(params[:class_name])
-    @model_instance = resolve_model_instance(@model_class,params[:id])
-    {
-      template: 'template_form',
-      page_title: @model_instance.to_s,
-      admin_url: @model_instance.to_admin_url,
-      is_new: false,
-      fields: @model_instance.to_admin_form(request: request, params: params)
-    }.to_json
+  get '/form/?:class_name?/?:id?' do
+    @model_class = resolve_model_class params[:class_name]
+    if params[:id].nil?
+      @model_instance = @model_class.new
+    else
+      @model_instance = resolve_model_instance @model_class, params[:id]
+    end
+    @model_instance.to_admin_form(
+      request: request, 
+      embeded: params[:embeded]=='true', 
+      input_name_prefix: params[:input_name_prefix]
+    ).to_json
   end
 
   not_found do
