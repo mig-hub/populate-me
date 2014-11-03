@@ -656,5 +656,53 @@ describe 'PopulateMe::Document' do
 
   end
 
+  describe 'Schema' do
+
+    class SchemalessAddressBook
+      include PopulateMe::Document
+      attr_accessor :title
+      def contacts; @contacts ||= []; end
+    end
+
+    it 'Is not mandatory' do
+      SchemalessAddressBook.label_field.should==nil
+      SchemalessAddressBook.fields.should=={}
+    end
+
+    class AddressBook
+      include PopulateMe::Document
+      field :title, foo: :bar
+      field :contacts, type: :list, class: :'AddressBook::Contact'
+    end
+
+    class AddressBook::Contact
+      include PopulateMe::Document
+      field :first_name
+      field :last_name
+    end
+
+    it 'Saves fields in the class schema along with any options passed to it' do
+      AddressBook.fields.should=={title: {foo: :bar}, contacts: {type: :list, class: :'AddressBook::Contact'}}
+    end
+
+    it 'Creates accessor methods for fields' do
+      ab = AddressBook.new
+      ab.title = 'My Friends'
+      ab.title.should=='My Friends'
+    end
+
+    it 'The reader for fields of type :list default to an empty array' do
+      ab = AddressBook.new
+      ab.contacts.should==[]
+    end
+
+    it 'Sets the label_field to whatever the first field is by default' do
+      AddressBook.label_field.should==:title
+      ab = AddressBook.new title: "My Friends"
+      ab.to_s.should=='My Friends'
+    end
+
+  end
+
 end
 
