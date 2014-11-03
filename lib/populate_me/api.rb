@@ -26,7 +26,7 @@ class PopulateMe::API < Sinatra::Base
   end
 
   post '/:model' do
-    model_class = resolve_model_class(params[:model])
+    model_class = resolve_model_class params[:model]
     model_instance = model_class.new.set_from_hash((params[:data]||{}), typecast: true)
     if model_instance.valid?
       model_instance.save
@@ -39,15 +39,15 @@ class PopulateMe::API < Sinatra::Base
   end
 
   get '/:model/:id' do
-    model_class = resolve_model_class(params[:model])
-    model_instance = resolve_model_instance(model_class,params[:id])
+    model_class = resolve_model_class params[:model]
+    model_instance = resolve_model_instance model_class, params[:id]
     {'success'=>true,'data'=>model_instance.to_h}.to_json
   end
 
   put '/:model/:id' do
-    model_class = resolve_model_class(params[:model])
-    model_instance = resolve_model_instance(model_class,params[:id])
-    model_instance.set_from_hash(params[:data], typecast: true)
+    model_class = resolve_model_class params[:model]
+    model_instance = resolve_model_instance model_class, params[:id]
+    model_instance.set_from_hash params[:data], typecast: true
     if model_instance.valid?
       model_instance.save
       {'success'=>true,'message'=>'Updated Successfully','data'=>model_instance.to_h}.to_json
@@ -58,8 +58,8 @@ class PopulateMe::API < Sinatra::Base
   end
 
   delete '/:model/:id' do
-    model_class = resolve_model_class(params[:model])
-    model_instance = resolve_model_instance(model_class,params[:id])
+    model_class = resolve_model_class params[:model]
+    model_instance = resolve_model_instance model_class, params[:id]
     model_instance.delete
     {'success'=>true,'message'=>'Deleted Successfully','data'=>model_instance.to_h}.to_json
   end
@@ -80,13 +80,13 @@ class PopulateMe::API < Sinatra::Base
 
     include PopulateMe::Utils
 
-    def resolve_model_class(name)
+    def resolve_model_class name
       model_class = resolve_dasherized_class_name(name) rescue nil
       halt(404) unless model_class.respond_to?(:[])
       model_class
     end
 
-    def resolve_model_instance(model_class,id)
+    def resolve_model_instance model_class, id
       instance = model_class[id]
       halt(404) if instance.nil?
       instance

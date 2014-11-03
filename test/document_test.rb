@@ -270,6 +270,10 @@ describe 'PopulateMe::Document' do
       User.documents[0].should==u.to_h # Data is the hash
     end
 
+  end
+
+  describe 'Creation From Hash' do
+
     class Tomato
       include PopulateMe::Document
       attr_accessor :taste
@@ -302,7 +306,13 @@ describe 'PopulateMe::Document' do
 
   class Garlic
     include PopulateMe::Document
-    attr_accessor :strength, :shape
+    attr_accessor :strength, :shape, :bags
+    def bags; @bags ||= []; end
+  end
+
+  class Garlic::Bag
+    include PopulateMe::Document
+    attr_accessor :index
   end
 
   describe 'Update' do
@@ -324,6 +334,32 @@ describe 'PopulateMe::Document' do
       g.perform_update
       Garlic.documents[0]['shape'].should=='curvy'
       Garlic.documents[0]['strength'].should==nil
+    end
+
+  end
+
+  describe 'Update From Hash' do
+
+    it 'Clears the list fields before updating them' do
+      g = Garlic.new.set_from_hash({
+        'shape'=>'cone',
+        'strength'=>3,
+        'bags'=> [
+          {'_class'=>'Garlic::Bag', 'index'=>0}
+        ]
+      })
+      g.shape.should=='cone'
+      g.bags.count.should==1
+      g.bags[0].class.name.should=='Garlic::Bag'
+      g.bags[0].index.should==0
+      g.set_from_hash({
+        'bags'=> [
+          {'_class'=>'Garlic::Bag', 'index'=>4}
+        ]
+      })
+      g.shape.should=='cone'
+      g.bags.count.should==1
+      g.bags[0].index.should==4
     end
 
   end
