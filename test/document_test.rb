@@ -704,5 +704,55 @@ describe 'PopulateMe::Document' do
 
   end
 
+  describe 'Admin related methods' do
+
+    class SuperHeroTeam
+      include PopulateMe::Document
+      field :name
+      field :members, type: :list, class: :'SuperHeroTeam::Member'
+    end
+
+    class SuperHeroTeam::Member
+      include PopulateMe::Document
+    end
+
+    it 'Can give a url to instances' do
+      SuperHeroTeam::Member.new.to_admin_url.should=='super-hero-team--member'
+      SuperHeroTeam::Member.new(id: 'x-men').to_admin_url.should=='super-hero-team--member/x-men'
+    end
+
+    it 'Can send the relevant list item default info for an instance' do
+      team = SuperHeroTeam.new id: 'x-men', name: 'X Men'
+      info = team.to_admin_list_item
+      [:class_name,:id,:admin_url,:title].all?{|i| info.keys.include?(i)}.should==true
+    end
+
+    it 'Can send the relevant list default info for a class' do
+      info = SuperHeroTeam.to_admin_list
+      [:template,:page_title,:dasherized_class_name,:items].all?{|i| info.keys.include?(i)}.should==true
+      info[:template].should=='template_list'
+      info[:items].should==[]
+      team = SuperHeroTeam.new id: 'x-men', name: 'X Men'
+      team.save
+      info = SuperHeroTeam.to_admin_list
+      info[:items].include?(team.to_admin_list_item)
+    end
+
+    it 'Can send the relevant form default info for an instance' do
+      team = SuperHeroTeam.new
+      info = team.to_admin_form
+      existing_team = SuperHeroTeam['x-men']
+      existing_team_info = existing_team.to_admin_form
+      [:template,:page_title,:admin_url,:is_new,:fields].all?{|i| info.keys.include?(i)}.should==true
+      info[:template].should=='template_form'
+      info[:page_title].should=='New Super Hero Team'
+      existing_team_info[:page_title].should=='X Men'
+      info[:is_new].should==true
+      existing_team_info[:is_new].should==false
+      info[:fields].size.should==(SuperHeroTeam.fields.size+1)
+    end
+
+  end
+
 end
 
