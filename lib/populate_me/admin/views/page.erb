@@ -86,12 +86,12 @@
     </script>
 
     <script id="template-text-field" type="x-tmpl-mustache">
-      <textarea name='{{input_name}}' {{#required}}required='{{required}}'{{/required}}>{{input_value}}</textarea>
+      <textarea name='{{input_attributes.name}}' {{#input_attributes.required}}required='{{input_attributes.required}}'{{/input_attributes.required}}>{{input_attributes.value}}</textarea>
     </script>
 
     <script id="template-boolean-field" type="x-tmpl-mustache">
-      <input type='hidden' name='{{input_name}}' value='false'/>
-      <input type='checkbox' name='{{input_name}}' value='true' {{#input_value}}checked='{{input_value}}'{{/input_value}} />
+      <input type='hidden' name='{{input_attributes.name}}' value='false'/>
+      <input type='checkbox' name='{{input_attributes.name}}' value='true' {{#input_attributes.value}}checked='{{input_attributes.value}}'{{/input_attributes.value}} />
     </script>
 
     <script id="template-list-field" type="x-tmpl-mustache">
@@ -99,7 +99,7 @@
         <legend>{{label}}</legend>
         {{#dasherized_class_name}}
           <p>
-          <a href="<%= request.script_name %>/form/{{dasherized_class_name}}?input_name_prefix={{input_name}}[]&embeded=true" class='new-embeded-document-btn'>+</a>
+          <a href="<%= request.script_name %>/form/{{dasherized_class_name}}?input_name_prefix={{input_attributes.name}}[]&embeded=true" class='new-embeded-document-btn'>+</a>
           </p>
         {{/dasherized_class_name}}
         <ol class='embeded-documents'>

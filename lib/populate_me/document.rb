@@ -329,17 +329,18 @@ module PopulateMe
       items.each do |item|
         item[:wrap] = [:hidden,:list].include?(item[:type]) ? false : !(item[:wrap]==false)
         item[:label] ||= PopulateMe::Utils.label_for_field item[:field_name]
-        input_name = "#{input_name_prefix}[#{item[:field_name]}]"
+        item[:input_attributes] ||= {}
+        item[:input_attributes][:name] = "#{input_name_prefix}[#{item[:field_name]}]"
         if item[:type]==:list
           item[:dasherized_class_name] = PopulateMe::Utils.dasherize_class_name(item[:class].to_s)
           item[:items] = self.__send__(item[:field_name]).map {|embeded|
-           embeded.to_admin_form(o.merge(input_name_prefix: input_name+'[]'))
+           embeded.to_admin_form(o.merge(input_name_prefix: item[:input_attributes][:name]+'[]'))
           }
         else
           item[:input_attributes] = {
-            name: input_name, value: (self.__send__(item[:field_name]) if self.respond_to?(item[:field_name])),
+            value: (self.__send__(item[:field_name]) if self.respond_to?(item[:field_name])),
             type: 'text', required: item[:required]
-          }.merge(item[:input_attributes]||{})
+          }.merge(item[:input_attributes])
         end
       end
       {
