@@ -709,11 +709,17 @@ describe 'PopulateMe::Document' do
     class SuperHeroTeam
       include PopulateMe::Document
       field :name
+      field :score, form_field: false
+      field :active, type: :boolean, wrap: false
       field :members, type: :list, class: :'SuperHeroTeam::Member'
     end
 
     class SuperHeroTeam::Member
       include PopulateMe::Document
+    end
+
+    def find_field fields, name
+      fields.find{|f| f[:field_name]==name}
     end
 
     it 'Can give a url to instances' do
@@ -749,8 +755,34 @@ describe 'PopulateMe::Document' do
       existing_team_info[:page_title].should=='X Men'
       info[:is_new].should==true
       existing_team_info[:is_new].should==false
-      info[:fields].size.should==(SuperHeroTeam.fields.size+1)
+      info[:fields].size.should>0
     end
+
+    it 'Changes the template for forms if the :embeded option is used' do
+      SuperHeroTeam.new.to_admin_form(embeded: true)[:template].should=='template_embeded_form'
+    end
+
+    it 'Adds the _class field to form info for an instance' do
+      team = SuperHeroTeam.new
+      info = team.to_admin_form
+      class_field = info[:fields][0]
+      class_field[:field_name].should==:_class
+      class_field[:type].should==:hidden
+      class_field[:input_attributes][:name].should=='data[_class]'
+      class_field[:input_attributes][:value].should=='SuperHeroTeam'
+      class_field[:input_attributes][:type].should=='hidden'
+    end
+
+    it 'Sets the :wrap option of form fields correctly' do
+      fields = SuperHeroTeam.new.to_admin_form[:fields]
+      find_field(fields,:_class)[:wrap].should==false
+      find_field(fields,:members)[:wrap].should==false
+      find_field(fields,:active)[:wrap].should==false
+      find_field(fields,:name)[:wrap].should==true
+    end
+
+    # form_field: false
+    # with prefix
 
   end
 

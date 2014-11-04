@@ -317,40 +317,29 @@ module PopulateMe
       items = [{
         field_name: :_class,
         type: :hidden,
-        wrap: false,
-        input_name: "#{input_name_prefix}[_class]",
-        input_value: self.class.name,
         input_attributes: {
           type: 'hidden',
           name: "#{input_name_prefix}[_class]",
           value: self.class.name
         }
       }]
-      if self.class.respond_to? :fields
-        self.class.fields.each do |k,v|
-          unless v[:form_field]==false
-            settings = v.dup
-            settings[:field_name] = k
-            settings[:wrap] ||= true
-            settings[:wrap] = false if [:hidden,:list].include?(settings[:type])
-            settings[:label] ||= PopulateMe::Utils.label_for_field k
-            settings[:input_name] = "#{input_name_prefix}[#{k}]"
-            if settings[:type]==:list
-              unless settings[:class].nil?
-                settings[:dasherized_class_name] = PopulateMe::Utils.dasherize_class_name(settings[:class].to_s)
-              end
-              settings[:items] = self.__send__(k).map {|embeded|
-               embeded.to_admin_form(o.merge(input_name_prefix: settings[:input_name]+'[]'))
-              }
-            else
-              settings[:input_value] = self.__send__ k
-              settings[:input_attributes] = {
-                type: 'text', name: settings[:input_name],
-                value: settings[:input_value], required: settings[:required]
-              }.merge(settings[:input_attributes]||{})
-            end
-            items << settings
-          end
+      (self.class.fields||{}).each do |k,v|
+        items << v.merge(field_name: k) unless v[:form_field]==false
+      end
+      items.each do |item|
+        item[:wrap] = [:hidden,:list].include?(item[:type]) ? false : !(item[:wrap]==false)
+        item[:label] ||= PopulateMe::Utils.label_for_field item[:field_name]
+        input_name = "#{input_name_prefix}[#{item[:field_name]}]"
+        if item[:type]==:list
+          item[:dasherized_class_name] = PopulateMe::Utils.dasherize_class_name(item[:class].to_s)
+          item[:items] = self.__send__(item[:field_name]).map {|embeded|
+           embeded.to_admin_form(o.merge(input_name_prefix: input_name+'[]'))
+          }
+        else
+          item[:input_attributes] = {
+            name: input_name, value: (self.__send__(item[:field_name]) if self.respond_to?(item[:field_name])),
+            type: 'text', required: item[:required]
+          }.merge(item[:input_attributes]||{})
         end
       end
       {
