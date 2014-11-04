@@ -323,7 +323,7 @@ module PopulateMe
           value: self.class.name
         }
       }]
-      (self.class.fields||{}).each do |k,v|
+      self.class.fields.each do |k,v|
         items << v.merge(field_name: k) unless v[:form_field]==false
       end
       items.each do |item|
