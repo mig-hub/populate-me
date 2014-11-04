@@ -722,67 +722,99 @@ describe 'PopulateMe::Document' do
       fields.find{|f| f[:field_name]==name}
     end
 
-    it 'Can give a url to instances' do
-      SuperHeroTeam::Member.new.to_admin_url.should=='super-hero-team--member'
-      SuperHeroTeam::Member.new(id: 'x-men').to_admin_url.should=='super-hero-team--member/x-men'
+    describe '#to_admin_url' do
+        
+      it 'Only puts the ID if there is one yet' do
+        SuperHeroTeam::Member.new.to_admin_url.should=='super-hero-team--member'
+        SuperHeroTeam::Member.new(id: 'x-men').to_admin_url.should=='super-hero-team--member/x-men'
+      end
+
     end
 
-    it 'Can send the relevant list item default info for an instance' do
-      team = SuperHeroTeam.new id: 'x-men', name: 'X Men'
-      info = team.to_admin_list_item
-      [:class_name,:id,:admin_url,:title].all?{|i| info.keys.include?(i)}.should==true
+    describe '#to_admin_list_item' do
+
+      it 'Returns the relevant default info' do
+        team = SuperHeroTeam.new id: 'x-men', name: 'X Men'
+        info = team.to_admin_list_item
+        [:class_name,:id,:admin_url,:title].all?{|i| info.keys.include?(i)}.should==true
+      end
+
     end
 
-    it 'Can send the relevant list default info for a class' do
-      info = SuperHeroTeam.to_admin_list
-      [:template,:page_title,:dasherized_class_name,:items].all?{|i| info.keys.include?(i)}.should==true
-      info[:template].should=='template_list'
-      info[:items].should==[]
-      team = SuperHeroTeam.new id: 'x-men', name: 'X Men'
-      team.save
-      info = SuperHeroTeam.to_admin_list
-      info[:items].include?(team.to_admin_list_item)
+    describe '::to_admin_list' do
+
+      it 'Returns the relevant default info' do
+        info = SuperHeroTeam.to_admin_list
+        [:template,:page_title,:dasherized_class_name,:items].all?{|i| info.keys.include?(i)}.should==true
+        info[:template].should=='template_list'
+        info[:items].should==[]
+        team = SuperHeroTeam.new id: 'x-men', name: 'X Men'
+        team.save
+        info = SuperHeroTeam.to_admin_list
+        info[:items].include?(team.to_admin_list_item)
+      end
+
     end
 
-    it 'Can send the relevant form default info for an instance' do
-      team = SuperHeroTeam.new
-      info = team.to_admin_form
-      existing_team = SuperHeroTeam['x-men']
-      existing_team_info = existing_team.to_admin_form
-      [:template,:page_title,:admin_url,:is_new,:fields].all?{|i| info.keys.include?(i)}.should==true
-      info[:template].should=='template_form'
-      info[:page_title].should=='New Super Hero Team'
-      existing_team_info[:page_title].should=='X Men'
-      info[:is_new].should==true
-      existing_team_info[:is_new].should==false
-      info[:fields].size.should>0
-    end
+    describe '#to_admin_form' do
 
-    it 'Changes the template for forms if the :embeded option is used' do
-      SuperHeroTeam.new.to_admin_form(embeded: true)[:template].should=='template_embeded_form'
-    end
+      it 'Returns the relevant default info' do
+        team = SuperHeroTeam.new
+        info = team.to_admin_form
+        existing_team = SuperHeroTeam['x-men']
+        existing_team_info = existing_team.to_admin_form
+        [:template,:page_title,:admin_url,:is_new,:fields].all?{|i| info.keys.include?(i)}.should==true
+        info[:template].should=='template_form'
+        info[:page_title].should=='New Super Hero Team'
+        existing_team_info[:page_title].should=='X Men'
+        info[:is_new].should==true
+        existing_team_info[:is_new].should==false
+        info[:fields].size.should>0
+      end
 
-    it 'Adds the _class field to form info for an instance' do
-      team = SuperHeroTeam.new
-      info = team.to_admin_form
-      class_field = info[:fields][0]
-      class_field[:field_name].should==:_class
-      class_field[:type].should==:hidden
-      class_field[:input_attributes][:name].should=='data[_class]'
-      class_field[:input_attributes][:value].should=='SuperHeroTeam'
-      class_field[:input_attributes][:type].should=='hidden'
-    end
+      it 'Changes the template if the :embeded option is used' do
+        SuperHeroTeam.new.to_admin_form(embeded: true)[:template].should=='template_embeded_form'
+      end
 
-    it 'Sets the :wrap option of form fields correctly' do
-      fields = SuperHeroTeam.new.to_admin_form[:fields]
-      find_field(fields,:_class)[:wrap].should==false
-      find_field(fields,:members)[:wrap].should==false
-      find_field(fields,:active)[:wrap].should==false
-      find_field(fields,:name)[:wrap].should==true
-    end
+      it 'Adds the _class field' do
+        team = SuperHeroTeam.new
+        info = team.to_admin_form
+        class_field = info[:fields][0]
+        class_field[:field_name].should==:_class
+        class_field[:type].should==:hidden
+        class_field[:input_attributes][:name].should=='data[_class]'
+        class_field[:input_attributes][:value].should=='SuperHeroTeam'
+        class_field[:input_attributes][:type].should=='hidden'
+      end
 
-    # form_field: false
-    # with prefix
+      it 'Sets the :wrap option of form fields correctly' do
+        fields = SuperHeroTeam.new.to_admin_form[:fields]
+        find_field(fields,:_class)[:wrap].should==false
+        find_field(fields,:members)[:wrap].should==false
+        find_field(fields,:active)[:wrap].should==false
+        find_field(fields,:name)[:wrap].should==true
+      end
+
+      it 'Does not include the fields with :form_field==false' do
+        fields = SuperHeroTeam.new.to_admin_form[:fields]
+        find_field(fields,:score).should==nil
+      end
+
+      it 'Can change the input name prefix for form fields' do
+        fields = SuperHeroTeam.new.to_admin_form(input_name_prefix: 'data[bababa][]')[:fields]
+        find_field(fields,:name)[:input_attributes][:name].should=='data[bababa][][name]'
+      end
+
+      it 'Includes embeded documents' do
+        hero = SuperHeroTeam::Member.new
+        hero_form = hero.to_admin_form(input_name_prefix: 'data[members][]')
+        team = SuperHeroTeam.new
+        team.members << hero
+        fields = team.to_admin_form[:fields]
+        find_field(fields,:members)[:items][0].should==hero_form
+      end
+
+    end
 
   end
 
