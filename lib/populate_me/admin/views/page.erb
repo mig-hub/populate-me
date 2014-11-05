@@ -82,16 +82,21 @@
     </script>
     
     <script id="template-string-field" type="x-tmpl-mustache">
-      <input{{build_input_attributes}} />
+      <input{{{build_input_attributes}}} />
     </script>
 
     <script id="template-text-field" type="x-tmpl-mustache">
-      <textarea name='{{input_attributes.name}}' {{#input_attributes.required}}required='{{input_attributes.required}}'{{/input_attributes.required}}>{{input_attributes.value}}</textarea>
+      <textarea name='{{input_attributes.name}}' {{#input_attributes.required}}required{{/input_attributes.required}}>{{input_attributes.value}}</textarea>
     </script>
 
     <script id="template-boolean-field" type="x-tmpl-mustache">
       <input type='hidden' name='{{input_attributes.name}}' value='false'/>
-      <input type='checkbox' name='{{input_attributes.name}}' value='true' {{#input_attributes.value}}checked='{{input_attributes.value}}'{{/input_attributes.value}} />
+      <input type='checkbox' name='{{input_attributes.name}}' value='true' {{#input_attributes.value}}checked{{/input_attributes.value}} />
+    </script>
+
+    <script id="template-select-field" type="x-tmpl-mustache">
+      <select name='{{input_attributes.name}}'>
+      </select>
     </script>
 
     <script id="template-list-field" type="x-tmpl-mustache">

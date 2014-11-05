@@ -6,7 +6,7 @@ $:.unshift File.expand_path('../../lib', __FILE__)
 require 'populate_me/document'
 class BlogPost
   include PopulateMe::Document
-  field :title
+  field :title, required: true
   field :content, type: :text
   field :authors, type: :list, class: :'BlogPost::Author'
   field :published, type: :boolean
