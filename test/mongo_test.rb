@@ -31,8 +31,7 @@ describe 'PopulateMe::Mongo' do
     CatFish.new(id: "bbbbb", name: "honk").persistent_instance_variables.should == [:@_id, :@name]
   end
 
-  describe 'Data base connection' do 
-
+  describe 'Database connection' do 
 
     it 'Should have db set by default' do 
       CatFish.db.should == DB
@@ -69,10 +68,11 @@ describe 'PopulateMe::Mongo' do
     it 'Should have collection set by default' do 
       CatFish.collection.name.should == DB['CatFish'].name
     end
+
   end
 
-
   describe 'Low level CRUD' do 
+
     it 'Should create' do
       fred = CatFish.new(id: "lll", name: "Fred")
       fred.perform_create
@@ -94,7 +94,6 @@ describe 'PopulateMe::Mongo' do
       jason.perform_update
       CatFish.collection.find_one({'_id'=> jason.id})['name'].should== "billy"
     end
-
 
     it "Should get correct item" do 
       jackson_id = CatFish.new(name: "jackson").perform_create
@@ -119,9 +118,11 @@ describe 'PopulateMe::Mongo' do
     it 'Should not save to the document class variable' do 
       CatFish.documents.should == []
     end
+
   end
 
   describe 'High level CRUD' do 
+
     it 'Should use after_save callback' do 
       danny = CatFish.new(name: "danny")
       danny.new?.should == true
@@ -129,8 +130,10 @@ describe 'PopulateMe::Mongo' do
       CatFish.collection.find_one({"_id"=> danny.id}).should != nil
       danny.new?.should == false
     end
+
   end
 
 end
 
 MONGO.drop_database('populate-me-test')
+
