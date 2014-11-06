@@ -275,7 +275,6 @@ module PopulateMe
     end
 
     # Related to the Admin interface #############
-    require "populate_me/builder"
 
     def to_admin_url
       "#{Utils.dasherize_class_name(self.class.name)}/#{id}".sub(/\/$/,'')
@@ -305,13 +304,6 @@ module PopulateMe
     end
 
     # Forms
-    # def default_form o={}
-    #   Builder.create_here do |b|
-    #     self.class.fields.keys.each do |k|
-    #       b.input_for(self,k)
-    #     end
-    #   end
-    # end
     def to_admin_form o={}
       input_name_prefix = o[:input_name_prefix]||'data'
       items = [{
