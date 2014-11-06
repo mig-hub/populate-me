@@ -317,10 +317,10 @@ module PopulateMe
       items = [{
         field_name: :_class,
         type: :hidden,
+        input_name: "#{input_name_prefix}[_class]",
+        input_value: self.class.name,
         input_attributes: {
           type: 'hidden',
-          name: "#{input_name_prefix}[_class]",
-          value: self.class.name
         }
       }]
       self.class.fields.each do |k,v|
@@ -329,18 +329,35 @@ module PopulateMe
       items.each do |item|
         item[:wrap] = [:hidden,:list].include?(item[:type]) ? false : !(item[:wrap]==false)
         item[:label] ||= PopulateMe::Utils.label_for_field item[:field_name]
-        item[:input_attributes] ||= {}
-        item[:input_attributes][:name] = "#{input_name_prefix}[#{item[:field_name]}]"
+        item[:input_name] = "#{input_name_prefix}[#{item[:field_name]}]"
         if item[:type]==:list
           item[:dasherized_class_name] = PopulateMe::Utils.dasherize_class_name(item[:class].to_s)
           item[:items] = self.__send__(item[:field_name]).map {|embeded|
-           embeded.to_admin_form(o.merge(input_name_prefix: item[:input_attributes][:name]+'[]'))
+           embeded.to_admin_form(o.merge(input_name_prefix: item[:input_name]+'[]'))
           }
         else
-          item[:input_attributes] = {
-            value: (self.__send__(item[:field_name]) if self.respond_to?(item[:field_name])),
-            type: 'text', required: item[:required]
-          }.merge(item[:input_attributes])
+          item[:type] ||= :string
+          item[:input_value] ||= self.__send__ item[:field_name]
+          item[:input_attributes] ||= {}
+          if item[:type]==:select
+            unless item[:select_options].nil?
+              opts = item[:select_options].is_a?(Symbol) ? self.__send__(item[:select_options]) : item[:select_options].dup
+              opts.map! do |opt|
+                if opt.is_a?(String)||opt.is_a?(Symbol)
+                  opt = [opt.to_s.capitalize,opt]
+                end
+                if opt.is_a?(Array)
+                  opt = {description: opt[0].to_s, value: opt[1].to_s}
+                end
+                opt[:selected] = true if item[:input_value]==opt[:value]
+                opt
+              end
+              item[:select_options] = opts
+            end
+          elsif item[:type]==:text
+          else
+            item[:input_attributes][:type] ||= 'text'
+          end
         end
       end
       {

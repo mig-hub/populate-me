@@ -10,6 +10,7 @@ class BlogPost
   field :content, type: :text
   field :authors, type: :list, class: :'BlogPost::Author'
   field :published, type: :boolean
+  field :active, type: :select, select_options: [:yes,:no]
   def validate
     # error_on(:content,'Cannot be blank') if PopulateMe::Utils.blank?(self.content)
   end

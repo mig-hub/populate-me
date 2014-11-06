@@ -677,6 +677,26 @@ describe 'PopulateMe::Document' do
       field :score, form_field: false
       field :active, type: :boolean, wrap: false
       field :members, type: :list, class: :'SuperHeroTeam::Member'
+      field :dropdown1, type: :select, select_options: [{description: 'Yes', value: 'yes'}, {description: 'No', value: 'no'}]
+      field :dropdown2, type: :select, select_options: [['Yes','yes'],['No','no']]
+      field :dropdown3, type: :select, select_options: ['yes','no']
+      field :dropdown4, type: :select, select_options: [:yes,:no]
+      field :dropdown5, type: :select, select_options: :options5
+      field :dropdown6, type: :select, select_options: :options6
+      field :dropdown7, type: :select, select_options: :options7
+      field :dropdown8, type: :select, select_options: :options8
+      def options5
+        [{description: 'Yes', value: 'yes'}, {description: 'No', value: 'no'}]
+      end
+      def options6
+        [['Yes','yes'],['No','no']]
+      end
+      def options7
+        ['yes','no']
+      end
+      def options8
+        [:yes,:no]
+      end
     end
 
     class SuperHeroTeam::Member
@@ -747,8 +767,8 @@ describe 'PopulateMe::Document' do
         class_field = info[:fields][0]
         class_field[:field_name].should==:_class
         class_field[:type].should==:hidden
-        class_field[:input_attributes][:name].should=='data[_class]'
-        class_field[:input_attributes][:value].should=='SuperHeroTeam'
+        class_field[:input_name].should=='data[_class]'
+        class_field[:input_value].should=='SuperHeroTeam'
         class_field[:input_attributes][:type].should=='hidden'
       end
 
@@ -767,7 +787,7 @@ describe 'PopulateMe::Document' do
 
       it 'Can change the input name prefix for form fields' do
         fields = SuperHeroTeam.new.to_admin_form(input_name_prefix: 'data[bababa][]')[:fields]
-        find_field(fields,:name)[:input_attributes][:name].should=='data[bababa][][name]'
+        find_field(fields,:name)[:input_name].should=='data[bababa][][name]'
       end
 
       it 'Includes embeded documents' do
@@ -777,6 +797,16 @@ describe 'PopulateMe::Document' do
         team.members << hero
         fields = team.to_admin_form[:fields]
         find_field(fields,:members)[:items][0].should==hero_form
+      end
+
+      it 'Can build select_options from hash, array, or a method' do
+        expected = [{description: 'Yes', value: 'yes'},{description: 'No', value: 'no', selected: true}]
+        team = SuperHeroTeam.new
+        (1..8).each{|n| team.__send__("dropdown#{n}=".to_sym,'no')}
+        fields = team.to_admin_form[:fields]
+        (1..8).each do |n|
+          find_field(fields,"dropdown#{n}".to_sym)[:select_options].should==expected
+        end
       end
 
     end
