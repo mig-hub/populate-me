@@ -71,9 +71,7 @@ module PopulateMe
     end
 
     def perform_delete
-      # index = self.class.collection.find_one({'_id'=> self.id})
-      raise MissingDocumentError, "No document can be found with this ID: #{self.id}" if self.id.nil?
-      self.class.collection.remove({'_id'=> self.id}, {justOne: true})
+      self.class.collection.remove({'_id'=> self.id})
     end
     
   end
@@ -81,6 +79,5 @@ end
 
 
 #  TODO 
-# take care of DB 
 # take care of before and after callbacks
 
