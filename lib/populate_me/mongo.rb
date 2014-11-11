@@ -23,17 +23,12 @@ module PopulateMe
         end
       end
 
-      # def db new_db=nil
-      #   if new_db==nil
-      #     # raise(StandardError, "DB not set!") if !defined?(:DB)
-      #     @db ||= DB 
-      #   else
-      #     @db = new_db
-      #   end
-
-      # Mongo specific method
-      def db 
-        DB
+      def db new_db=nil
+        if new_db==nil
+          @db ||= DB 
+        else
+          @db = new_db
+        end
       end
 
       # Mongo specific method

@@ -5,7 +5,9 @@ require 'mongo'
 
 MONGO = Mongo::Connection.new
 MONGO.drop_database('populate-me-test')
-DB    = MONGO['populate-me-test']
+MONGO.drop_database('populate-me-test-other')
+DB = MONGO['populate-me-test']
+OTHER_DB = MONGO['populate-me-test-other']
 
 
 describe 'PopulateMe::Mongo' do
@@ -37,22 +39,12 @@ describe 'PopulateMe::Mongo' do
       CatFish.db.should == DB
     end
 
-    # it 'Should override db' do 
-    #   FAKEDB = MONGO['fake-populate-me-db']
-    #   CatFish.db(FAKEDB)
-    #   CatFish.db.should == FAKEDB
-    #   CatFish.db(DB)
-    #   CatFish.db.should == DB
-    # end
-
-    # it 'Should raise DB not set! error if DB not set' do
-    #   TEMP = DB
-    #   # Object.remove_const :DB
-    #   Object.send(:remove_const, :DB)
-    #   lambda { CatFish.db }.should.raise(StandardError)
-    #   DB = TEMP
-    #   CatFish.db.should == DB
-    # end
+    it 'Can override db' do 
+      CatFish.db(OTHER_DB)
+      CatFish.db.should == OTHER_DB
+      CatFish.db(DB)
+      CatFish.db.should == DB
+    end
 
     it 'Should set DB collection to class name by default' do 
       CatFish.collection_name.should == "CatFish"
@@ -136,4 +128,5 @@ describe 'PopulateMe::Mongo' do
 end
 
 MONGO.drop_database('populate-me-test')
+MONGO.drop_database('populate-me-test-other')
 
