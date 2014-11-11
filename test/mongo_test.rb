@@ -57,7 +57,7 @@ describe 'PopulateMe::Mongo' do
       CatFish.collection_name.should == "CatFish"
     end 
 
-    it 'Should have collection set by default' do 
+    it 'Finds collection in DB' do 
       CatFish.collection.name.should == DB['CatFish'].name
     end
 
@@ -107,7 +107,7 @@ describe 'PopulateMe::Mongo' do
       CatFish.collection.find_one({"_id"=> herbert.id}).should==nil
     end
 
-    it 'Should not save to the document class variable' do 
+    it 'Should not save to the @@documents class variable' do 
       CatFish.documents.should == []
     end
 
