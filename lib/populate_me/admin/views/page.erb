@@ -90,8 +90,10 @@
     </script>
 
     <script id="template-boolean-field" type="x-tmpl-mustache">
-      <input type='hidden' name='{{input_name}}' value='false'/>
-      <input type='checkbox' name='{{input_name}}' value='true' {{#input_value}}checked{{/input_value}} />
+      <select name='{{input_name}}' {{{build_input_attributes}}}>
+        <option value='false' {{^input_value}}selected{{/input_value}}>No</option>
+        <option value='true' {{#input_value}}selected{{/input_value}}>Yes</option>
+      </select>
     </script>
 
     <script id="template-select-field" type="x-tmpl-mustache">

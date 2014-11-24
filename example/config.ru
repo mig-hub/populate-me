@@ -24,6 +24,7 @@ end
 class BlogPost::Author
   include PopulateMe::Mongo
   field :name
+  field :visible, type: :boolean
 end
 
 # Admin ##########
