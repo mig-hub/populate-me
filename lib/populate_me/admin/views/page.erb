@@ -1,0 +1,136 @@
+<%# encoding: utf-8 %>
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title><%= settings.meta_title %></title>
+    <link rel="stylesheet" href="<%= request.script_name %>/__assets__/css/main.css" type="text/css" media='screen' />
+  </head>
+  <body>
+
+    <ol id='finder'><li class='column'>
+      <h1>Welcome<br><%= label_for_field user_name %></h1>
+      <% if settings.logout_path? %>
+        <p><a href="<%= request.script_name %><%= settings.logout_path %>">Logout</a></p>
+      <% end %>
+    </li></ol>
+
+    <!-- Templates -->
+
+    <script id="template-menu" type="x-tmpl-mustache">
+      <h1>{{page_title}}</h1>
+      <ol class='menu'>
+        {{#items}}
+          <li><a href="{{href}}" class='column-push'>{{title}}</a></li>
+        {{/items}}
+      </ol>
+    </script>
+
+    <script id="template-list" type="x-tmpl-mustache">
+      <h1>
+        {{page_title}}
+      </h1>
+      <p class='new-document-btn-wrap'>
+        <a href="<%= request.script_name %>/form/{{dasherized_class_name}}" class='column-push new-document-btn'>+</a>
+      </p>
+      <ol class='documents'>
+        {{#items}}{{#custom_partial_or_default}}template_document{{/custom_partial_or_default}}{{/items}}
+      </ol>
+    </script>
+
+    <script id="template-document" type="x-tmpl-mustache">
+      <li class='admin-list-item {{class_name}}-{{id}}'>
+        <span class='handle' title='Drag and drop'>&#8597;</span> 
+        <a href="<%= request.script_name %>/form/{{admin_url}}" class='column-push'>{{title}}</a>
+        <button type='button' class='admin-delete' title='Delete' value='<%= request.script_name %>/api/{{admin_url}}'>x</button>
+      </li>
+    </script>
+
+    <script id="template-form" type="x-tmpl-mustache">
+      <h1>{{page_title}}</h1>
+      <form action="<%= request.script_name %>/api/{{admin_url}}" method="POST" accept-charset="utf-8" class='admin-{{#is_new}}post{{/is_new}}{{^is_new}}put{{/is_new}}'>
+        {{#custom_partial_or_default}}template_form_fields{{/custom_partial_or_default}}
+        {{^is_new}}
+          <input type="hidden" name="_method" value="PUT" />
+        {{/is_new}}
+        <input type="submit" value="{{#is_new}}Create{{/is_new}}{{^is_new}}Update{{/is_new}}" />
+      </form>
+    </script>
+
+    <script id="template-embeded-form" type="x-tmpl-mustache">
+      <li>
+        {{#custom_partial_or_default}}template_form_fields{{/custom_partial_or_default}}
+      </li>
+    </script>
+
+    <script id="template-form-fields" type="x-tmpl-mustache">
+      {{#fields}}
+        {{>template_form_field}}
+      {{/fields}}
+    </script>
+
+    <script id="template-form-field" type="x-tmpl-mustache">
+      {{#wrap}}
+        <div class='field'>
+          <label>{{label}}</label>
+          <br>
+          {{#adapted_field}}{{/adapted_field}}
+        </div>
+      {{/wrap}}
+      {{^wrap}}
+        {{#adapted_field}}{{/adapted_field}}
+      {{/wrap}}
+    </script>
+    
+    <script id="template-string-field" type="x-tmpl-mustache">
+      <input name='{{input_name}}' value='{{input_value}}' {{#required}}required{{/required}}{{{build_input_attributes}}} />
+    </script>
+
+    <script id="template-text-field" type="x-tmpl-mustache">
+      <textarea name='{{input_name}}' {{#required}}required{{/required}}{{{build_input_attributes}}}>{{input_value}}</textarea>
+    </script>
+
+    <script id="template-boolean-field" type="x-tmpl-mustache">
+      <select name='{{input_name}}' {{{build_input_attributes}}}>
+        <option value='false' {{^input_value}}selected{{/input_value}}>No</option>
+        <option value='true' {{#input_value}}selected{{/input_value}}>Yes</option>
+      </select>
+    </script>
+
+    <script id="template-select-field" type="x-tmpl-mustache">
+      <select name='{{input_name}}' {{#multiple}}multiple{{/multiple}}{{{build_input_attributes}}}>
+        {{#select_options}}
+          <option value='{{value}}' {{#selected}}selected{{/selected}}>{{description}}</option>
+        {{/select_options}}
+      </select>
+    </script>
+
+    <script id="template-list-field" type="x-tmpl-mustache">
+      <fieldset class='field'>
+        <legend>{{label}}</legend>
+        {{#dasherized_class_name}}
+          <p>
+          <a href="<%= request.script_name %>/form/{{dasherized_class_name}}?input_name_prefix={{input_name}}[]&embeded=true" class='new-embeded-document-btn'>+</a>
+          </p>
+        {{/dasherized_class_name}}
+        <ol class='embeded-documents'>
+          {{#items}}
+            {{>template_embeded_form}}
+          {{/items}}
+        </ol>
+      </fieldset>
+    </script>
+
+    <!-- JS -->
+    <script src="http://code.jquery.com/jquery-1.10.2.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="<%= request.script_name %>/__assets__/js/mustache.js" type="text/javascript" charset="utf-8"></script>
+    <script src="<%= request.script_name %>/__assets__/js/columnav.js" type="text/javascript" charset="utf-8"></script>
+    <script src="<%= request.script_name %>/__assets__/js/sortable.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript">
+      window.admin_path = "<%= request.script_name %>";
+      window.index_path = "<%= settings.index_path %>";
+    </script>
+    <script src="<%= request.script_name %>/__assets__/js/main.js" type="text/javascript" charset="utf-8"></script>
+  </body>
+</html>
+
