@@ -21,7 +21,12 @@ describe 'PopulateMe::Mongo' do
     include PopulateMe::Mongo
     field :name
   end
-
+  module Paradise
+    class CatFish
+      include PopulateMe::Mongo
+      field :name
+    end
+  end
 
   it 'Includes Document Module' do 
     CatFish.to_s.should == "Cat Fish"
@@ -46,19 +51,20 @@ describe 'PopulateMe::Mongo' do
       CatFish.db.should == DB
     end
 
-    it 'Should set DB collection to class name by default' do 
-      CatFish.collection_name.should == "CatFish"
+    it 'Should set DB collection to dasherized full class name by default' do 
+      CatFish.collection_name.should == "cat-fish"
+      Paradise::CatFish.collection_name.should == "paradise--cat-fish"
     end
 
     it 'Should override db collection name' do 
-      CatFish.collection_name('DogFish')
-      CatFish.collection_name.should == "DogFish"
-      CatFish.collection_name('CatFish')
-      CatFish.collection_name.should == "CatFish"
+      CatFish.collection_name('dog-fish')
+      CatFish.collection_name.should == "dog-fish"
+      CatFish.collection_name('cat-fish')
+      CatFish.collection_name.should == "cat-fish"
     end 
 
     it 'Finds collection in DB' do 
-      CatFish.collection.name.should == DB['CatFish'].name
+      CatFish.collection.name.should == DB['cat-fish'].name
     end
 
   end

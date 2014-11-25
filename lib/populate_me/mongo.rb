@@ -17,7 +17,7 @@ module PopulateMe
       # Mongo specific method
       def collection_name name=nil
         if name==nil
-          @collection_name ||= self.name
+          @collection_name ||= Utils.dasherize_class_name self.name
         else
           @collection_name = name
         end
