@@ -3,11 +3,7 @@ require 'populate_me/version'
 
 Gem::Specification.new do |s| 
   s.name = 'populate-me'
-<<<<<<< HEAD
-  s.version = "0.0.24"
-=======
   s.version = PopulateMe::VERSION
->>>>>>> rewrite
   s.platform = Gem::Platform::RUBY
   s.summary = "ALPHA !!! Populate Me is a relatively complete but simple CMS"
   s.description = "ALPHA !!! Populate Me is a relatively complete but simple CMS. It includes a Rack middleware for putting in your Rack stack, and a bespoke MongoDB ODM. But Populate Me is not really finished yet."
