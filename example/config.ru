@@ -22,9 +22,18 @@ class BlogPost
   end
 end
 class BlogPost::Author
-  include PopulateMe::Mongo
+  # embeded
+  include PopulateMe::Document
   field :name
   field :visible, type: :boolean
+  field :comments, type: :list, class: :'BlogPost::Comment'
+end
+class BlogPost::Comment
+  # not embeded
+  include PopulateMe::Document 
+  field :author
+  field :content, type: :text
+  field :blog_post_id, type: :select
 end
 
 # Admin ##########
