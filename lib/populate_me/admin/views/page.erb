@@ -42,7 +42,7 @@
       <li class='admin-list-item {{class_name}}-{{id}}'>
         <span class='handle' title='Drag and drop'>&#8597;</span> 
         <a href="<%= request.script_name %>/form/{{admin_url}}" class='column-push'>{{title}}</a>
-        <button type='button' class='admin-delete' title='Delete' value='<%= request.script_name %>/api/{{admin_url}}'>x</button>
+        <button type='button' class='admin-delete' title='Delete' value='<%= request.script_name %>/api/{{admin_url}}'>&times;</button>
       </li>
     </script>
 
@@ -59,7 +59,9 @@
 
     <script id="template-embeded-form" type="x-tmpl-mustache">
       <li>
-        <div class='handle' title='Drag and drop'>&#8597;</div> 
+        <header>
+          <span class='handle' title='Drag and drop'>&#8597;</span><button type='button' class='admin-delete-embeded' title='Delete'>&times;</button>
+        </header>
         {{#custom_partial_or_default}}template_form_fields{{/custom_partial_or_default}}
       </li>
     </script>

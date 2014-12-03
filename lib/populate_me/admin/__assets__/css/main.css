@@ -66,15 +66,27 @@ button { cursor: pointer; }
   margin-bottom: 1em;
 }
 
-button.admin-delete {
+button.admin-delete, button.admin-delete-embeded, .handle {
+  display: inline-block; vertical-align: top;
+  font-size: 1em; line-height: 1em;
+  width: auto; height: auto;
+  padding: 0.25em;
   border: 0px;
-  background: #eee8d5;
-  color: #002b36;
 }
-button.admin-delete:hover {
+button.admin-delete, button.admin-delete-embeded {
   color: #fdf6e3;
   background: #dc322f;
 }
+button.admin-delete:hover, button.admin-delete-embeded:hover {
+  color: #002b36;
+}
+.handle {
+  cursor: move;
+  color: #fdf6e3;
+  background: #b58900;
+  padding-left: 0.5em; padding-right: 0.5em;
+}
+.handle:hover { color: #002b36; }
 
 [type=submit] {
   border: 0px;
@@ -97,17 +109,14 @@ button.admin-delete:hover {
 .documents > li, .embeded-documents > li {
   display: block;
 }
-.embeded-documents > li {
-  border-top: 1px solid #839496;
+.embeded-documents > li > header {
+  background: #002b36;
+  height: 1.5em;
+  margin-bottom: 1em;
 }
 .documents .sortable-placeholder, .embeded-documents .sortable-placeholder {
   border: 1px dashed #839496;
   background: none;
-}
-
-.handle {
-  cursor: pointer;
-  color: #839496;
 }
 
 /* Forms */
@@ -122,11 +131,7 @@ form {
 
 input[type=text], input[type=email],
 textarea {
-  /* border: 1px solid #002b36; */
   border: 0px;
-  /* color: #93a1a1; */
-  /* color: #839496; */
-  /* background: #eee8d5; */
   color: #839496;
   background: #ffffff;
   width: 250px;
@@ -144,7 +149,6 @@ textarea {
 
 fieldset {
   border: 0;
-  /* border-left: 1px solid #839496; */
   padding-left: 3em; padding-right: 0;
 }
 
