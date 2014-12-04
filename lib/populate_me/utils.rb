@@ -38,6 +38,18 @@ module PopulateMe
     end
     module_function :resolve_dasherized_class_name
 
+    def guess_related_class_name context, clue
+      context.respond_to?(:name) ? context.name : context.to_s
+      clue = clue.to_s
+      return clue if clue=~/^[A-Z]/
+      if clue=~/^[a-z]/
+        clue = undasherize_class_name clue.sub(/s$/,'').gsub('_','-')
+        clue = "::#{clue}"
+      end
+      "#{context}#{clue}"
+    end
+    module_function :guess_related_class_name
+
     ACCENTS_FROM = 
       "ÀÁÂÃÄÅàáâãäåĀāĂăĄąÇçĆćĈĉĊċČčÐðĎďĐđÈÉÊËèéêëĒēĔĕĖėĘęĚěĜĝĞğĠġĢģĤĥĦħÌÍÎÏìíîïĨĩĪīĬĭĮįİıĴĵĶķĸĹĺĻļĽľĿŀŁłÑñŃńŅņŇňŉŊŋÒÓÔÕÖØòóôõöøŌōŎŏŐőŔŕŖŗŘřŚśŜŝŞ"
     ACCENTS_TO = 

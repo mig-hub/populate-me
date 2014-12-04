@@ -87,6 +87,27 @@ describe 'PopulateMe::Utils' do
     end
   end
 
+  describe '#guess_related_class_name' do
+  
+    it 'Should return the class_name as-is if it looks like a complete one' do
+      PopulateMe::Utils.guess_related_class_name(PopulateMe::Utils, 'Class::Given').should=='Class::Given'
+      PopulateMe::Utils.guess_related_class_name('PopulateMe::Utils', :'Class::Given').should=='Class::Given'
+    end
+
+    it 'Should prepend the class_name whith the context if class_name starts with ::' do
+      PopulateMe::Utils.guess_related_class_name(PopulateMe::Utils, '::RelatedThing').should=='PopulateMe::Utils::RelatedThing'
+      PopulateMe::Utils.guess_related_class_name('PopulateMe::Utils', :'::RelatedThing').should=='PopulateMe::Utils::RelatedThing'
+    end
+
+    it 'Should guess a singular class_name in the context when the class_name starts with a lowercase letter' do
+      PopulateMe::Utils.guess_related_class_name(PopulateMe::Utils, :related_things).should=='PopulateMe::Utils::RelatedThing'
+      PopulateMe::Utils.guess_related_class_name('PopulateMe::Utils', 'related_things').should=='PopulateMe::Utils::RelatedThing'
+      PopulateMe::Utils.guess_related_class_name(PopulateMe::Utils, :related_thing).should=='PopulateMe::Utils::RelatedThing'
+      PopulateMe::Utils.guess_related_class_name('PopulateMe::Utils', 'related_thing').should=='PopulateMe::Utils::RelatedThing'
+    end
+
+  end
+
   describe '#slugify' do
 
     # For making slug for a document

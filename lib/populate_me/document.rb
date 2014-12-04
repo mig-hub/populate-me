@@ -35,6 +35,7 @@ module PopulateMe
       def fields; @fields ||= {}; end
       def field name, attributes={}
         if attributes[:type]==:list
+          attributes[:class_name] = Utils.guess_related_class_name(self.name,attributes[:class_name]||name)
           define_method(name) do
             var = "@#{name}"
             instance_variable_set(var, instance_variable_get(var)||[])
@@ -46,6 +47,12 @@ module PopulateMe
       end
       def label_field
         @label_field || self.fields.keys[0]
+      end
+
+      def relationships; @relationships ||= {}; end
+      def relationship name, attributes={}
+        attributes[:class_name] = Utils.guess_related_class_name(self.name,attributes[:class_name]||name)
+        self.relationships[name] = attributes
       end
 
       def documents; @documents ||= []; end
@@ -323,7 +330,7 @@ module PopulateMe
         item[:label] ||= PopulateMe::Utils.label_for_field item[:field_name]
         item[:input_name] = "#{input_name_prefix}[#{item[:field_name]}]"
         if item[:type]==:list
-          item[:dasherized_class_name] = PopulateMe::Utils.dasherize_class_name(item[:class].to_s)
+          item[:dasherized_class_name] = PopulateMe::Utils.dasherize_class_name(item[:class_name].to_s)
           item[:items] = self.__send__(item[:field_name]).map {|embeded|
            embeded.to_admin_form(o.merge(input_name_prefix: item[:input_name]+'[]'))
           }

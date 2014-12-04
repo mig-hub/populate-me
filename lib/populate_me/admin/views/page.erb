@@ -43,6 +43,11 @@
         <span class='handle' title='Drag and drop'>&#8597;</span> 
         <a href="<%= request.script_name %>/form/{{admin_url}}" class='column-push'>{{title}}</a>
         <button type='button' class='admin-delete' title='Delete' value='<%= request.script_name %>/api/{{admin_url}}'>&times;</button>
+        <ol class='local-menu'>
+          {{#local_menu}}
+            <li><a href="{{href}}" class='column-push'>{{title}}</a></li>
+          {{/local_menu}}
+        </ol>
       </li>
     </script>
 

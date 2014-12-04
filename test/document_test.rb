@@ -58,10 +58,11 @@ describe 'PopulateMe::Document' do
     field :capacity, type: :integer
     field :price, type: :price, required: true
     field :places, type: :list, max: 5
+    field :seats, type: :list, class_name: '::Place', max: 5
     field :available, type: :boolean
   end
 
-  class CouchPlace
+  class Couch::Place
     include PopulateMe::Document
     field :position, type: :integer
   end
@@ -71,7 +72,6 @@ describe 'PopulateMe::Document' do
     attr_accessor :name
   end
 
-
   describe 'Fields' do
 
     it 'Defaults fields to an empty hash' do
@@ -79,8 +79,8 @@ describe 'PopulateMe::Document' do
     end
 
     it 'Can declare fields and options about them in one go' do
-      Couch.fields.size.should==5
-      Couch.fields.keys.should==[:colour, :capacity, :price, :places, :available]
+      Couch.fields.size.should==6
+      Couch.fields.keys.should==[:colour, :capacity, :price, :places, :seats, :available]
       Couch.fields[:available][:type].should==:boolean
       Couch.fields[:price][:required].should==true
     end
@@ -102,10 +102,44 @@ describe 'PopulateMe::Document' do
     it 'Can declare list fields' do
       Couch.fields[:places][:max].should==5
       couch = Couch.new
-      couch.places << CouchPlace.new
+      couch.places << Couch::Place.new
       couch.places.size.should==1
       couch = Couch.new
       couch.places.should==[]
+    end
+
+    it 'Uses Utils.guess_related_class_name to set class_name of list fields' do
+      Couch.fields[:places][:class_name].should=='Couch::Place'
+      Couch.fields[:seats][:class_name].should=='Couch::Place'
+    end
+
+  end
+
+  class Casanova
+    include PopulateMe::Document
+    relationship :girlfriends, max: 42
+    relationship :babes, class_name: '::Girlfriend'
+  end
+
+  class RelationshiplessDoc
+    include PopulateMe::Document
+    attr_accessor :name
+  end
+
+  describe 'Relationships' do
+
+    it 'Defaults relationships to an empty hash' do
+      RelationshiplessDoc.relationships.should=={}
+    end
+
+    it 'Records relationships and their options' do
+      Casanova.relationships.size.should==2
+      Casanova.relationships[:girlfriends][:max].should==42
+    end
+
+    it 'Should guess the class_name using Utils.guess_related_class_name' do
+      Casanova.relationships[:girlfriends][:class_name].should=='Casanova::Girlfriend'
+      Casanova.relationships[:babes][:class_name].should=='Casanova::Girlfriend'
     end
 
   end
