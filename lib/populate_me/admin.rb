@@ -66,18 +66,19 @@ class PopulateMe::Admin < Sinatra::Base
 
   get '/list/:class_name' do
     @model_class = resolve_model_class params[:class_name]
-    @model_class.to_admin_list.to_json
+    @model_class.to_admin_list(request: request, params: params).to_json
   end
 
   get '/form/?:class_name?/?:id?' do
     @model_class = resolve_model_class params[:class_name]
     if params[:id].nil?
-      @model_instance = @model_class.new
+      @model_instance = @model_class.new params[:data]
     else
       @model_instance = resolve_model_instance @model_class, params[:id]
     end
     @model_instance.to_admin_form(
       request: request, 
+      params: params,
       embeded: params[:embeded]=='true', 
       input_name_prefix: params[:input_name_prefix]
     ).to_json

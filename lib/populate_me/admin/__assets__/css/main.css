@@ -108,6 +108,7 @@ button.admin-delete:hover, button.admin-delete-embeded:hover {
 }
 .documents > li, .embeded-documents > li {
   display: block;
+  margin-bottom: 1em;
 }
 .embeded-documents > li > header {
   background: #002b36;
@@ -118,6 +119,7 @@ button.admin-delete:hover, button.admin-delete-embeded:hover {
   border: 1px dashed #839496;
   background: none;
 }
+.local-menu { font-size: 0.6em; }
 
 /* Forms */
 

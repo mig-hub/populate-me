@@ -17,16 +17,10 @@ class BlogPost
   field :authors, type: :list
   field :published, type: :boolean
   field :active, type: :select, select_options: [:yes,:no]
+  relationship :comments
   def validate
     # error_on(:content,'Cannot be blank') if PopulateMe::Utils.blank?(self.content)
   end
-  # def to_admin_list_item o={}
-  #   h = super(o)
-  #   h[:local_menu] = [{
-  #     title: "Blog Post Comments ()",
-  #     href: "#{o[:path]}/list/blog-post--comment?filter[blog_post_id]=#{self.id}"
-  #   }]
-  # end
 end
 class BlogPost::Author
   # embeded

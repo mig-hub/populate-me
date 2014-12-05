@@ -95,15 +95,25 @@ describe 'PopulateMe::Mongo' do
 
     it "Should get correct item" do 
       jackson_id = CatFish.new(name: "jackson").perform_create
-      CatFish[jackson_id].name.should == "jackson"
-      CatFish[jackson_id.to_s].name.should == "jackson"
-      CatFish["nonexistentid"].should == nil
+      CatFish.admin_get(jackson_id).name.should == "jackson"
+      CatFish.admin_get(jackson_id.to_s).name.should == "jackson"
+      CatFish.admin_get("nonexistentid").should == nil
 
       regular_fish_id = CatFish.new(id: 87, name: "regular").perform_create
       # need to test with .to_s
-      CatFish[regular_fish_id].name.should == "regular"
+      CatFish.admin_get(regular_fish_id).name.should == "regular"
     end
 
+    it 'Should have the [] shortcut for admin_get' do
+      CatFish.admin_get(87).should == CatFish[87]
+    end
+
+    it 'Should admin_find correctly' do
+      CatFish.admin_find.size.should==CatFish.collection.count
+      CatFish.admin_find.is_a?(Array).should==true
+      CatFish.admin_find(query: {name: 'regular'}).size.should==CatFish.collection.find(name: 'regular').count
+      CatFish.admin_find(query: {name: 'regular'})[0].id.should==87
+    end
 
     it 'Should delete' do
       herbert = CatFish.new(name: "herbert")

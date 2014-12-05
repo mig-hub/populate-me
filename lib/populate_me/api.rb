@@ -82,12 +82,12 @@ class PopulateMe::API < Sinatra::Base
 
     def resolve_model_class name
       model_class = resolve_dasherized_class_name(name) rescue nil
-      halt(404) unless model_class.respond_to?(:[])
+      halt(404) unless model_class.respond_to?(:admin_get)
       model_class
     end
 
     def resolve_model_instance model_class, id
-      instance = model_class[id]
+      instance = model_class.admin_get id
       halt(404) if instance.nil?
       instance
     end

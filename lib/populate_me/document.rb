@@ -52,6 +52,9 @@ module PopulateMe
       def relationships; @relationships ||= {}; end
       def relationship name, attributes={}
         attributes[:class_name] = Utils.guess_related_class_name(self.name,attributes[:class_name]||name)
+        attributes[:label] ||= name.to_s.capitalize
+        attributes[:foreign_key] ||= "#{Utils.dasherize_class_name(self.name).gsub('-','_')}_id"
+        attributes[:foreign_key] = attributes[:foreign_key].to_sym
         self.relationships[name] = attributes
       end
 
@@ -61,12 +64,6 @@ module PopulateMe
         self.new(_is_new: false).set_from_hash hash, o
       end
 
-      # def typecast(hash)
-      #   Utils.each_stub hash do |object,key_index,value|
-      #     object[key_index] = Utils.automatic_typecast value
-      #   end
-      # end
-
       def from_post hash
         # Utils.each_stub hash do |object,key_index,value|
         #   object[key_index] = Utils.automatic_typecast value
@@ -74,10 +71,21 @@ module PopulateMe
         doc = from_hash hash
       end
 
-      def [] id
+      def admin_get id
         hash = self.documents.find{|doc| doc['id']==id }
         return nil if hash.nil?
         from_hash hash
+      end
+
+      def admin_find o={}
+        o[:query] ||= {}
+        self.documents.map do |d| 
+          self.from_hash(d) 
+        end.find_all do |d|
+          o[:query].inject(true) do |out,(k,v)|
+            out && (d.__send__(k)==v)
+          end
+        end
       end
 
       # Callbacks
@@ -102,22 +110,6 @@ module PopulateMe
         register_callback "after_#{name}", item, options, &block
       end
 
-      # def api_get_all
-      #   @documents
-      # end
-      # def api_post doc={} 
-      #   inst = self.new(doc)
-      #   return nil if inst.nil?
-      #   if inst['id'].nil?
-      #     inst['id'] = @next_id
-      #     @next_id += 1
-      #   end
-      #   @documents << inst.to_h
-      #   inst
-      # end
-      def all
-        self.documents.map{|d| self.from_hash(d) }
-      end
     end
 
     attr_accessor :id, :_errors, :_is_new
@@ -150,11 +142,15 @@ module PopulateMe
             __send__(k.to_sym) << obj
           end
         else
-          v = Utils.automatic_typecast(v) if o[:typecast]
+          v = typecast(k.to_sym,v) if o[:typecast]
           set k.to_sym => v
         end
       end
       self
+    end
+
+    def typecast k, v
+      Utils.automatic_typecast v
     end
 
     def persistent_instance_variables
@@ -290,6 +286,7 @@ module PopulateMe
     # Admin list
     module ClassMethods
       def to_admin_list o={}
+        o[:params] ||= {}
         {
           template: 'template_list',
           page_title: self.to_s_plural,
@@ -297,7 +294,7 @@ module PopulateMe
           # 'sortable'=> self.sortable_on_that_page?(@r),
           # 'command_plus'=> !self.populate_config[:no_plus],
           # 'command_search'=> !self.populate_config[:no_search],
-          items: self.all.map {|d| d.to_admin_list_item },
+          items: self.admin_find(query: o[:params][:filter]).map {|d| d.to_admin_list_item(o) },
         }
       end
     end
@@ -306,7 +303,16 @@ module PopulateMe
         class_name: self.class.name,
         id: self.id,
         admin_url: to_admin_url,
-        title: to_s
+        title: to_s,
+        local_menu: self.class.relationships.inject([]) do |out,(k,v)|
+          unless v[:hidden]
+            out << {
+              title: "#{v[:label]}",
+              href: "#{o[:request].script_name}/list/#{Utils.dasherize_class_name(v[:class_name])}?filter[#{v[:foreign_key]}]=#{self.id}"
+            }
+            out
+          end
+        end
       }
     end
 

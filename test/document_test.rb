@@ -118,7 +118,7 @@ describe 'PopulateMe::Document' do
   class Casanova
     include PopulateMe::Document
     relationship :girlfriends, max: 42
-    relationship :babes, class_name: '::Girlfriend'
+    relationship :babes, class_name: '::Girlfriend', label: 'Babies', foreign_key: 'casanova_id'
   end
 
   class RelationshiplessDoc
@@ -140,6 +140,16 @@ describe 'PopulateMe::Document' do
     it 'Should guess the class_name using Utils.guess_related_class_name' do
       Casanova.relationships[:girlfriends][:class_name].should=='Casanova::Girlfriend'
       Casanova.relationships[:babes][:class_name].should=='Casanova::Girlfriend'
+    end
+
+    it 'Should guess a label when not provided' do
+      Casanova.relationships[:girlfriends][:label].should=='Girlfriends'
+      Casanova.relationships[:babes][:label].should=='Babies'
+    end
+
+    it 'Should guess a foreign_key when not provided and make it a symbol' do
+      Casanova.relationships[:girlfriends][:foreign_key].should==:casanova_id
+      Casanova.relationships[:babes][:foreign_key].should==:casanova_id
     end
 
   end
@@ -461,12 +471,26 @@ describe 'PopulateMe::Document' do
     it 'Has a class method to get the entry of a specific ID as an object' do
       Haircut.new(id: 123, name: 'pigtails').perform_create
       Haircut.new(id: '123', name: 'spikes').perform_create
-      Haircut[123].name.should=='pigtails'
-      Haircut['123'].name.should=='spikes'
+      Haircut.admin_get(123).name.should=='pigtails'
+      Haircut.admin_get('123').name.should=='spikes'
     end
 
     it 'Returns nil if document does not exist' do
-      Haircut['abc'].should==nil
+      Haircut.admin_get('abc').should==nil
+    end
+
+  end
+
+  describe 'Find' do
+
+    it 'Finds everything by default' do
+      Haircut.admin_find.size.should==2
+      Haircut.admin_find[0].name.should=='pigtails'
+    end
+
+    it 'Uses the :query option for filtering' do
+      Haircut.admin_find(query: {name: 'pigtails'}).size.should==1
+      Haircut.admin_find(query: {name: 'pigtails', id: 'bar'}).size.should==0
     end
 
   end
@@ -518,10 +542,10 @@ describe 'PopulateMe::Document' do
     include PopulateMe::Document
     attr_accessor :pain_level, :was_alive, :is_dead
     before :delete do
-      @was_alive = !self.class[self.id].nil?
+      @was_alive = !self.class.admin_get(self.id).nil?
     end
     after :delete do
-      @is_dead = self.class[self.id].nil?
+      @is_dead = self.class.admin_get(self.id).nil?
     end
   end
 
@@ -531,10 +555,10 @@ describe 'PopulateMe::Document' do
       death = Death.new pain_level: 5, id: '123'
       death.perform_create
       death._is_new = false
-      Death['123'].pain_level.should==5
+      Death.admin_get('123').pain_level.should==5
       death.delete
       death.new?.should==true
-      Death['123'].should==nil
+      Death.admin_get('123').should==nil
       death.was_alive.should==true
       death.is_dead.should==true
     end
@@ -572,7 +596,7 @@ describe 'PopulateMe::Document' do
       hero = SuperHero.new id: 'spidey', name: 'Spiderman'
       hero.valid?.should==false
       hero.save
-      SuperHero['spidey'].should==nil
+      SuperHero.admin_get('spidey').should==nil
     end
 
     it 'Uses the callbacks' do
@@ -780,7 +804,7 @@ describe 'PopulateMe::Document' do
       it 'Returns the relevant default info' do
         team = SuperHeroTeam.new
         info = team.to_admin_form
-        existing_team = SuperHeroTeam['x-men']
+        existing_team = SuperHeroTeam.admin_get('x-men')
         existing_team_info = existing_team.to_admin_form
         [:template,:page_title,:admin_url,:is_new,:fields].all?{|i| info.keys.include?(i)}.should==true
         info[:template].should=='template_form'

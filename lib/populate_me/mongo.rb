@@ -36,14 +36,16 @@ module PopulateMe
         db[collection_name]
       end
 
-      def [] theid
+      def admin_get theid
         theid = BSON::ObjectId.from_string(theid) if BSON::ObjectId.legal?(theid)
         hash = self.collection.find_one({'_id'=> theid})
         hash.nil? ? nil : from_hash(hash) 
       end
+      alias_method :[], :admin_get
 
-      def all
-        self.collection.find.map{|d| self.from_hash(d) }
+      def admin_find o={}
+        query = o.delete(:query) || {}
+        self.collection.find(query, o).map{|d| self.from_hash(d) }
       end
 
     end

@@ -108,7 +108,7 @@ describe 'PopulateMe::API' do
     it 'Creates successfully' do
       res = API.post('/band', {params: {data: {id: '4', name: 'Neurosis'}}})
       json = successful_creation(res)
-      json['data'].should==Band['4'].to_h
+      json['data'].should==Band.admin_get('4').to_h
     end
 
     it 'Typecasts before creating' do
@@ -163,7 +163,7 @@ describe 'PopulateMe::API' do
     it 'Sends the instance if it exists' do
       res = API.get('/band/2')
       json = successful_instance(res)
-      json['data'].should==Band['2'].to_h
+      json['data'].should==Band.admin_get('2').to_h
     end
   end
 
@@ -175,24 +175,24 @@ describe 'PopulateMe::API' do
     it 'Fails if the document is invalid' do
       res = API.put('/band/2', {params: {data: {name: 'ZZ Top'}}})
       invalid_instance(res)
-      Band['2'].name.should!='ZZ Top'
+      Band.admin_get('2').name.should!='ZZ Top'
     end
     it 'Updates documents' do
       res = API.put('/band/3', {params: {data: {awsome: 'yes'}}})
       successful_update(res)
       res = API.put('/band/3', {params: {data: {name: 'The Ramones'}}})
       successful_update(res)
-      obj = Band['3']
+      obj = Band.admin_get('3')
       obj.awsome.should=='yes'
       obj.name.should=='The Ramones'
       obj.members.size.should==2
       obj.members[0].name.should=='Joey'
     end
     # it 'Updates embeded documents' do
-    #   obj = Band['3']
+    #   obj = Band.admin_get('3')
     #   res = API.put('/band/3', {params: {data: {members: [{id: obj.members[0].id, name: 'Joey Ramone'}]}}})
     #   successful_update(res)
-    #   obj = Band['3']
+    #   obj = Band.admin_get('3')
     #   obj.awsome.should=='yes'
     #   obj.name.should=='The Ramones'
     #   obj.members.size.should==2
@@ -207,7 +207,7 @@ describe 'PopulateMe::API' do
       should_not_found(res)
     end
     it 'Returns a deletion response when the instance exists' do
-      obj = Band['1']
+      obj = Band.admin_get('1')
       res = API.delete('/band/1')
       json = successful_deletion(res)
       json['data'].should==obj.to_h
