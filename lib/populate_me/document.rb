@@ -291,6 +291,7 @@ module PopulateMe
           template: 'template_list',
           page_title: self.to_s_plural,
           dasherized_class_name: PopulateMe::Utils.dasherize_class_name(self.name),
+          new_data: o[:params][:filter].nil? ? nil : Rack::Utils.build_nested_query(data: o[:params][:filter]),
           # 'sortable'=> self.sortable_on_that_page?(@r),
           # 'command_plus'=> !self.populate_config[:no_plus],
           # 'command_search'=> !self.populate_config[:no_search],
@@ -302,6 +303,7 @@ module PopulateMe
       {
         class_name: self.class.name,
         id: self.id,
+        css_identifier: "#{self.class.name}-#{self.id}".gsub(/[^a-zA-Z0-9\-_]/,'-'),
         admin_url: to_admin_url,
         title: to_s,
         local_menu: self.class.relationships.inject([]) do |out,(k,v)|
@@ -360,6 +362,8 @@ module PopulateMe
               item[:select_options] = opts
             end
           elsif item[:type]==:text
+          elsif item[:type]==:hidden
+            item[:input_attributes][:type] = 'hidden'
           else
             item[:input_attributes][:type] ||= 'text'
           end

@@ -72,7 +72,8 @@ class PopulateMe::Admin < Sinatra::Base
   get '/form/?:class_name?/?:id?' do
     @model_class = resolve_model_class params[:class_name]
     if params[:id].nil?
-      @model_instance = @model_class.new params[:data]
+      @model_instance = @model_class.new
+      @model_instance.set_from_hash(params[:data], typecast: true) unless params[:data].nil?
     else
       @model_instance = resolve_model_instance @model_class, params[:id]
     end
