@@ -34,6 +34,7 @@ module PopulateMe
 
       def fields; @fields ||= {}; end
       def field name, attributes={}
+        set_id_field if self.fields.empty?&&attributes[:type]!=:id
         if attributes[:type]==:list
           attributes[:class_name] = Utils.guess_related_class_name(self.name,attributes[:class_name]||name)
           define_method(name) do
@@ -45,8 +46,11 @@ module PopulateMe
         end
         self.fields[name] = attributes
       end
+      def set_id_field
+        self.fields[:id] = {type: :id, form_field: false}
+      end
       def label_field
-        @label_field || self.fields.keys[0]
+        @label_field || self.fields.keys[1]
       end
 
       def relationships; @relationships ||= {}; end
@@ -154,7 +158,13 @@ module PopulateMe
     end
 
     def persistent_instance_variables
-      instance_variables.select{|k| k !~ /^@_/ }
+      instance_variables.select do |k|
+        if self.class.fields.empty?
+          k !~ /^@_/
+        else
+          self.class.fields.key? k[1..-1].to_sym
+        end
+      end
     end
 
     def to_h

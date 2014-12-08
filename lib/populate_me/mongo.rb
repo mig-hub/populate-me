@@ -36,6 +36,10 @@ module PopulateMe
         db[collection_name]
       end
 
+      def set_id_field
+        self.fields[:_id] = {type: :id, form_field: false}
+      end
+
       def admin_get theid
         theid = BSON::ObjectId.from_string(theid) if BSON::ObjectId.legal?(theid)
         hash = self.collection.find_one({'_id'=> theid})
@@ -54,14 +58,6 @@ module PopulateMe
 
     def id; @_id; end
     def id= value; @_id = value; end
-
-    def persistent_instance_variables
-      if instance_variable_get(:@_id).nil?
-        super
-      else
-        [:@_id]+super
-      end
-    end
 
     def perform_create
       self.id = self.class.collection.insert(self.to_h) 

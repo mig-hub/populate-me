@@ -79,8 +79,8 @@ describe 'PopulateMe::Document' do
     end
 
     it 'Can declare fields and options about them in one go' do
-      Couch.fields.size.should==6
-      Couch.fields.keys.should==[:colour, :capacity, :price, :places, :seats, :available]
+      Couch.fields.size.should==7
+      Couch.fields.keys.should==[:id, :colour, :capacity, :price, :places, :seats, :available]
       Couch.fields[:available][:type].should==:boolean
       Couch.fields[:price][:required].should==true
     end
@@ -159,6 +159,14 @@ describe 'PopulateMe::Document' do
     attr_accessor :size, :taste, :_hidden
   end
 
+  class AmazingEgg
+    include PopulateMe::Document
+    attr_accessor :hidden, :_hidden
+    field :size
+    field :taste
+    field :_special
+  end
+
   describe 'Initializing and setting' do
 
     it 'Can set variables with a hash' do
@@ -194,13 +202,23 @@ describe 'PopulateMe::Document' do
       obj.new?.should==false
     end
 
-    it 'Can return a list of persistent instance variables' do
-      # Only keys which do not start with an underscore are persistent
+    it 'When fields are not declared, only variables which do not start with _ are persisted' do
       obj = Egg.new size: 3, _hidden: 'secret'
       obj.size.should==3
       obj.taste.should==nil
       obj._hidden.should=='secret'
       obj.persistent_instance_variables.should==[:@size]
+    end
+
+    it 'When fields are declared, it knows which variables to persist' do
+      obj = AmazingEgg.new size: 3, _special: 'Yellow', hidden: 'secret', _hidden: 'secret too'
+      obj.size.should==3
+      obj.taste.should==nil
+      obj._special.should=='Yellow'
+      obj.hidden.should=='secret'
+      obj._hidden.should=='secret too'
+      obj.persistent_instance_variables.include?(:@size).should==true
+      obj.persistent_instance_variables.include?(:@_special).should==true
     end
 
     it 'Turns into a hash with string keys' do
@@ -734,7 +752,7 @@ describe 'PopulateMe::Document' do
       field :name
       field :score, form_field: false
       field :active, type: :boolean, wrap: false
-      field :members, type: :list, class: :'SuperHeroTeam::Member'
+      field :members, type: :list
       field :dropdown1, type: :select, select_options: [{description: 'Yes', value: 'yes'}, {description: 'No', value: 'no'}]
       field :dropdown2, type: :select, select_options: [['Yes','yes'],['No','no']]
       field :dropdown3, type: :select, select_options: ['yes','no']

@@ -35,7 +35,9 @@ describe 'PopulateMe::Mongo' do
 
   it "Has _id as persistent variable if set" do 
     CatFish.new(name: "hank").persistent_instance_variables.should == [:@name]
-    CatFish.new(id: "bbbbb", name: "honk").persistent_instance_variables.should == [:@_id, :@name]
+    cf = CatFish.new(id: "bbbbb", name: "honk")
+    cf.persistent_instance_variables.include?(:@_id).should == true
+    cf.persistent_instance_variables.include?(:@name).should == true
   end
 
   describe 'Database connection' do 
