@@ -303,7 +303,6 @@ module PopulateMe
       {
         class_name: self.class.name,
         id: self.id,
-        css_identifier: "#{self.class.name}-#{self.id}".gsub(/[^a-zA-Z0-9\-_]/,'-'),
         admin_url: to_admin_url,
         title: to_s,
         local_menu: self.class.relationships.inject([]) do |out,(k,v)|

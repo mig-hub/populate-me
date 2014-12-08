@@ -39,7 +39,7 @@
     </script>
 
     <script id="template-document" type="x-tmpl-mustache">
-      <li class='admin-list-item {{css_identifier}}'>
+      <li class='admin-list-item' data-id='{{id}}'>
         <span class='handle' title='Drag and drop'>&#8597;</span> 
         <a href="<%= request.script_name %>/form/{{admin_url}}" class='column-push'>{{title}}</a>
         <button type='button' class='admin-delete' title='Delete' value='<%= request.script_name %>/api/{{admin_url}}'>&times;</button>
