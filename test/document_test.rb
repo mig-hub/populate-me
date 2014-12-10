@@ -232,6 +232,33 @@ describe 'PopulateMe::Document' do
 
   end
 
+  describe 'Set Defaults' do
+
+    class Tap
+      include PopulateMe::Document
+      field :status, default: 'closed'
+      field :proc_status, default: proc{'closed'}
+      field :method_status, default: :status
+      field :brand
+    end
+
+    it 'Should set the declared fields which have a :default option' do
+      tap = Tap.new.set_defaults
+      tap.status.should=='closed'
+      tap.proc_status.should=='closed'
+      tap.method_status.should=='closed'
+      tap.brand.should==nil
+    end
+
+    it 'Should only overwrite a field if it is nil unless forced' do
+      tap = Tap.new(status: 'open').set_defaults
+      tap.status.should=='open'
+      tap.set_defaults(force: true)
+      tap.status.should=='closed'
+    end
+
+  end
+
   describe 'Callbacks' do
 
     class Hamburger

@@ -134,6 +134,15 @@ module PopulateMe
       self
     end
 
+    def set_defaults o={}
+      self.class.fields.each do |k,v|
+        if v.key?(:default)&&(__send__(k).nil?||o[:force])
+          set k.to_sym => Utils.get_value(v[:default],self)
+        end
+      end
+      self
+    end
+
     def set_from_hash hash, o={}
       raise(TypeError, "#{hash} is not a Hash") unless hash.is_a? Hash
       hash = hash.dup # Leave original untouched

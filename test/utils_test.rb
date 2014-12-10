@@ -108,6 +108,16 @@ describe 'PopulateMe::Utils' do
 
   end
 
+  describe '#get_value' do
+
+    it 'Can get the value of anything it can' do
+      PopulateMe::Utils.get_value('Hello').should=='Hello'
+      PopulateMe::Utils.get_value(proc{'Hello'}).should=='Hello'
+      PopulateMe::Utils.get_value(:capitalize,'hello').should=='Hello'
+    end
+
+  end
+
   describe '#slugify' do
 
     # For making slug for a document

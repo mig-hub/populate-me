@@ -50,6 +50,17 @@ module PopulateMe
     end
     module_function :guess_related_class_name
 
+    def get_value raw, context=Kernel
+      if raw.is_a? Proc
+        raw.call
+      elsif raw.is_a? Symbol
+        context.__send__ raw
+      else
+        raw
+      end
+    end
+    module_function :get_value
+
     ACCENTS_FROM = 
       "ÀÁÂÃÄÅàáâãäåĀāĂăĄąÇçĆćĈĉĊċČčÐðĎďĐđÈÉÊËèéêëĒēĔĕĖėĘęĚěĜĝĞğĠġĢģĤĥĦħÌÍÎÏìíîïĨĩĪīĬĭĮįİıĴĵĶķĸĹĺĻļĽľĿŀŁłÑñŃńŅņŇňŉŊŋÒÓÔÕÖØòóôõöøŌōŎŏŐőŔŕŖŗŘřŚśŜŝŞ"
     ACCENTS_TO = 
