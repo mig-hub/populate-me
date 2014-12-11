@@ -29,7 +29,7 @@ end
 class BlogPost::Comment
   # not embeded
   include PopulateMe::Document 
-  field :author
+  field :author, default: 'Anonymous'
   field :content, type: :text
   field :blog_post_id, type: :hidden
 end
