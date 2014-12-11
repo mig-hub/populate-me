@@ -366,7 +366,7 @@ module PopulateMe
           item[:input_attributes] ||= {}
           if item[:type]==:select
             unless item[:select_options].nil?
-              opts = item[:select_options].is_a?(Symbol) ? self.__send__(item[:select_options]) : item[:select_options].dup
+              opts = Utils.get_value(item[:select_options],self).dup
               opts.map! do |opt|
                 if opt.is_a?(String)||opt.is_a?(Symbol)
                   opt = [opt.to_s.capitalize,opt]
