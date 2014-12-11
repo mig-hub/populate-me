@@ -118,10 +118,24 @@ module PopulateMe
     end
     module_function :nl2br
 
+    def complete_link link
+      if link =~ /^(\/|[a-z]*:)/
+        link
+      else
+        "//#{link}"
+      end
+    end
+    module_function :complete_link
+
+    def external_link? link
+      !!(link =~ /^[a-z]*:?\/\//)
+    end
+    module_function :external_link?
+
     def automatic_html s, br='<br>'
       replaced = s.to_s.
       gsub(/\b((https?:\/\/|ftps?:\/\/|www\.)([A-Za-z0-9\-_=%&@\?\.\/]+))\b/) do |str|
-        url = $2=="www." ? "http://#{$1}" : $1
+        url = complete_link $1
         "<a href='#{url}' target='_blank'>#{$1}</a>"
       end.
       gsub(/([^\s]+@[^\s]*[a-zA-Z])/) do |str|

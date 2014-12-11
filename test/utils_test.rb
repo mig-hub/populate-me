@@ -227,10 +227,51 @@ describe 'PopulateMe::Utils' do
     end
   end
 
+  describe '#complete_link' do
+
+    it 'Adds the external double slash when missing' do
+      cases = [
+        ['www.populate-me.com','//www.populate-me.com'],
+        ['populate-me.com','//populate-me.com'],
+        ['please.populate-me.com','//please.populate-me.com'],
+        ['//www.populate-me.com','//www.populate-me.com'],
+        ['://www.populate-me.com','://www.populate-me.com'],
+        ['http://www.populate-me.com','http://www.populate-me.com'],
+        ['ftp://www.populate-me.com','ftp://www.populate-me.com'],
+        ['mailto:populate&#64;me.com','mailto:populate&#64;me.com']
+      ]
+      cases.each do |c|
+        PopulateMe::Utils.complete_link(c[0]).should==c[1]
+      end
+    end
+
+  end
+
+  describe '#external_link?' do
+
+    it 'Returns true when the link would need target blank' do
+      cases = [
+        ['http://populate-me.com', true],
+        ['https://populate-me.com', true],
+        ['ftp://populate-me.com', true],
+        ['://populate-me.com', true],
+        ['//populate-me.com', true],
+        ['mailto:user@populate-me.com', false],
+        ['mailto:user&#64;populate-me.com', false],
+        ['/populate/me', false],
+        ['populate-me.html', false],
+      ]
+      cases.each do |c|
+        PopulateMe::Utils.external_link?(c[0]).should==c[1]
+      end
+    end
+
+  end
+
   describe '#automatic_html' do
     it 'Works properly' do
       input = "Hello\nme@site.co.uk\nNot the begining me@site.co.uk\nme@site.co.uk not the end\nwww.site.co.uk\nVisit www.site.co.uk\nwww.site.co.uk rules\nhttp://www.site.co.uk\nVisit http://www.site.co.uk\nhttp://www.site.co.uk rules"
-      output = "Hello<br><a href='mailto:me&#64;site.co.uk'>me&#64;site.co.uk</a><br>Not the begining <a href='mailto:me&#64;site.co.uk'>me&#64;site.co.uk</a><br><a href='mailto:me&#64;site.co.uk'>me&#64;site.co.uk</a> not the end<br><a href='http://www.site.co.uk' target='_blank'>www.site.co.uk</a><br>Visit <a href='http://www.site.co.uk' target='_blank'>www.site.co.uk</a><br><a href='http://www.site.co.uk' target='_blank'>www.site.co.uk</a> rules<br><a href='http://www.site.co.uk' target='_blank'>http://www.site.co.uk</a><br>Visit <a href='http://www.site.co.uk' target='_blank'>http://www.site.co.uk</a><br><a href='http://www.site.co.uk' target='_blank'>http://www.site.co.uk</a> rules"
+      output = "Hello<br><a href='mailto:me&#64;site.co.uk'>me&#64;site.co.uk</a><br>Not the begining <a href='mailto:me&#64;site.co.uk'>me&#64;site.co.uk</a><br><a href='mailto:me&#64;site.co.uk'>me&#64;site.co.uk</a> not the end<br><a href='//www.site.co.uk' target='_blank'>www.site.co.uk</a><br>Visit <a href='//www.site.co.uk' target='_blank'>www.site.co.uk</a><br><a href='//www.site.co.uk' target='_blank'>www.site.co.uk</a> rules<br><a href='http://www.site.co.uk' target='_blank'>http://www.site.co.uk</a><br>Visit <a href='http://www.site.co.uk' target='_blank'>http://www.site.co.uk</a><br><a href='http://www.site.co.uk' target='_blank'>http://www.site.co.uk</a> rules"
       PopulateMe::Utils.automatic_html(input).should==output
     end
   end
