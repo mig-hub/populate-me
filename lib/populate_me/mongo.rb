@@ -40,6 +40,17 @@ module PopulateMe
         self.fields[:_id] = {type: :id, form_field: false}
       end
 
+      def sort_by f, direction=:asc
+        if f.is_a?(Array)||f.is_a?(Hash)
+          @current_sort = f
+        else
+          raise(ArgumentError) unless [:asc,:desc].include? direction
+          raise(ArgumentError) unless self.new.respond_to? f
+          @current_sort = [[f,direction]]
+        end
+        self
+      end
+
       def admin_get theid
         theid = BSON::ObjectId.from_string(theid) if BSON::ObjectId.legal?(theid)
         hash = self.collection.find_one({'_id'=> theid})
@@ -49,6 +60,7 @@ module PopulateMe
 
       def admin_find o={}
         query = o.delete(:query) || {}
+        o[:sort] ||= @current_sort
         self.collection.find(query, o).map{|d| self.from_hash(d) }
       end
 

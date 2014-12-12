@@ -75,6 +75,16 @@ module PopulateMe
         doc = from_hash hash
       end
 
+      def sort_by f, direction=:asc
+        raise(ArgumentError) unless [:asc,:desc].include? direction
+        raise(ArgumentError) unless self.new.respond_to? f
+        @sort_proc = Proc.new do |a,b|
+          a,b = b,a if direction==:desc 
+          a.__send__(f)<=>b.__send__(f) 
+        end
+        self
+      end
+
       def admin_get id
         hash = self.documents.find{|doc| doc['id']==id }
         return nil if hash.nil?
@@ -83,13 +93,15 @@ module PopulateMe
 
       def admin_find o={}
         o[:query] ||= {}
-        self.documents.map do |d| 
+        docs = self.documents.map do |d| 
           self.from_hash(d) 
         end.find_all do |d|
           o[:query].inject(true) do |out,(k,v)|
             out && (d.__send__(k)==v)
           end
         end
+        docs.sort!(&@sort_proc) if @sort_proc.is_a?(Proc)
+        docs
       end
 
       # Callbacks

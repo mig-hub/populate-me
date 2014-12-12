@@ -143,6 +143,32 @@ describe 'PopulateMe::Mongo' do
 
   end
 
+  describe 'Default Sort' do
+
+    class Soldier
+      include PopulateMe::Mongo
+      field :name
+      field :position
+    end
+    Soldier.new(name: 'Bob', position: 2).perform_create
+    Soldier.new(name: 'Albert', position: 3).perform_create
+    Soldier.new(name: 'Tony', position: 1).perform_create
+
+    it 'Uses Doc::sort_by to determine the order' do
+      Soldier.sort_by(:name).admin_find[0].name.should=='Albert'
+      Soldier.sort_by(:name,:desc).admin_find[0].name.should=='Tony'
+      Soldier.sort_by(:position).admin_find[0].position.should==1
+      lambda{ Soldier.sort_by(:name,0) }.should.raise(ArgumentError)
+      lambda{ Soldier.sort_by(:namespace) }.should.raise(ArgumentError)
+    end
+
+    it 'Can write Mongo-specific sort if a Hash or an Array is passed' do
+      Soldier.sort_by([[:name,:desc]]).admin_find[0].name.should=='Tony'
+      Soldier.sort_by({name: :desc}).admin_find[0].name.should=='Tony'
+    end
+
+  end
+
 end
 
 MONGO.drop_database('populate-me-test')

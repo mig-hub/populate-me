@@ -530,12 +530,37 @@ describe 'PopulateMe::Document' do
 
     it 'Finds everything by default' do
       Haircut.admin_find.size.should==2
-      Haircut.admin_find[0].name.should=='pigtails'
     end
 
     it 'Uses the :query option for filtering' do
       Haircut.admin_find(query: {name: 'pigtails'}).size.should==1
       Haircut.admin_find(query: {name: 'pigtails', id: 'bar'}).size.should==0
+    end
+
+  end
+
+  describe 'Default Sorting' do
+
+    class Soldier
+      include PopulateMe::Document
+      attr_accessor :name, :position
+    end
+    Soldier.new(name: 'Bob', position: 2).perform_create
+    Soldier.new(name: 'Albert', position: 3).perform_create
+    Soldier.new(name: 'Tony', position: 1).perform_create
+
+    it 'Uses the key and direction passed to Doc::sort_by on Doc::admin_find' do
+      Soldier.sort_by(:name).admin_find[0].name.should=='Albert'
+      Soldier.sort_by(:name,:desc).admin_find[0].name.should=='Tony'
+      Soldier.sort_by(:position).admin_find[0].position.should==1
+    end
+
+    it 'Raises ArgumentError when second argument is not :asc or :desc' do
+      lambda{ Soldier.sort_by(:name,0) }.should.raise(ArgumentError)
+    end
+
+    it 'Raises ArgumentError when the key does not exist' do
+      lambda{ Soldier.sort_by(:namespace) }.should.raise(ArgumentError)
     end
 
   end
