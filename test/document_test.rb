@@ -18,8 +18,12 @@ describe 'PopulateMe::Document' do
 
   describe 'Descriptive methods' do
 
-    module Catalogue; end
-    module Catalogue::Chapter; end
+    class Catalogue
+      include PopulateMe::Document
+    end
+    class Catalogue::Chapter
+      include PopulateMe::Document
+    end
     class Catalogue::Chapter::AttachedFile
       include PopulateMe::Document
       attr_accessor :name, :size
@@ -27,9 +31,13 @@ describe 'PopulateMe::Document' do
     end
 
     it 'Has a friendly name on Class::to_s' do
-      # Simple plural (override if exception)
       Catalogue::Chapter::AttachedFile.name.should=='Catalogue::Chapter::AttachedFile'
       Catalogue::Chapter::AttachedFile.to_s.should=='Catalogue Chapter Attached File'
+    end
+
+    it 'Has a version for name without modules' do
+      Catalogue.to_s_short.should=='Catalogue'
+      Catalogue::Chapter::AttachedFile.to_s_short.should=='Attached File'
     end
 
     it 'Has a plural version which only adds a `s` by default' do

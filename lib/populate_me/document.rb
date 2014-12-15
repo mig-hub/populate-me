@@ -26,7 +26,12 @@ module PopulateMe
         super.gsub(/[A-Z]/, ' \&')[1..-1].gsub('::','')
       end
 
+      def to_s_short
+        self.name[/[^:]+$/].gsub(/[A-Z]/, ' \&')[1..-1]
+      end
+
       def to_s_plural; "#{self.to_s}s"; end
+      def to_s_short_plural; "#{self.to_s_short}s"; end
 
       def label sym
         @label_field = sym.to_sym
@@ -320,7 +325,7 @@ module PopulateMe
         o[:params] ||= {}
         {
           template: 'template_list',
-          page_title: self.to_s_plural,
+          page_title: self.to_s_short_plural,
           dasherized_class_name: PopulateMe::Utils.dasherize_class_name(self.name),
           new_data: o[:params][:filter].nil? ? nil : Rack::Utils.build_nested_query(data: o[:params][:filter]),
           # 'sortable'=> self.sortable_on_that_page?(@r),
@@ -401,7 +406,7 @@ module PopulateMe
       end
       {
         template: "template#{'_embeded' if o[:embeded]}_form",
-        page_title: self.new? ? "New #{self.class}" : self.to_s,
+        page_title: self.new? ? "New #{self.class.to_s_short}" : self.to_s,
         admin_url: self.to_admin_url,
         is_new: self.new?,
         fields: items
