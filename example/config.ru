@@ -34,6 +34,13 @@ class BlogPost::Comment
   field :blog_post_id, type: :hidden
 end
 
+class Article
+  include PopulateMe::Document
+  field :title
+  field :content, type: :text
+  field :position, type: :position, form_field: false
+end
+
 # Admin ##########
 
 require "populate_me/admin"
@@ -41,6 +48,7 @@ class Admin < PopulateMe::Admin
   enable :sessions
   set :menu, [ 
     ['Blog Posts', '/list/blog-post'],
+    ['Articles', '/list/article'],
   ]
 end
 

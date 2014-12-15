@@ -334,6 +334,15 @@ module PopulateMe
 
     # Admin list
     module ClassMethods
+      def sort_field_for o={}
+        filter = o[:params][:filter]
+        return nil if !filter.nil?&&filter.size>1
+        expected_scope = filter.nil? ? nil : filter.keys[0].to_sym
+        f = self.fields.find do |k,v| 
+          v[:type]==:position&&v[:scope]==expected_scope
+        end
+        f.nil? ? nil : f[0]
+      end
       def to_admin_list o={}
         o[:params] ||= {}
         {
@@ -341,7 +350,7 @@ module PopulateMe
           page_title: self.to_s_short_plural,
           dasherized_class_name: PopulateMe::Utils.dasherize_class_name(self.name),
           new_data: o[:params][:filter].nil? ? nil : Rack::Utils.build_nested_query(data: o[:params][:filter]),
-          # 'sortable'=> self.sortable_on_that_page?(@r),
+          # sort_field: self.sort_field_for(o),
           # 'command_plus'=> !self.populate_config[:no_plus],
           # 'command_search'=> !self.populate_config[:no_search],
           items: self.admin_find(query: o[:params][:filter]).map {|d| d.to_admin_list_item(o) },

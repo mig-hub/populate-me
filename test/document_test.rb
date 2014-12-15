@@ -586,7 +586,8 @@ describe 'PopulateMe::Document' do
 
     class Champion
       include PopulateMe::Document
-      field :position
+      field :position, type: :position
+      field :scoped_position, type: :position, scope: :team_id
     end
     Champion.new(id:'a').perform_create
     Champion.new(id:'b').perform_create
@@ -597,6 +598,17 @@ describe 'PopulateMe::Document' do
       Champion.admin_get('a').position.should==1
       Champion.admin_get('b').position.should==0
       Champion.admin_get('c').position.should==2
+    end
+
+    it 'Determines which field is a sort field for a given request' do
+      no_filter = {params: {}}
+      scoped_filter = {params: {filter: {'team_id'=>'the a team'}}}
+      irrelevant_scope_filter = {params: {filter: {'employer_id'=>'the a team'}}}
+      overscoped_filter = {params: {filter: {'team_id'=>'the a team','extra'=>'extra'}}}
+      Champion.sort_field_for(no_filter).should==:position
+      Champion.sort_field_for(scoped_filter).should==:scoped_position
+      Champion.sort_field_for(irrelevant_scope_filter).should==nil
+      Champion.sort_field_for(overscoped_filter).should==nil
     end
 
   end
