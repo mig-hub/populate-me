@@ -31,9 +31,17 @@ module PopulateMe
         end
       end
 
-      # Mongo specific method
       def collection
         db[collection_name]
+      end
+
+      def bulk o={}
+        o[:ordered] ||= true
+        b = o[:ordered] ? collection.initialize_ordered_bulk_op : collection.initialize_unordered_bulk_op
+        if block_given?
+          yield b
+          b.execute
+        end
       end
 
       def set_id_field
@@ -51,9 +59,21 @@ module PopulateMe
         self
       end
 
+      def id_string_key
+        (self.fields.keys[0]||'_id').to_s
+      end
+
+      def set_indexes f, ids=[]
+        bulk do |b|
+          ids.each_with_index do |id,i|
+            b.find(self.id_string_key=>id).update_one({'$set'=>{f=>i}})
+          end
+        end
+      end
+
       def admin_get theid
         theid = BSON::ObjectId.from_string(theid) if BSON::ObjectId.legal?(theid)
-        hash = self.collection.find_one({'_id'=> theid})
+        hash = self.collection.find_one({self.id_string_key => theid})
         hash.nil? ? nil : from_hash(hash) 
       end
       alias_method :[], :admin_get

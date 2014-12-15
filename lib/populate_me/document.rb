@@ -90,8 +90,21 @@ module PopulateMe
         self
       end
 
+      def id_string_key
+        (self.fields.keys[0]||'id').to_s
+      end
+
+      def set_indexes f, ids=[]
+        ids.each_with_index do |id,i|
+          self.documents.each do |d|
+            d[f.to_s] = i if d[self.id_string_key]==id
+          end
+        end
+        self
+      end
+
       def admin_get id
-        hash = self.documents.find{|doc| doc['id']==id }
+        hash = self.documents.find{|doc| doc[self.id_string_key]==id }
         return nil if hash.nil?
         from_hash hash
       end

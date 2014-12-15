@@ -508,6 +508,12 @@ describe 'PopulateMe::Document' do
     attr_accessor :name
   end
 
+  class SpecialHaircut
+    include PopulateMe::Document
+    field :name, type: :id
+    field :height
+  end
+
   describe 'Comparison' do
 
     it 'Consider equal 2 documents with the same data' do
@@ -526,6 +532,9 @@ describe 'PopulateMe::Document' do
       Haircut.new(id: '123', name: 'spikes').perform_create
       Haircut.admin_get(123).name.should=='pigtails'
       Haircut.admin_get('123').name.should=='spikes'
+      SpecialHaircut.id_string_key.should=='name'
+      SpecialHaircut.new(name:'mohawk',height:3).perform_create
+      SpecialHaircut.admin_get('mohawk').height.should==3
     end
 
     it 'Returns nil if document does not exist' do
@@ -569,6 +578,25 @@ describe 'PopulateMe::Document' do
 
     it 'Raises ArgumentError when the key does not exist' do
       lambda{ Soldier.sort_by(:namespace) }.should.raise(ArgumentError)
+    end
+
+  end
+
+  describe 'Manual Sorting' do
+
+    class Champion
+      include PopulateMe::Document
+      field :position
+    end
+    Champion.new(id:'a').perform_create
+    Champion.new(id:'b').perform_create
+    Champion.new(id:'c').perform_create
+
+    it 'Sets the indices on the provided field' do
+      Champion.set_indexes(:position,['b','a','c'])
+      Champion.admin_get('a').position.should==1
+      Champion.admin_get('b').position.should==0
+      Champion.admin_get('c').position.should==2
     end
 
   end

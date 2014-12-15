@@ -143,7 +143,7 @@ describe 'PopulateMe::Mongo' do
 
   end
 
-  describe 'Default Sort' do
+  describe 'Default Sorting' do
 
     class Soldier
       include PopulateMe::Mongo
@@ -165,6 +165,25 @@ describe 'PopulateMe::Mongo' do
     it 'Can write Mongo-specific sort if a Hash or an Array is passed' do
       Soldier.sort_by([[:name,:desc]]).admin_find[0].name.should=='Tony'
       Soldier.sort_by({name: :desc}).admin_find[0].name.should=='Tony'
+    end
+
+  end
+
+  describe 'Manual Sorting' do
+
+    class Champion
+      include PopulateMe::Mongo
+      field :position
+    end
+    Champion.new(id:'a').perform_create
+    Champion.new(id:'b').perform_create
+    Champion.new(id:'c').perform_create
+
+    it 'Sets the indices on the provided field' do
+      Champion.set_indexes(:position,['b','a','c'])
+      Champion.admin_get('a').position.should==1
+      Champion.admin_get('b').position.should==0
+      Champion.admin_get('c').position.should==2
     end
 
   end
