@@ -68,7 +68,6 @@ describe 'PopulateMe::Document' do
     field :places, type: :list, max: 5
     field :seats, type: :list, class_name: '::Place', max: 5
     field :available, type: :boolean
-    position_field
   end
 
   class Couch::Place
@@ -159,6 +158,50 @@ describe 'PopulateMe::Document' do
     it 'Should guess a foreign_key when not provided and make it a symbol' do
       Casanova.relationships[:girlfriends][:foreign_key].should==:casanova_id
       Casanova.relationships[:babes][:foreign_key].should==:casanova_id
+    end
+
+  end
+
+  describe 'Typecasting' do
+
+    # We typecast values which come from post requests, a CVS file or the like.
+    # Not sure these methods need to be instance methods but just in case...
+
+    class Outcast
+      include PopulateMe::Document
+      field :name
+      field :shared, type: :boolean
+      field :age, type: :integer
+      field :salary, type: :price
+      field :dob, type: :date
+      field :when, type: :datetime
+    end
+
+    it 'Uses automatic or specific typecast when relevant' do
+      Outcast.new.typecast(:name,nil).should==nil
+      Outcast.new.typecast(:name,'').should==nil
+      Outcast.new.typecast(:name,'Bob').should=='Bob'
+      Outcast.new.typecast(:name,'5').should=='5'
+      Outcast.new.typecast(:shared,'true').should==true
+      Outcast.new.typecast(:shared,'false').should==false
+      Outcast.new.typecast(:age,'42').should==42
+      Outcast.new.typecast(:age,'42 yo').should==42
+      Outcast.new.typecast(:age,'42.50').should==42
+      Outcast.new.typecast(:salary,'42').should==4200
+      Outcast.new.typecast(:salary,'42.50').should==4250
+      Outcast.new.typecast(:salary,'42.5').should==4250
+      Outcast.new.typecast(:salary,'$42.5').should==4250
+      Outcast.new.typecast(:salary,'42.5 Dollars').should==4250
+      Outcast.new.typecast(:salary,'').should==nil
+      Outcast.new.typecast(:dob,'').should==nil
+      Outcast.new.typecast(:dob,'10/11').should==nil
+      Outcast.new.typecast(:dob,'10/11/1979').should==Date.parse('10/11/1979')
+      Outcast.new.typecast(:dob,'10-11-1979').should==Date.parse('10/11/1979')
+      Outcast.new.typecast(:when,'').should==nil
+      Outcast.new.typecast(:when,'10/11').should==nil
+      Outcast.new.typecast(:when,'10/11/1979').should==nil
+      Outcast.new.typecast(:when,'10/11/1979 12:30:4').should==Time.utc(1979,11,10,12,30,4)
+      Outcast.new.typecast(:when,'10-11-1979 12:30:4').should==Time.utc(1979,11,10,12,30,4)
     end
 
   end
@@ -594,7 +637,7 @@ describe 'PopulateMe::Document' do
     Champion.new(id:'b').perform_create
     Champion.new(id:'c').perform_create
 
-    it 'Sets the indices on the provided field' do
+    it 'Sets the indexes on the provided field' do
       Champion.set_indexes(:position,['b','a','c'])
       Champion.admin_get('a').position.should==1
       Champion.admin_get('b').position.should==0

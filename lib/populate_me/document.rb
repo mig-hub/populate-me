@@ -78,13 +78,6 @@ module PopulateMe
         self.new(_is_new: false).set_from_hash hash, o
       end
 
-      def from_post hash
-        # Utils.each_stub hash do |object,key_index,value|
-        #   object[key_index] = Utils.automatic_typecast value
-        # end
-        doc = from_hash hash
-      end
-
       def sort_by f, direction=:asc
         raise(ArgumentError) unless [:asc,:desc].include? direction
         raise(ArgumentError) unless self.new.respond_to? f
@@ -156,51 +149,6 @@ module PopulateMe
     def errors; self._errors; end
     def new?; self._is_new; end
 
-    def initialize attributes=nil 
-      self._is_new = true
-      set attributes if attributes
-      self._errors = {}
-    end
-
-    def set attributes
-      attributes.dup.each do |k,v| 
-        __send__ "#{k}=", v
-      end
-      self
-    end
-
-    def set_defaults o={}
-      self.class.fields.each do |k,v|
-        if v.key?(:default)&&(__send__(k).nil?||o[:force])
-          set k.to_sym => Utils.get_value(v[:default],self)
-        end
-      end
-      self
-    end
-
-    def set_from_hash hash, o={}
-      raise(TypeError, "#{hash} is not a Hash") unless hash.is_a? Hash
-      hash = hash.dup # Leave original untouched
-      hash.delete('_class')
-      hash.each do |k,v|
-        if v.is_a? Array
-          __send__(k.to_sym).clear
-          v.each do |d|
-            obj =  Utils.resolve_class_name(d['_class']).new.set_from_hash(d)
-            __send__(k.to_sym) << obj
-          end
-        else
-          v = typecast(k.to_sym,v) if o[:typecast]
-          set k.to_sym => v
-        end
-      end
-      self
-    end
-
-    def typecast k, v
-      Utils.automatic_typecast v
-    end
-
     def persistent_instance_variables
       instance_variables.select do |k|
         if self.class.fields.empty?
@@ -246,6 +194,77 @@ module PopulateMe
       return inspect if self.class.label_field.nil?
       me = __send__(self.class.label_field)
       Utils.blank?(me) ? inspect : me
+    end
+
+    def initialize attributes=nil 
+      self._is_new = true
+      set attributes if attributes
+      self._errors = {}
+    end
+
+    def set attributes
+      attributes.dup.each do |k,v| 
+        __send__ "#{k}=", v
+      end
+      self
+    end
+
+    def set_defaults o={}
+      self.class.fields.each do |k,v|
+        if v.key?(:default)&&(__send__(k).nil?||o[:force])
+          set k.to_sym => Utils.get_value(v[:default],self)
+        end
+      end
+      self
+    end
+
+    def set_from_hash hash, o={}
+      raise(TypeError, "#{hash} is not a Hash") unless hash.is_a? Hash
+      hash = hash.dup # Leave original untouched
+      hash.delete('_class')
+      hash.each do |k,v|
+        if v.is_a? Array
+          __send__(k.to_sym).clear
+          v.each do |d|
+            obj =  Utils.resolve_class_name(d['_class']).new.set_from_hash(d)
+            __send__(k.to_sym) << obj
+          end
+        else
+          v = typecast(k.to_sym,v) if o[:typecast]
+          set k.to_sym => v
+        end
+      end
+      self
+    end
+
+    # Typecasting
+    def typecast k, v
+      return Utils.automatic_typecast(v) unless self.class.fields.key?(k)
+      meth = "typecast_#{self.class.fields[k][:type]}".to_sym
+      return Utils.automatic_typecast(v) unless respond_to?(meth)
+      __send__ meth, k, v
+    end
+    def typecast_integer k, v
+      v.to_i
+    end
+    def typecast_price k, v
+      return nil if Utils.blank?(v)
+      Utils.parse_price(v)
+    end
+    def typecast_date k, v
+      if v[/\d\d(\/|-)\d\d(\/|-)\d\d\d\d/]
+        Date.parse v
+      else
+        nil
+      end
+    end
+    def typecast_datetime k, v
+      if v[/\d\d(\/|-)\d\d(\/|-)\d\d\d\d \d\d?:\d\d?:\d\d?/]
+        d,m,y,h,min,s = v.split(/[-:\s\/]/)
+        Time.utc(y,m,d,h,min,s)
+      else
+        nil
+      end
     end
 
     # Callbacks
@@ -350,15 +369,24 @@ module PopulateMe
       end
       def to_admin_list o={}
         o[:params] ||= {}
+        unless o[:params][:filter].nil?
+          query = o[:params][:filter].inject({}) do |query, (k,v)|
+            query[k.to_sym] = self.new.typecast(k,v)
+            query
+          end
+          new_data = Rack::Utils.build_nested_query(data: o[:params][:filter])
+        end
         {
           template: 'template_list',
           page_title: self.to_s_short_plural,
           dasherized_class_name: PopulateMe::Utils.dasherize_class_name(self.name),
-          new_data: o[:params][:filter].nil? ? nil : Rack::Utils.build_nested_query(data: o[:params][:filter]),
+          new_data: new_data,
           sort_field: self.sort_field_for(o),
           # 'command_plus'=> !self.populate_config[:no_plus],
           # 'command_search'=> !self.populate_config[:no_search],
-          items: self.admin_find(query: o[:params][:filter]).map {|d| d.to_admin_list_item(o) },
+          items: self.admin_find(query: query).map do |d| 
+            d.to_admin_list_item(o) 
+          end
         }
       end
     end

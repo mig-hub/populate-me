@@ -171,19 +171,19 @@ describe 'PopulateMe::Mongo' do
 
   describe 'Manual Sorting' do
 
-    class Champion
+    class MongoChampion
       include PopulateMe::Mongo
       field :position
     end
-    Champion.new(id:'a').perform_create
-    Champion.new(id:'b').perform_create
-    Champion.new(id:'c').perform_create
+    MongoChampion.new(id: 'a').perform_create
+    MongoChampion.new(id: 'b').perform_create
+    MongoChampion.new(id: 'c').perform_create
 
-    it 'Sets the indices on the provided field' do
-      Champion.set_indexes(:position,['b','a','c'])
-      Champion.admin_get('a').position.should==1
-      Champion.admin_get('b').position.should==0
-      Champion.admin_get('c').position.should==2
+    it 'Sets the indexes on the provided field' do
+      MongoChampion.set_indexes(:position,['b','a','c'])
+      MongoChampion.admin_get('a').position.should==1
+      MongoChampion.admin_get('b').position.should==0
+      MongoChampion.admin_get('c').position.should==2
     end
 
   end
