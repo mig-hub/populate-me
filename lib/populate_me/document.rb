@@ -54,6 +54,11 @@ module PopulateMe
       def set_id_field
         self.fields[:id] = {type: :id, form_field: false}
       end
+      def position_field attributes={}
+        name = attributes[:name]||'position'
+        field name, {type: :position, form_field: false}.merge(attributes)
+        sort_by name
+      end
       def label_field
         @label_field || self.fields.keys[1]
       end
@@ -350,7 +355,7 @@ module PopulateMe
           page_title: self.to_s_short_plural,
           dasherized_class_name: PopulateMe::Utils.dasherize_class_name(self.name),
           new_data: o[:params][:filter].nil? ? nil : Rack::Utils.build_nested_query(data: o[:params][:filter]),
-          # sort_field: self.sort_field_for(o),
+          sort_field: self.sort_field_for(o),
           # 'command_plus'=> !self.populate_config[:no_plus],
           # 'command_search'=> !self.populate_config[:no_search],
           items: self.admin_find(query: o[:params][:filter]).map {|d| d.to_admin_list_item(o) },

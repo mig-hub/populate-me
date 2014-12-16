@@ -68,6 +68,7 @@ describe 'PopulateMe::Document' do
     field :places, type: :list, max: 5
     field :seats, type: :list, class_name: '::Place', max: 5
     field :available, type: :boolean
+    position_field
   end
 
   class Couch::Place

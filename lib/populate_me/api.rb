@@ -38,6 +38,13 @@ class PopulateMe::API < Sinatra::Base
     end
   end
 
+  put '/:model' do
+    pass unless params[:action]=='sort'
+    model_class = resolve_model_class params[:model]
+    model_class.set_indexes(params[:field].to_sym,params[:ids])
+    {'success'=>true,'message'=>'Sorted Successfully'}.to_json
+  end
+
   get '/:model/:id' do
     model_class = resolve_model_class params[:model]
     model_instance = resolve_model_instance model_class, params[:id]

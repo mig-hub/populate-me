@@ -4,7 +4,7 @@ $:.unshift File.expand_path('../../lib', __FILE__)
 require 'populate_me/document'
 class Band
   include PopulateMe::Document
-  attr_accessor :name, :awsome
+  attr_accessor :name, :awsome, :position
   def members; @members ||= []; end
   def validate
     error_on(:name,"WFT") if self.name=='ZZ Top'
@@ -30,7 +30,7 @@ describe 'PopulateMe::API' do
   # managing documents through a JSON-based API
   #
   # The API needs the Document class to implement these methods:
-  # - Class.[]
+  # - Class.admin_get
   #   - Needs to be able to accept the ID as a string
   #   - The class is responsible for conversion
   #   - So a mix of different classes of IDs is not possible
@@ -54,6 +54,15 @@ describe 'PopulateMe::API' do
     res.status.should==201
     json['success'].should==true
     json['message'].should=='Created Successfully'
+    json
+  end
+
+  def successful_sorting(res)
+    json = JSON.parse(res.body)
+    res.content_type.should=='application/json'
+    res.status.should==200
+    json['success'].should==true
+    json['message'].should=='Sorted Successfully'
     json
   end
 
@@ -135,6 +144,40 @@ describe 'PopulateMe::API' do
       res = API.post '/band', {params: {'_destination'=>'http://example.org/anywhere'}}
       res.status.should==302
       res.header['Location'].should=='http://example.org/anywhere'
+    end
+
+  end
+
+  describe 'PUT /:model' do
+
+    it 'Can set indexes for sorting' do
+      res = API.put '/band', {
+        params: {
+          'action'=>'sort',
+          'field'=>'position',
+          'ids'=> ['2','3','1']
+        }
+      }
+      json = successful_sorting(res)
+      Band.admin_get('2').position.should==0
+      Band.admin_get('3').position.should==1
+      Band.admin_get('1').position.should==2
+    end
+
+    it 'Redirects after sorting if destination is given' do
+      res = API.put '/band', {
+        params: {
+          'action'=>'sort',
+          'field'=>'position',
+          'ids'=> ['3','2','1'],
+          '_destination'=>'http://example.org/anywhere'
+        }
+      }
+      res.status.should==302
+      res.header['Location'].should=='http://example.org/anywhere'
+      Band.admin_get('3').position.should==0
+      Band.admin_get('2').position.should==1
+      Band.admin_get('1').position.should==2
     end
 
   end

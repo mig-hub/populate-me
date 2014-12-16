@@ -32,13 +32,14 @@ class BlogPost::Comment
   field :author, default: 'Anonymous'
   field :content, type: :text
   field :blog_post_id, type: :hidden
+  position_field scope: :blog_post_id
 end
 
 class Article
   include PopulateMe::Document
   field :title
   field :content, type: :text
-  field :position, type: :position, form_field: false
+  position_field
 end
 
 # Admin ##########
