@@ -25,7 +25,7 @@ Available types are:
 - `:string` Short text.
 - `:text` Multiline text.
 - `:boolean` Which is `true` or `false`.
-- `:list` List of embeded documents.
+- `:list` List of nested documents.
 - `:select` Dropdown list of options (records a string).
 
 Admin

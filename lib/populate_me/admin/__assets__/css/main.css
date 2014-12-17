@@ -60,24 +60,24 @@ button { cursor: pointer; }
 
 /* Lists */
 
-.new-document-btn, .new-embeded-document-btn {
+.new-document-btn, .new-nested-document-btn {
   border: 0;
   font-size: 1.615em;
   margin-bottom: 1em;
 }
 
-button.admin-delete, button.admin-delete-embeded, .handle {
+button.admin-delete, button.admin-delete-nested, .handle {
   display: inline-block; vertical-align: top;
   font-size: 1em; line-height: 1em;
   width: auto; height: auto;
   padding: 0.25em;
   border: 0px;
 }
-button.admin-delete, button.admin-delete-embeded {
+button.admin-delete, button.admin-delete-nested {
   color: #fdf6e3;
   background: #dc322f;
 }
-button.admin-delete:hover, button.admin-delete-embeded:hover {
+button.admin-delete:hover, button.admin-delete-nested:hover {
   color: #002b36;
 }
 .handle {
@@ -98,7 +98,7 @@ button.admin-delete:hover, button.admin-delete-embeded:hover {
   background: #859900;
 }
 
-.documents, .embeded-documents {
+.documents, .nested-documents {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -106,16 +106,16 @@ button.admin-delete:hover, button.admin-delete-embeded:hover {
   -ms-user-select: none;
   user-select: none;
 }
-.documents > li, .embeded-documents > li {
+.documents > li, .nested-documents > li {
   display: block;
   margin-bottom: 1em;
 }
-.embeded-documents > li > header {
+.nested-documents > li > header {
   background: #002b36;
   height: 1.5em;
   margin-bottom: 1em;
 }
-.documents .sortable-placeholder, .embeded-documents .sortable-placeholder {
+.documents .sortable-placeholder, .nested-documents .sortable-placeholder {
   border: 1px dashed #839496;
   background: none;
 }

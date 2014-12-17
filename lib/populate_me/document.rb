@@ -173,7 +173,7 @@ module PopulateMe
     end
     alias_method :to_hash, :to_h
 
-    def embeded_docs
+    def nested_docs
       persistent_instance_variables.map do |var|
         instance_variable_get var
       end.find_all do |val|
@@ -282,7 +282,7 @@ module PopulateMe
       self
     end
     def recurse_callback name
-      embeded_docs.each do |d|
+      nested_docs.each do |d|
         d.exec_callback name
       end
     end
@@ -306,7 +306,7 @@ module PopulateMe
       validate
       exec_callback :after_validate
       return false unless self._errors.empty?
-      embeded_docs.reduce true do |result,d|
+      nested_docs.reduce true do |result,d|
         result &= d.valid?
       end
     end
@@ -429,8 +429,8 @@ module PopulateMe
         item[:input_name] = "#{input_name_prefix}[#{item[:field_name]}]"
         if item[:type]==:list
           item[:dasherized_class_name] = PopulateMe::Utils.dasherize_class_name(item[:class_name].to_s)
-          item[:items] = self.__send__(item[:field_name]).map {|embeded|
-           embeded.to_admin_form(o.merge(input_name_prefix: item[:input_name]+'[]'))
+          item[:items] = self.__send__(item[:field_name]).map {|nested|
+           nested.to_admin_form(o.merge(input_name_prefix: item[:input_name]+'[]'))
           }
         else
           item[:type] ||= :string
@@ -460,7 +460,7 @@ module PopulateMe
         end
       end
       {
-        template: "template#{'_embeded' if o[:embeded]}_form",
+        template: "template#{'_nested' if o[:nested]}_form",
         page_title: self.new? ? "New #{self.class.to_s_short}" : self.to_s,
         admin_url: self.to_admin_url,
         is_new: self.new?,

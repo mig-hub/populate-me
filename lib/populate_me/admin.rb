@@ -80,7 +80,7 @@ class PopulateMe::Admin < Sinatra::Base
     @model_instance.to_admin_form(
       request: request, 
       params: params,
-      embeded: params[:embeded]=='true', 
+      nested: params[:nested]=='true', 
       input_name_prefix: params[:input_name_prefix]
     ).to_json
   end

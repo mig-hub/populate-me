@@ -847,14 +847,14 @@ describe 'PopulateMe::Document' do
       book.recipes[1].ingredients[0].name=='Egg'
     end
 
-    it 'Validates a document if embeded documents are valid' do
+    it 'Validates a document if nested documents are valid' do
       book = CookBook.from_hash(CookBook::EXAMPLE)
       book.recipes[0].ingredients[0].valid?.should==true
       book.recipes[0].valid?.should==true
       book.valid?.should==true
     end
 
-    it 'Does not validate a document if embeded documents are not valid' do
+    it 'Does not validate a document if nested documents are not valid' do
       book = CookBook.from_hash(CookBook::EXAMPLE)
       book.recipes[0].ingredients[0].name = 'Poison'
       book.recipes[0].ingredients[0].valid?.should==false
@@ -977,8 +977,8 @@ describe 'PopulateMe::Document' do
         info[:fields].size.should>0
       end
 
-      it 'Changes the template if the :embeded option is used' do
-        SuperHeroTeam.new.to_admin_form(embeded: true)[:template].should=='template_embeded_form'
+      it 'Changes the template if the :nested option is used' do
+        SuperHeroTeam.new.to_admin_form(nested: true)[:template].should=='template_nested_form'
       end
 
       it 'Adds the _class field' do
@@ -1010,7 +1010,7 @@ describe 'PopulateMe::Document' do
         find_field(fields,:name)[:input_name].should=='data[bababa][][name]'
       end
 
-      it 'Includes embeded documents' do
+      it 'Includes nested documents' do
         hero = SuperHeroTeam::Member.new
         hero_form = hero.to_admin_form(input_name_prefix: 'data[members][]')
         team = SuperHeroTeam.new

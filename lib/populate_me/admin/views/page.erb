@@ -64,10 +64,10 @@
       </form>
     </script>
 
-    <script id="template-embeded-form" type="x-tmpl-mustache">
+    <script id="template-nested-form" type="x-tmpl-mustache">
       <li>
         <header>
-          <span class='handle' title='Drag and drop'>&#8597;</span><button type='button' class='admin-delete-embeded' title='Delete'>&times;</button>
+          <span class='handle' title='Drag and drop'>&#8597;</span><button type='button' class='admin-delete-nested' title='Delete'>&times;</button>
         </header>
         {{#custom_partial_or_default}}template_form_fields{{/custom_partial_or_default}}
       </li>
@@ -120,12 +120,12 @@
         <legend>{{label}}</legend>
         {{#dasherized_class_name}}
           <p>
-          <a href="<%= request.script_name %>/form/{{dasherized_class_name}}?input_name_prefix={{input_name}}[]&embeded=true" class='new-embeded-document-btn'>+</a>
+          <a href="<%= request.script_name %>/form/{{dasherized_class_name}}?input_name_prefix={{input_name}}[]&nested=true" class='new-nested-document-btn'>+</a>
           </p>
         {{/dasherized_class_name}}
-        <ol class='embeded-documents'>
+        <ol class='nested-documents'>
           {{#items}}
-            {{>template_embeded_form}}
+            {{>template_nested_form}}
           {{/items}}
         </ol>
       </fieldset>

@@ -22,12 +22,12 @@ class BlogPost
   end
 end
 class BlogPost::Author
-  # embeded
+  # nested
   include PopulateMe::Document
   field :name
 end
 class BlogPost::Comment
-  # not embeded
+  # not nested
   include PopulateMe::Document 
   field :author, default: 'Anonymous'
   field :content, type: :text

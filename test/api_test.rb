@@ -231,7 +231,7 @@ describe 'PopulateMe::API' do
       obj.members.size.should==2
       obj.members[0].name.should=='Joey'
     end
-    # it 'Updates embeded documents' do
+    # it 'Updates nested documents' do
     #   obj = Band.admin_get('3')
     #   res = API.put('/band/3', {params: {data: {members: [{id: obj.members[0].id, name: 'Joey Ramone'}]}}})
     #   successful_update(res)
