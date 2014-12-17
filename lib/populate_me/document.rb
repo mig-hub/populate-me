@@ -38,25 +38,38 @@ module PopulateMe
       end
 
       def fields; @fields ||= {}; end
-      def field name, attributes={}
-        set_id_field if self.fields.empty?&&attributes[:type]!=:id
-        if attributes[:type]==:list
-          attributes[:class_name] = Utils.guess_related_class_name(self.name,attributes[:class_name]||name)
+      def field name, o={}
+        set_id_field if self.fields.empty?&&o[:type]!=:id
+        o[:field_name] = name
+        Utils.set_missing_key o, :type, :string
+        Utils.set_missing_key o, :form_field, ![:id,:position].include?(o[:type])
+        o[:wrap] = false unless o[:form_field]
+        Utils.set_missing_key o, :wrap, ![:hidden,:list].include?(o[:type])
+        Utils.set_missing_key o, :label, Utils.label_for_field(name)
+        if o[:type]==:list
+          o[:class_name] = Utils.guess_related_class_name(self.name,o[:class_name]||name)
+          o[:dasherized_class_name] = Utils.dasherize_class_name o[:class_name]
           define_method(name) do
             var = "@#{name}"
             instance_variable_set(var, instance_variable_get(var)||[])
           end
         else
+          Utils.set_missing_key o, :input_attributes, {}
+          o[:input_attributes][:type] = :hidden if o[:type]==:hidden
+          unless o[:type]==:text
+            Utils.set_missing_key o[:input_attributes], :type, :text
+          end
           attr_accessor name
         end
-        self.fields[name] = attributes
+        self.fields[name] = o
       end
       def set_id_field
-        self.fields[:id] = {type: :id, form_field: false}
+        field :id, {type: :id}
       end
-      def position_field attributes={}
-        name = attributes[:name]||'position'
-        field name, {type: :position, form_field: false}.merge(attributes)
+      def position_field o={}
+        name = o[:name]||'position'
+        o[:type] = :position
+        field name, o
         sort_by name
       end
       def label_field
@@ -64,12 +77,12 @@ module PopulateMe
       end
 
       def relationships; @relationships ||= {}; end
-      def relationship name, attributes={}
-        attributes[:class_name] = Utils.guess_related_class_name(self.name,attributes[:class_name]||name)
-        attributes[:label] ||= name.to_s.capitalize
-        attributes[:foreign_key] ||= "#{Utils.dasherize_class_name(self.name).gsub('-','_')}_id"
-        attributes[:foreign_key] = attributes[:foreign_key].to_sym
-        self.relationships[name] = attributes
+      def relationship name, o={}
+        o[:class_name] = Utils.guess_related_class_name(self.name,o[:class_name]||name)
+        Utils.set_missing_key o, :label, name.to_s.capitalize
+        Utils.set_missing_key o, :foreign_key, "#{Utils.dasherize_class_name(self.name).gsub('-','_')}_id"
+        o[:foreign_key] = o[:foreign_key].to_sym
+        self.relationships[name] = o
       end
 
       def documents; @documents ||= []; end
@@ -411,53 +424,47 @@ module PopulateMe
     # Forms
     def to_admin_form o={}
       input_name_prefix = o[:input_name_prefix]||'data'
-      items = [{
+      class_item = {
         field_name: :_class,
         type: :hidden,
+        form_field: true,
+        wrap: false,
         input_name: "#{input_name_prefix}[_class]",
         input_value: self.class.name,
         input_attributes: {
           type: 'hidden',
         }
-      }]
-      self.class.fields.each do |k,v|
-        items << v.merge(field_name: k) unless v[:form_field]==false
-      end
-      items.each do |item|
-        item[:wrap] = [:hidden,:list].include?(item[:type]) ? false : !(item[:wrap]==false)
-        item[:label] ||= PopulateMe::Utils.label_for_field item[:field_name]
-        item[:input_name] = "#{input_name_prefix}[#{item[:field_name]}]"
-        if item[:type]==:list
-          item[:dasherized_class_name] = PopulateMe::Utils.dasherize_class_name(item[:class_name].to_s)
-          item[:items] = self.__send__(item[:field_name]).map {|nested|
-           nested.to_admin_form(o.merge(input_name_prefix: item[:input_name]+'[]'))
-          }
-        else
-          item[:type] ||= :string
-          item[:input_value] ||= self.__send__ item[:field_name]
-          item[:input_attributes] ||= {}
-          if item[:type]==:select
-            unless item[:select_options].nil?
-              opts = Utils.get_value(item[:select_options],self).dup
-              opts.map! do |opt|
-                if opt.is_a?(String)||opt.is_a?(Symbol)
-                  opt = [opt.to_s.capitalize,opt]
-                end
-                if opt.is_a?(Array)
-                  opt = {description: opt[0].to_s, value: opt[1].to_s}
-                end
-                opt[:selected] = true if item[:input_value]==opt[:value]
-                opt
-              end
-              item[:select_options] = opts
+      }
+      items = self.class.fields.inject([class_item]) do |out,(k,item)|
+        item = item.dup
+        if item[:form_field]
+          item[:input_name] = "#{input_name_prefix}[#{item[:field_name]}]"
+          if item[:type]==:list
+            item[:items] = self.__send__(item[:field_name]).map do |nested|
+             nested.to_admin_form(o.merge(input_name_prefix: item[:input_name]+'[]'))
             end
-          elsif item[:type]==:text
-          elsif item[:type]==:hidden
-            item[:input_attributes][:type] = 'hidden'
           else
-            item[:input_attributes][:type] ||= 'text'
+            Utils.set_missing_key item, :input_value, self.__send__(k)
+            if item[:type]==:select
+              unless item[:select_options].nil?
+                opts = Utils.get_value(item[:select_options],self).dup
+                opts.map! do |opt|
+                  if opt.is_a?(String)||opt.is_a?(Symbol)
+                    opt = [opt.to_s.capitalize,opt]
+                  end
+                  if opt.is_a?(Array)
+                    opt = {description: opt[0].to_s, value: opt[1].to_s}
+                  end
+                  opt[:selected] = true if item[:input_value]==opt[:value]
+                  opt
+                end
+                item[:select_options] = opts
+              end
+            end
           end
+          out << item
         end
+        out
       end
       {
         template: "template#{'_nested' if o[:nested]}_form",

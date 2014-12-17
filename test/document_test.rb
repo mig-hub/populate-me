@@ -63,11 +63,15 @@ describe 'PopulateMe::Document' do
   class Couch
     include PopulateMe::Document
     field :colour, required: true
-    field :capacity, type: :integer
+    field :capacity, type: :integer, wrap: false
     field :price, type: :price, required: true
     field :places, type: :list, max: 5
     field :seats, type: :list, class_name: '::Place', max: 5
     field :available, type: :boolean
+    field :position, type: :position
+    field :secret, type: :hidden, label: 'Shhh...'
+    field :two_words, input_attributes: {name: 'joe'}
+    field :summary, type: :text
   end
 
   class Couch::Place
@@ -87,10 +91,30 @@ describe 'PopulateMe::Document' do
     end
 
     it 'Can declare fields and options about them in one go' do
-      Couch.fields.size.should==7
-      Couch.fields.keys.should==[:id, :colour, :capacity, :price, :places, :seats, :available]
+      Couch.fields.size.should==11
+      Couch.fields.keys.should==[:id, :colour, :capacity, :price, :places, :seats, :available, :position, :secret, :two_words, :summary]
       Couch.fields[:available][:type].should==:boolean
       Couch.fields[:price][:required].should==true
+      Couch.fields[:price][:field_name].should==:price
+    end
+
+    it 'Sets which fields should be removed from a form by default' do
+      Couch.fields[:colour][:form_field].should==true
+      Couch.fields[:id][:form_field].should==false
+      Couch.fields[:position][:form_field].should==false
+    end
+
+    it 'Sets which fields should be wrapped with a label by default in forms' do
+      Couch.fields[:colour][:wrap].should==true
+      Couch.fields[:position][:wrap].should==false
+      Couch.fields[:capacity][:wrap].should==false
+      Couch.fields[:places][:wrap].should==false
+      Couch.fields[:secret][:wrap].should==false
+    end
+
+    it 'Sets labels when not provided' do
+      Couch.fields[:secret][:label].should=='Shhh...'
+      Couch.fields[:two_words][:label].should=='Two Words'
     end
 
     it 'Creates attribute accessors for fields' do
@@ -119,6 +143,15 @@ describe 'PopulateMe::Document' do
     it 'Uses Utils.guess_related_class_name to set class_name of list fields' do
       Couch.fields[:places][:class_name].should=='Couch::Place'
       Couch.fields[:seats][:class_name].should=='Couch::Place'
+      Couch.fields[:seats][:dasherized_class_name].should=='couch--place'
+    end
+
+    it 'Makes sure :input_attributes is a hash except for list' do
+      Couch.fields[:price][:input_attributes].should=={type: :text}
+      Couch.fields[:two_words][:input_attributes].should=={name:'joe', type: :text}
+      Couch.fields[:secret][:input_attributes].should=={type: :hidden}
+      Couch.fields[:summary][:input_attributes].should=={}
+      Couch.fields[:seats][:input_attributes].should==nil
     end
 
   end

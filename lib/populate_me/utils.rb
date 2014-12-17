@@ -61,6 +61,12 @@ module PopulateMe
     end
     module_function :get_value
 
+    def set_missing_key h, k, v
+      h[k] = v unless h.key?(k)
+      h[k]
+    end
+    module_function :set_missing_key
+
     ACCENTS_FROM = 
       "ÀÁÂÃÄÅàáâãäåĀāĂăĄąÇçĆćĈĉĊċČčÐðĎďĐđÈÉÊËèéêëĒēĔĕĖėĘęĚěĜĝĞğĠġĢģĤĥĦħÌÍÎÏìíîïĨĩĪīĬĭĮįİıĴĵĶķĸĹĺĻļĽľĿŀŁłÑñŃńŅņŇňŉŊŋÒÓÔÕÖØòóôõöøŌōŎŏŐőŔŕŖŗŘřŚśŜŝŞ"
     ACCENTS_TO = 

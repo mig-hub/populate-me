@@ -118,6 +118,18 @@ describe 'PopulateMe::Utils' do
 
   end
 
+  describe '#set_missing_key' do
+
+    it 'Sets the key if the key did not exist' do
+      h = {a: 3}
+      PopulateMe::Utils.set_missing_key(h,:a,4).should==3
+      h[:a].should==3
+      PopulateMe::Utils.set_missing_key(h,:b,4).should==4
+      h[:b].should==4
+    end
+
+  end
+
   describe '#slugify' do
 
     # For making slug for a document

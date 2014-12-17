@@ -45,7 +45,7 @@ module PopulateMe
       end
 
       def set_id_field
-        self.fields[:_id] = {type: :id, form_field: false}
+        field :_id, {type: :id}
       end
 
       def sort_by f, direction=:asc
