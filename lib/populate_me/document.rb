@@ -14,6 +14,7 @@ module PopulateMe
       end
       base.before :create, :ensure_id
       base.after :create, :ensure_not_new
+      base.before :delete, :ensure_delete_related
       base.after :delete, :ensure_new
     end
 
@@ -87,6 +88,7 @@ module PopulateMe
         Utils.ensure_key o, :label, name.to_s.capitalize
         Utils.ensure_key o, :foreign_key, "#{Utils.dasherize_class_name(self.name).gsub('-','_')}_id"
         o[:foreign_key] = o[:foreign_key].to_sym
+        Utils.ensure_key o, :dependent, true
         self.relationships[name] = o
       end
 
@@ -312,6 +314,17 @@ module PopulateMe
     end
     def ensure_new; self._is_new = true; end # after_delete
     def ensure_not_new; self._is_new = false; end # after_create
+    def ensure_delete_related # before_delete
+      self.class.relationships.each do |k,v|
+        if v[:dependent]
+          klass = Utils.resolve_class_name v[:class_name]
+          next if klass.nil?
+          klass.admin_find(query: {v[:foreign_key]=>self.id}).each do |d|
+            d.delete
+          end
+        end
+      end
+    end
 
     # Validation
     def error_on k,v 

@@ -744,6 +744,23 @@ describe 'PopulateMe::Document' do
     end
   end
 
+  class Parent
+    include PopulateMe::Document
+    field :name
+    relationship :children, class_name: :child
+    relationship :vagrants, dependent: false
+  end
+  class Parent::Child
+    include PopulateMe::Document
+    field :name
+    field :parent_id, type: :hidden
+  end
+  class Parent::Vagrant
+    include PopulateMe::Document
+    field :name
+    field :parent_id, type: :hidden
+  end
+
   describe 'High level deletion' do
 
     it 'Uses callbacks on the high level deletion method' do
@@ -756,6 +773,28 @@ describe 'PopulateMe::Document' do
       Death.admin_get('123').should==nil
       death.was_alive.should==true
       death.is_dead.should==true
+    end
+
+    it 'Destroy related document when they are dependent' do
+      p = Parent.new(id:'1',name:'joe')
+      p.save
+      c1 = Parent::Child.new(id:'1',name:'bob1',parent_id:'1')
+      c1.save
+      c2 = Parent::Child.new(id:'2',name:'bob2',parent_id:'1')
+      c2.save
+      Parent::Child.admin_get('1').should!=nil
+      Parent::Child.admin_get('2').should!=nil
+      v1 = Parent::Vagrant.new(id:'1',name:'bob1',parent_id:'1')
+      v1.save
+      v2 = Parent::Vagrant.new(id:'2',name:'bob2',parent_id:'1')
+      v2.save
+      Parent::Vagrant.admin_get('1').should!=nil
+      Parent::Vagrant.admin_get('2').should!=nil
+      p.delete
+      Parent::Child.admin_get('1').should==nil
+      Parent::Child.admin_get('2').should==nil
+      Parent::Vagrant.admin_get('1').should!=nil
+      Parent::Vagrant.admin_get('2').should!=nil
     end
 
   end
