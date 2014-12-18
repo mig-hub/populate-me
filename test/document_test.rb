@@ -1022,7 +1022,7 @@ describe 'PopulateMe::Document' do
         class_field[:type].should==:hidden
         class_field[:input_name].should=='data[_class]'
         class_field[:input_value].should=='SuperHeroTeam'
-        class_field[:input_attributes][:type].should=='hidden'
+        class_field[:input_attributes][:type].should==:hidden
       end
 
       it 'Sets the :wrap option of form fields correctly' do

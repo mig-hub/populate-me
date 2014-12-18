@@ -1,6 +1,5 @@
 require 'populate_me/utils'
 
-
 module PopulateMe
 
   class MissingDocumentError < StandardError; end
@@ -40,28 +39,34 @@ module PopulateMe
       def fields; @fields ||= {}; end
       def field name, o={}
         set_id_field if self.fields.empty?&&o[:type]!=:id
-        o[:field_name] = name
-        Utils.set_missing_key o, :type, :string
-        Utils.set_missing_key o, :form_field, ![:id,:position].include?(o[:type])
-        o[:wrap] = false unless o[:form_field]
-        Utils.set_missing_key o, :wrap, ![:hidden,:list].include?(o[:type])
-        Utils.set_missing_key o, :label, Utils.label_for_field(name)
+        complete_field_options name, o
         if o[:type]==:list
-          o[:class_name] = Utils.guess_related_class_name(self.name,o[:class_name]||name)
-          o[:dasherized_class_name] = Utils.dasherize_class_name o[:class_name]
           define_method(name) do
             var = "@#{name}"
             instance_variable_set(var, instance_variable_get(var)||[])
           end
         else
-          Utils.set_missing_key o, :input_attributes, {}
-          o[:input_attributes][:type] = :hidden if o[:type]==:hidden
-          unless o[:type]==:text
-            Utils.set_missing_key o[:input_attributes], :type, :text
-          end
           attr_accessor name
         end
         self.fields[name] = o
+      end
+      def complete_field_options name, o={}
+        o[:field_name] = name
+        Utils.ensure_key o, :type, :string
+        Utils.ensure_key o, :form_field, ![:id,:position].include?(o[:type])
+        o[:wrap] = false unless o[:form_field]
+        Utils.ensure_key o, :wrap, ![:hidden,:list].include?(o[:type])
+        Utils.ensure_key o, :label, Utils.label_for_field(name)
+        if o[:type]==:list
+          o[:class_name] = Utils.guess_related_class_name(self.name,o[:class_name]||name)
+          o[:dasherized_class_name] = Utils.dasherize_class_name o[:class_name]
+        else
+          Utils.ensure_key o, :input_attributes, {}
+          o[:input_attributes][:type] = :hidden if o[:type]==:hidden
+          unless o[:type]==:text
+            Utils.ensure_key o[:input_attributes], :type, :text
+          end
+        end
       end
       def set_id_field
         field :id, {type: :id}
@@ -79,8 +84,8 @@ module PopulateMe
       def relationships; @relationships ||= {}; end
       def relationship name, o={}
         o[:class_name] = Utils.guess_related_class_name(self.name,o[:class_name]||name)
-        Utils.set_missing_key o, :label, name.to_s.capitalize
-        Utils.set_missing_key o, :foreign_key, "#{Utils.dasherize_class_name(self.name).gsub('-','_')}_id"
+        Utils.ensure_key o, :label, name.to_s.capitalize
+        Utils.ensure_key o, :foreign_key, "#{Utils.dasherize_class_name(self.name).gsub('-','_')}_id"
         o[:foreign_key] = o[:foreign_key].to_sym
         self.relationships[name] = o
       end
@@ -423,45 +428,17 @@ module PopulateMe
 
     # Forms
     def to_admin_form o={}
-      input_name_prefix = o[:input_name_prefix]||'data'
+      Utils.ensure_key o, :input_name_prefix, 'data'
       class_item = {
-        field_name: :_class,
         type: :hidden,
-        form_field: true,
-        wrap: false,
-        input_name: "#{input_name_prefix}[_class]",
+        input_name: "#{o[:input_name_prefix]}[_class]",
         input_value: self.class.name,
-        input_attributes: {
-          type: 'hidden',
-        }
       }
+      self.class.complete_field_options :_class, class_item
       items = self.class.fields.inject([class_item]) do |out,(k,item)|
         item = item.dup
         if item[:form_field]
-          item[:input_name] = "#{input_name_prefix}[#{item[:field_name]}]"
-          if item[:type]==:list
-            item[:items] = self.__send__(item[:field_name]).map do |nested|
-             nested.to_admin_form(o.merge(input_name_prefix: item[:input_name]+'[]'))
-            end
-          else
-            Utils.set_missing_key item, :input_value, self.__send__(k)
-            if item[:type]==:select
-              unless item[:select_options].nil?
-                opts = Utils.get_value(item[:select_options],self).dup
-                opts.map! do |opt|
-                  if opt.is_a?(String)||opt.is_a?(Symbol)
-                    opt = [opt.to_s.capitalize,opt]
-                  end
-                  if opt.is_a?(Array)
-                    opt = {description: opt[0].to_s, value: opt[1].to_s}
-                  end
-                  opt[:selected] = true if item[:input_value]==opt[:value]
-                  opt
-                end
-                item[:select_options] = opts
-              end
-            end
-          end
+          outcast k, item, o
           out << item
         end
         out
@@ -473,6 +450,38 @@ module PopulateMe
         is_new: self.new?,
         fields: items
       }
+    end
+
+    def outcast field, item, o={}
+      item[:input_name] = "#{o[:input_name_prefix]}[#{item[:field_name]}]"
+      unless item[:type]==:list
+        Utils.ensure_key item, :input_value, self.__send__(field)
+      end
+      meth = "outcast_#{item[:type]}".to_sym
+      __send__(meth, field, item, o) if respond_to?(meth)
+    end
+
+    def outcast_list field, item, o={}
+      item[:items] = self.__send__(field).map do |nested|
+       nested.to_admin_form(o.merge(input_name_prefix: item[:input_name]+'[]'))
+      end
+    end
+
+    def outcast_select field, item, o={}
+      unless item[:select_options].nil?
+        opts = Utils.get_value(item[:select_options],self).dup
+        opts.map! do |opt|
+          if opt.is_a?(String)||opt.is_a?(Symbol)
+            opt = [opt.to_s.capitalize,opt]
+          end
+          if opt.is_a?(Array)
+            opt = {description: opt[0].to_s, value: opt[1].to_s}
+          end
+          opt[:selected] = true if item[:input_value]==opt[:value]
+          opt
+        end
+        item[:select_options] = opts
+      end
     end
 
   end
