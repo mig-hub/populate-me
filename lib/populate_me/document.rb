@@ -336,8 +336,7 @@ module PopulateMe
       exec_callback :before_validate
       validate
       exec_callback :after_validate
-      return false unless self._errors.empty?
-      nested_docs.reduce true do |result,d|
+      nested_docs.reduce self._errors.empty? do |result,d|
         result &= d.valid?
       end
     end

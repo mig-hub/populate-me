@@ -693,6 +693,7 @@ describe 'PopulateMe::Document' do
   class Dodgy
     include PopulateMe::Document
     attr_accessor :prohibited, :number, :_log
+    def tricks; @tricks ||= []; end
     def validate
       self.number = self.number.to_i unless self.number.is_a? Integer
       error_on(:number, 'Is too high') if self.number==15
@@ -706,6 +707,13 @@ describe 'PopulateMe::Document' do
     after :validate do
       @_log ||= ''
       @_log << self.errors.size.to_s
+    end
+  end
+  class Dodgy::Trick
+    include PopulateMe::Document
+    attr_accessor :name
+    def validate
+      error_on(:name,'Is too cool') if self.name=='Artoo Deetoo'
     end
   end
 
@@ -723,6 +731,21 @@ describe 'PopulateMe::Document' do
       u.number = 15
       u.number.should==15
       u.valid?.should==false
+    end
+
+    it 'Handles validations even on nested docs' do
+      u = Dodgy.new
+      u.tricks << Dodgy::Trick.new(name: 'Artoo Deetoo')
+      u.valid?.should==false
+      u.tricks[0].errors[:name].should==['Is too cool']
+    end
+
+    it 'Checks nested docs validity even if main doc is invalid' do
+      u = Dodgy.new(prohibited: 'I dare')
+      u.tricks << Dodgy::Trick.new(name: 'Artoo Deetoo')
+      u.valid?.should==false
+      u.errors[:prohibited].should==['Is not allowed','Is not good']
+      u.tricks[0].errors[:name].should==['Is too cool']
     end
 
     it 'Uses callbacks around validation' do
