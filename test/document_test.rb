@@ -748,6 +748,23 @@ describe 'PopulateMe::Document' do
       u.tricks[0].errors[:name].should==['Is too cool']
     end
 
+    it 'Builds full error reports' do
+      u = Dodgy.new(prohibited: 'I dare')
+      u.tricks << Dodgy::Trick.new(name: 'Ceefree Peeyo')
+      u.tricks << Dodgy::Trick.new(name: 'Artoo Deetoo')
+      u.valid?.should==false
+      u.tricks[0].valid?.should==true
+      u.tricks[1].valid?.should==false
+      expected = {
+        prohibited: ['Is not allowed','Is not good'],
+        tricks: [
+          {},
+          {name: ['Is too cool']}
+        ]
+      }
+      u.error_report.should==expected
+    end
+
     it 'Uses callbacks around validation' do
       d = Dodgy.new prohibited: 'I dare'
       d.valid?.should==false

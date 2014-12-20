@@ -7,7 +7,7 @@ class Band
   attr_accessor :name, :awsome, :position
   def members; @members ||= []; end
   def validate
-    error_on(:name,"WFT") if self.name=='ZZ Top'
+    error_on(:name,"WTF") if self.name=='ZZ Top'
   end
 end
 class Band::Member
@@ -136,7 +136,8 @@ describe 'PopulateMe::API' do
     it 'Fails if the doc is invalid' do
       count = Band.documents.size
       res = API.post('/band', {params: {data: {name: 'ZZ Top'}}})
-      invalid_instance(res)
+      json = invalid_instance(res)
+      json['data'].should=={'name'=>['WTF']}
       Band.documents.size.should==count
     end
 
@@ -217,7 +218,8 @@ describe 'PopulateMe::API' do
     end
     it 'Fails if the document is invalid' do
       res = API.put('/band/2', {params: {data: {name: 'ZZ Top'}}})
-      invalid_instance(res)
+      json = invalid_instance(res)
+      json['data'].should=={'name'=>['WTF']}
       Band.admin_get('2').name.should!='ZZ Top'
     end
     it 'Updates documents' do

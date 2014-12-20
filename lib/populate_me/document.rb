@@ -341,6 +341,20 @@ module PopulateMe
       end
     end
     def validate; end
+    def error_report
+      report = self._errors.dup || {}
+      persistent_instance_variables.each do |var|
+        value = instance_variable_get var
+        if value.is_a? Array
+          k = var[1..-1].to_sym
+          report[k] = []
+          value.each do |d|
+            report[k] << d.error_report
+          end
+        end
+      end
+      report
+    end
 
     # Saving
     def save

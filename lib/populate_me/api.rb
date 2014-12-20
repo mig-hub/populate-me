@@ -31,10 +31,16 @@ class PopulateMe::API < Sinatra::Base
     if model_instance.valid?
       model_instance.save
       status 201
-      {'success'=>true,'message'=>'Created Successfully','data'=>model_instance.to_h}.to_json
+      {
+        'success'=>true,'message'=>'Created Successfully',
+        'data'=>model_instance.to_h
+      }.to_json
     else
       status 400
-      {'success'=>false,'message'=>'Invalid Document'}.to_json
+      {
+        'success'=>false,'message'=>'Invalid Document',
+        'data'=>model_instance.error_report
+      }.to_json
     end
   end
 
@@ -57,10 +63,16 @@ class PopulateMe::API < Sinatra::Base
     model_instance.set_from_hash params[:data], typecast: true
     if model_instance.valid?
       model_instance.save
-      {'success'=>true,'message'=>'Updated Successfully','data'=>model_instance.to_h}.to_json
+      {
+        'success'=>true,'message'=>'Updated Successfully',
+        'data'=>model_instance.to_h
+      }.to_json
     else
       status 400
-      {'success'=>false,'message'=>'Invalid Document'}.to_json
+      {
+        'success'=>false,'message'=>'Invalid Document',
+        'data'=>model_instance.error_report
+      }.to_json
     end
   end
 
