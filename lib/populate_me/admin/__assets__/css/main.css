@@ -154,6 +154,10 @@ fieldset {
   padding-left: 3em; padding-right: 0;
 }
 
+.invalid > label {
+  color: #dc322f;
+}
+
 
          /\
         / *\

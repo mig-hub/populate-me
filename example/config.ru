@@ -18,13 +18,16 @@ class BlogPost
   field :published, type: :boolean
   relationship :comments
   def validate
-    # error_on(:content,'Cannot be blank') if PopulateMe::Utils.blank?(self.content)
+    error_on(:content,'Cannot be blank') if PopulateMe::Utils.blank?(self.content)
   end
 end
 class BlogPost::Author
   # nested
   include PopulateMe::Document
   field :name
+  def validate
+    error_on(:name, 'Cannot be shit') if self.name=='shit'
+  end
 end
 class BlogPost::Comment
   # not nested

@@ -81,7 +81,7 @@
 
     <script id="template-form-field" type="x-tmpl-mustache">
       {{#wrap}}
-        <div class='field'>
+        <div class='field' data-field-name='{{field_name}}'>
           <label>{{label}}</label>
           <br>
           {{#adapted_field}}{{/adapted_field}}
@@ -116,7 +116,7 @@
     </script>
 
     <script id="template-list-field" type="x-tmpl-mustache">
-      <fieldset class='field'>
+      <fieldset class='field' data-field-name='{{field_name}}'>
         <legend>{{label}}</legend>
         {{#dasherized_class_name}}
           <p>
