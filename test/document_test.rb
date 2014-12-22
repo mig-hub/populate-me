@@ -1122,6 +1122,11 @@ describe 'PopulateMe::Document' do
         find_field(fields,:name)[:input_name].should=='data[bababa][][name]'
       end
 
+      it 'Does not allow the input_name_prefix to be nil' do
+        fields = SuperHeroTeam.new.to_admin_form[:fields]
+        find_field(fields,:name)[:input_name].should=='data[name]'
+      end
+
       it 'Includes nested documents' do
         hero = SuperHeroTeam::Member.new
         hero_form = hero.to_admin_form(input_name_prefix: 'data[members][]')
