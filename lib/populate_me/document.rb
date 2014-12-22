@@ -454,7 +454,7 @@ module PopulateMe
 
     # Forms
     def to_admin_form o={}
-      Utils.ensure_key o, :input_name_prefix, 'data'
+      o[:input_name_prefix] ||= 'data'
       class_item = {
         type: :hidden,
         input_name: "#{o[:input_name_prefix]}[_class]",
