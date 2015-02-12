@@ -115,6 +115,13 @@
       </select>
     </script>
 
+    <script id="template-attachment-field" type="x-tmpl-mustache">
+      {{#url}}
+        <img src='{{url}}' alt='Preview' width='150' /><br />
+      {{/url}}
+      <input type='file' name='{{input_name}}' {{{build_input_atrributes}}} />
+    </script>
+
     <script id="template-list-field" type="x-tmpl-mustache">
       <fieldset class='field' data-field-name='{{field_name}}'>
         <legend>{{label}}</legend>

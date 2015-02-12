@@ -4,15 +4,17 @@ $:.unshift File.expand_path('../../lib', __FILE__)
 # Models ##########
 
 require 'populate_me/mongo'
+require 'populate_me/attachment'
 require 'mongo'
 
-MONGO = Mongo::Connection.new
-DB    = MONGO['blog-populate-me-test']
+# MONGO = Mongo::Connection.new
+# DB    = MONGO['blog-populate-me-test']
 
 
 class BlogPost
   include PopulateMe::Document
   field :title, required: true
+  field :thumbnail, type: :attachment
   field :content, type: :text
   field :authors, type: :list
   field :published, type: :boolean
@@ -56,5 +58,6 @@ class Admin < PopulateMe::Admin
   ]
 end
 
+use PopulateMe::Attachment::Middleware
 run Admin
 

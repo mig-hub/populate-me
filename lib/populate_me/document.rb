@@ -58,6 +58,9 @@ module PopulateMe
         o[:wrap] = false unless o[:form_field]
         Utils.ensure_key o, :wrap, ![:hidden,:list].include?(o[:type])
         Utils.ensure_key o, :label, Utils.label_for_field(name)
+        if o[:type]==:attachment
+          o[:class_name] = Utils.guess_related_class_name(PopulateMe,o[:class_name]||:attachment)
+        end
         if o[:type]==:list
           o[:class_name] = Utils.guess_related_class_name(self.name,o[:class_name]||name)
           o[:dasherized_class_name] = Utils.dasherize_class_name o[:class_name]
@@ -257,6 +260,11 @@ module PopulateMe
       self
     end
 
+    def attachment f
+      attacher = Utils.resolve_class_name self.class.fields[f][:class_name]
+      attacher.new self, f
+    end
+
     # Typecasting
     def typecast k, v
       return Utils.automatic_typecast(v) unless self.class.fields.key?(k)
@@ -286,6 +294,16 @@ module PopulateMe
         nil
       end
     end
+    def typecast_attachment k, v
+      attached = self.attachment k
+      if Utils.blank? v
+        attached.delete
+        return nil
+      elsif v.is_a?(Hash)&&v.key?(:tempfile)
+        return attached.create v
+      end
+    end
+
 
     # Callbacks
     def exec_callback name
@@ -508,6 +526,10 @@ module PopulateMe
         end
         item[:select_options] = opts
       end
+    end
+
+    def outcast_attachment field, item, o={}
+      item[:url] = self.attachment(field).url
     end
 
   end
