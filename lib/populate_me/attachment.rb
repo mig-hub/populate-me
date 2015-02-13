@@ -32,6 +32,21 @@ module PopulateMe
       FileUtils.rm self.field_value
     end
 
+    def self.settings
+      @settings ||= {
+        root: '/',
+        url_prefix: Dir.tmpdir
+      }
+    end
+
+    def self.root path
+      self.settings[:root] = File.expand_path(path)
+    end
+
+    def self.url_prefix path
+      self.settings[:url_prefix] = path
+    end
+
     def self.inherited subclass
       subclass::Middleware.parent = subclass
     end
@@ -41,7 +56,12 @@ module PopulateMe
     end
 
     def self.middleware_options
-      [{urls: [Dir.tmpdir], root: '/'}]
+      [
+        {
+          urls: [self.settings[:url_prefix]], 
+          root: self.settings[:root]
+        }
+      ]
     end
 
     class Middleware
