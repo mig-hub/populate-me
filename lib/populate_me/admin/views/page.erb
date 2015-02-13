@@ -117,7 +117,9 @@
 
     <script id="template-attachment-field" type="x-tmpl-mustache">
       {{#url}}
-        <img src='{{url}}' alt='Preview' width='150' /><br />
+        <img src='{{url}}' alt='Preview' width='150' />
+        <button class='attachment-deleter'>x</button>
+        <br />
       {{/url}}
       <input type='file' name='{{input_name}}' {{{build_input_atrributes}}} />
     </script>
