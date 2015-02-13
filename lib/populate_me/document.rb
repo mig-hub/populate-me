@@ -15,6 +15,7 @@ module PopulateMe
       base.before :create, :ensure_id
       base.after :create, :ensure_not_new
       base.before :delete, :ensure_delete_related
+      base.before :delete, :ensure_delete_attachments
       base.after :delete, :ensure_new
     end
 
@@ -340,6 +341,13 @@ module PopulateMe
           klass.admin_find(query: {v[:foreign_key]=>self.id}).each do |d|
             d.delete
           end
+        end
+      end
+    end
+    def ensure_delete_attachments # before_delete
+      self.class.fields.each do |k,v|
+        if v[:type]==:attachment
+          self.attachment(k).delete
         end
       end
     end
