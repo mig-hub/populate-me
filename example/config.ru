@@ -4,7 +4,7 @@ $:.unshift File.expand_path('../../lib', __FILE__)
 # Models ##########
 
 require 'populate_me/mongo'
-require 'populate_me/attachment'
+require 'populate_me/file_system_attachment'
 require 'mongo'
 
 # MONGO = Mongo::Connection.new
@@ -14,7 +14,7 @@ require 'mongo'
 class BlogPost
   include PopulateMe::Document
   field :title, required: true
-  field :thumbnail, type: :attachment
+  field :thumbnail, type: :attachment, class_name: 'PopulateMe::FileSystemAttachment'
   field :content, type: :text
   field :authors, type: :list
   field :published, type: :boolean

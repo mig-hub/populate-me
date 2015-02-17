@@ -15,21 +15,41 @@ module PopulateMe
     def field_value
       self.document.__send__(field)
     end
+
+    def attachee_prefix
+      Utils.dasherize_class_name self.document.class.name
+    end
     
     def url version=:original
       self.field_value
     end
+
+    def location_root
+      self.class.settings[:root]
+    end
+
+    def location version=:original
+      File.join(self.location_root,self.field_value)
+    end
     
     def create hash
-      if !Utils.blank?(self.field_value) and File.exist?(self.field_value)
-        self.delete
-      end
+      self.delete
+      perform_create hash
+    end
+
+    def perform_create hash
       hash[:tempfile].path
+    end
+
+    def deletable? version=nil
+      !Utils.blank?(self.field_value) and File.exist?(self.location)
     end
 
     def delete version=nil
       # delete all if version is nil
-      FileUtils.rm self.field_value
+      if self.deletable?
+        FileUtils.rm self.location
+      end
     end
 
     def self.settings
