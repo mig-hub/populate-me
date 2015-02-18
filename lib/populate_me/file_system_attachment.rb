@@ -4,11 +4,15 @@ module PopulateMe
 
   class FileSystemAttachment < Attachment
 
-    def self.settings
-      @settings ||= {
-        root: File.expand_path('public'),
-        url_prefix: '/attachments'
-      }
+    class << self
+
+      def settings
+        @settings ||= {
+          root: File.expand_path('public'),
+          url_prefix: '/attachments'
+        }
+      end
+
     end
 
     def url version=:original

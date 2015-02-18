@@ -52,36 +52,40 @@ module PopulateMe
       end
     end
 
-    def self.settings
-      @settings ||= {
-        root: '/',
-        url_prefix: Dir.tmpdir
-      }
-    end
+    class << self
 
-    def self.root path
-      self.settings[:root] = File.expand_path(path)
-    end
-
-    def self.url_prefix path
-      self.settings[:url_prefix] = path
-    end
-
-    def self.inherited subclass
-      subclass::Middleware.parent = subclass
-    end
-
-    def self.middleware
-      Rack::Static
-    end
-
-    def self.middleware_options
-      [
-        {
-          urls: [self.settings[:url_prefix]], 
-          root: self.settings[:root]
+      def settings
+        @settings ||= {
+          root: '/',
+          url_prefix: Dir.tmpdir
         }
-      ]
+      end
+
+      def root path
+        self.settings[:root] = File.expand_path(path)
+      end
+
+      def url_prefix path
+        self.settings[:url_prefix] = path
+      end
+
+      def inherited subclass
+        subclass::Middleware.parent = subclass
+      end
+
+      def middleware
+        Rack::Static
+      end
+
+      def middleware_options
+        [
+          {
+            urls: [self.settings[:url_prefix]], 
+            root: self.settings[:root]
+          }
+        ]
+      end
+
     end
 
     class Middleware
