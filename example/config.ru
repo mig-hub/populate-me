@@ -10,8 +10,7 @@ require 'mongo'
 # MONGO = Mongo::Connection.new
 # DB    = MONGO['blog-populate-me-test']
 
-class BlogPost
-  include PopulateMe::Document
+class BlogPost < PopulateMe::Document
   field :title, required: true
   field :thumbnail, type: :attachment, class_name: 'PopulateMe::Attachment'
   field :content, type: :text
@@ -22,25 +21,22 @@ class BlogPost
     error_on(:content,'Cannot be blank') if PopulateMe::Utils.blank?(self.content)
   end
 end
-class BlogPost::Author
+class BlogPost::Author < PopulateMe::Document
   # nested
-  include PopulateMe::Document
   field :name
   def validate
     error_on(:name, 'Cannot be shit') if self.name=='shit'
   end
 end
-class BlogPost::Comment
+class BlogPost::Comment < PopulateMe::Document
   # not nested
-  include PopulateMe::Document 
   field :author, default: 'Anonymous'
   field :content, type: :text
   field :blog_post_id, type: :hidden
   position_field scope: :blog_post_id
 end
 
-class Article
-  include PopulateMe::Document
+class Article < PopulateMe::Document
   field :title
   field :content, type: :text
   position_field

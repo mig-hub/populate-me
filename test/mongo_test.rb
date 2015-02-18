@@ -17,13 +17,11 @@ describe 'PopulateMe::Mongo' do
   # It contains what is specific to a Mongo
   # database.
 
-  class CatFish
-    include PopulateMe::Mongo
+  class CatFish < PopulateMe::Mongo
     field :name
   end
   module Paradise
-    class CatFish
-      include PopulateMe::Mongo
+    class CatFish < PopulateMe::Mongo
       field :name
     end
   end
@@ -145,34 +143,32 @@ describe 'PopulateMe::Mongo' do
 
   describe 'Default Sorting' do
 
-    class Soldier
-      include PopulateMe::Mongo
+    class MongoSoldier < PopulateMe::Mongo
       field :name
       field :position
     end
-    Soldier.new(name: 'Bob', position: 2).perform_create
-    Soldier.new(name: 'Albert', position: 3).perform_create
-    Soldier.new(name: 'Tony', position: 1).perform_create
+    MongoSoldier.new(name: 'Bob', position: 2).perform_create
+    MongoSoldier.new(name: 'Albert', position: 3).perform_create
+    MongoSoldier.new(name: 'Tony', position: 1).perform_create
 
     it 'Uses Doc::sort_by to determine the order' do
-      Soldier.sort_by(:name).admin_find[0].name.should=='Albert'
-      Soldier.sort_by(:name,:desc).admin_find[0].name.should=='Tony'
-      Soldier.sort_by(:position).admin_find[0].position.should==1
-      lambda{ Soldier.sort_by(:name,0) }.should.raise(ArgumentError)
-      lambda{ Soldier.sort_by(:namespace) }.should.raise(ArgumentError)
+      MongoSoldier.sort_by(:name).admin_find[0].name.should=='Albert'
+      MongoSoldier.sort_by(:name,:desc).admin_find[0].name.should=='Tony'
+      MongoSoldier.sort_by(:position).admin_find[0].position.should==1
+      lambda{ MongoSoldier.sort_by(:name,0) }.should.raise(ArgumentError)
+      lambda{ MongoSoldier.sort_by(:namespace) }.should.raise(ArgumentError)
     end
 
     it 'Can write Mongo-specific sort if a Hash or an Array is passed' do
-      Soldier.sort_by([[:name,:desc]]).admin_find[0].name.should=='Tony'
-      Soldier.sort_by({name: :desc}).admin_find[0].name.should=='Tony'
+      MongoSoldier.sort_by([[:name,:desc]]).admin_find[0].name.should=='Tony'
+      MongoSoldier.sort_by({name: :desc}).admin_find[0].name.should=='Tony'
     end
 
   end
 
   describe 'Manual Sorting' do
 
-    class MongoChampion
-      include PopulateMe::Mongo
+    class MongoChampion < PopulateMe::Mongo
       field :position
     end
     MongoChampion.new(id: 'a').perform_create

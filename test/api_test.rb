@@ -2,16 +2,14 @@ require 'bacon'
 $:.unshift File.expand_path('../../lib', __FILE__)
 
 require 'populate_me/document'
-class Band
-  include PopulateMe::Document
+class Band < PopulateMe::Document
   attr_accessor :name, :awsome, :position
   def members; @members ||= []; end
   def validate
     error_on(:name,"WTF") if self.name=='ZZ Top'
   end
 end
-class Band::Member
-  include PopulateMe::Document
+class Band::Member < PopulateMe::Document
   attr_accessor :name
 end
 Band.new(id: '1', name: 'Gang of Four').save

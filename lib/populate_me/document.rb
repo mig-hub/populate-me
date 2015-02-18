@@ -5,22 +5,22 @@ module PopulateMe
   class MissingDocumentError < StandardError; end
   class MissingAttachmentClassError < StandardError; end
 
-  module Document
+  class Document
 
-    def self.included base 
-      base.extend ClassMethods
-      [:save,:create,:update,:delete].each do |cb|
-        base.before cb, :recurse_callback
-        base.after cb, :recurse_callback
+    class << self
+
+      def inherited base 
+        [:save,:create,:update,:delete].each do |cb|
+          base.before cb, :recurse_callback
+          base.after cb, :recurse_callback
+        end
+        base.before :create, :ensure_id
+        base.after :create, :ensure_not_new
+        base.before :delete, :ensure_delete_related
+        base.before :delete, :ensure_delete_attachments
+        base.after :delete, :ensure_new
       end
-      base.before :create, :ensure_id
-      base.after :create, :ensure_not_new
-      base.before :delete, :ensure_delete_related
-      base.before :delete, :ensure_delete_attachments
-      base.after :delete, :ensure_new
-    end
 
-    module ClassMethods
       attr_writer :fields, :documents
       attr_accessor :callbacks, :label_field
 
@@ -428,7 +428,7 @@ module PopulateMe
     end
 
     # Admin list
-    module ClassMethods
+    class << self
       def sort_field_for o={}
         filter = o[:params][:filter]
         return nil if !filter.nil?&&filter.size>1

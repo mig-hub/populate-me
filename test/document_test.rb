@@ -18,14 +18,11 @@ describe 'PopulateMe::Document' do
 
   describe 'Descriptive methods' do
 
-    class Catalogue
-      include PopulateMe::Document
+    class Catalogue < PopulateMe::Document
     end
-    class Catalogue::Chapter
-      include PopulateMe::Document
+    class Catalogue::Chapter < PopulateMe::Document
     end
-    class Catalogue::Chapter::AttachedFile
-      include PopulateMe::Document
+    class Catalogue::Chapter::AttachedFile < PopulateMe::Document
       attr_accessor :name, :size
       label :name
     end
@@ -60,8 +57,7 @@ describe 'PopulateMe::Document' do
 
   end
 
-  class Couch
-    include PopulateMe::Document
+  class Couch < PopulateMe::Document
     field :colour, required: true
     field :capacity, type: :integer, wrap: false
     field :price, type: :price, required: true
@@ -74,13 +70,11 @@ describe 'PopulateMe::Document' do
     field :summary, type: :text
   end
 
-  class Couch::Place
-    include PopulateMe::Document
+  class Couch::Place < PopulateMe::Document
     field :position, type: :integer
   end
 
-  class FieldlessDoc
-    include PopulateMe::Document
+  class FieldlessDoc < PopulateMe::Document
     attr_accessor :name
   end
 
@@ -156,14 +150,12 @@ describe 'PopulateMe::Document' do
 
   end
 
-  class Casanova
-    include PopulateMe::Document
+  class Casanova < PopulateMe::Document
     relationship :girlfriends, max: 42
     relationship :babes, class_name: '::Girlfriend', label: 'Babies', foreign_key: 'casanova_id'
   end
 
-  class RelationshiplessDoc
-    include PopulateMe::Document
+  class RelationshiplessDoc < PopulateMe::Document
     attr_accessor :name
   end
 
@@ -200,8 +192,7 @@ describe 'PopulateMe::Document' do
     # We typecast values which come from post requests, a CVS file or the like.
     # Not sure these methods need to be instance methods but just in case...
 
-    class Outcast
-      include PopulateMe::Document
+    class Outcast < PopulateMe::Document
       field :name
       field :shared, type: :boolean
       field :age, type: :integer
@@ -239,13 +230,11 @@ describe 'PopulateMe::Document' do
 
   end
 
-  class Egg
-    include PopulateMe::Document
+  class Egg < PopulateMe::Document
     attr_accessor :size, :taste, :_hidden
   end
 
-  class AmazingEgg
-    include PopulateMe::Document
+  class AmazingEgg < PopulateMe::Document
     attr_accessor :hidden, :_hidden
     field :size
     field :taste
@@ -319,8 +308,7 @@ describe 'PopulateMe::Document' do
 
   describe 'Set Defaults' do
 
-    class Tap
-      include PopulateMe::Document
+    class Tap < PopulateMe::Document
       field :status, default: 'closed'
       field :proc_status, default: proc{'closed'}
       field :method_status, default: :status
@@ -346,8 +334,7 @@ describe 'PopulateMe::Document' do
 
   describe 'Callbacks' do
 
-    class Hamburger
-      include PopulateMe::Document
+    class Hamburger < PopulateMe::Document
       attr_accessor :taste
 
       register_callback :layers, :bread
@@ -441,8 +428,7 @@ describe 'PopulateMe::Document' do
 
   end
 
-  class User
-    include PopulateMe::Document
+  class User < PopulateMe::Document
     attr_accessor :first_name, :last_name
   end
 
@@ -461,8 +447,7 @@ describe 'PopulateMe::Document' do
 
   describe 'Creation From Hash' do
 
-    class Tomato
-      include PopulateMe::Document
+    class Tomato < PopulateMe::Document
       attr_accessor :taste
     end
 
@@ -491,14 +476,12 @@ describe 'PopulateMe::Document' do
 
   end
 
-  class Garlic
-    include PopulateMe::Document
+  class Garlic < PopulateMe::Document
     attr_accessor :strength, :shape, :bags
     def bags; @bags ||= []; end
   end
 
-  class Garlic::Bag
-    include PopulateMe::Document
+  class Garlic::Bag < PopulateMe::Document
     attr_accessor :index
   end
 
@@ -551,8 +534,7 @@ describe 'PopulateMe::Document' do
 
   end
 
-  class Ball
-    include PopulateMe::Document
+  class Ball < PopulateMe::Document
     attr_accessor :diameter
   end
 
@@ -580,13 +562,11 @@ describe 'PopulateMe::Document' do
 
   end
 
-  class Haircut
-    include PopulateMe::Document
+  class Haircut < PopulateMe::Document
     attr_accessor :name
   end
 
-  class SpecialHaircut
-    include PopulateMe::Document
+  class SpecialHaircut < PopulateMe::Document
     field :name, type: :id
     field :height
   end
@@ -635,8 +615,7 @@ describe 'PopulateMe::Document' do
 
   describe 'Default Sorting' do
 
-    class Soldier
-      include PopulateMe::Document
+    class Soldier < PopulateMe::Document
       attr_accessor :name, :position
     end
     Soldier.new(name: 'Bob', position: 2).perform_create
@@ -661,8 +640,7 @@ describe 'PopulateMe::Document' do
 
   describe 'Manual Sorting' do
 
-    class Champion
-      include PopulateMe::Document
+    class Champion < PopulateMe::Document
       field :position, type: :position
       field :scoped_position, type: :position, scope: :team_id
     end
@@ -690,8 +668,7 @@ describe 'PopulateMe::Document' do
 
   end
 
-  class Dodgy
-    include PopulateMe::Document
+  class Dodgy < PopulateMe::Document
     attr_accessor :prohibited, :number, :_log
     def tricks; @tricks ||= []; end
     def validate
@@ -709,8 +686,7 @@ describe 'PopulateMe::Document' do
       @_log << self.errors.size.to_s
     end
   end
-  class Dodgy::Trick
-    include PopulateMe::Document
+  class Dodgy::Trick < PopulateMe::Document
     attr_accessor :name
     def validate
       error_on(:name,'Is too cool') if self.name=='Artoo Deetoo'
@@ -773,8 +749,7 @@ describe 'PopulateMe::Document' do
 
   end
 
-  class Death
-    include PopulateMe::Document
+  class Death < PopulateMe::Document
     attr_accessor :pain_level, :was_alive, :is_dead
     before :delete do
       @was_alive = !self.class.admin_get(self.id).nil?
@@ -784,19 +759,16 @@ describe 'PopulateMe::Document' do
     end
   end
 
-  class Parent
-    include PopulateMe::Document
+  class Parent < PopulateMe::Document
     field :name
     relationship :children, class_name: :child
     relationship :vagrants, dependent: false
   end
-  class Parent::Child
-    include PopulateMe::Document
+  class Parent::Child < PopulateMe::Document
     field :name
     field :parent_id, type: :hidden
   end
-  class Parent::Vagrant
-    include PopulateMe::Document
+  class Parent::Vagrant < PopulateMe::Document
     field :name
     field :parent_id, type: :hidden
   end
@@ -839,8 +811,7 @@ describe 'PopulateMe::Document' do
 
   end
 
-  class SuperHero
-    include PopulateMe::Document
+  class SuperHero < PopulateMe::Document
     attr_accessor :name, :power, :_log
     def validate
       error_on(:power,'Needed') if power.nil?
@@ -888,8 +859,7 @@ describe 'PopulateMe::Document' do
 
   describe 'Composite document' do
 
-    class CookBook
-      include PopulateMe::Document
+    class CookBook < PopulateMe::Document
       attr_accessor :title
       def recipes; @recipes ||= []; end
       EXAMPLE = {
@@ -910,8 +880,7 @@ describe 'PopulateMe::Document' do
       }
       before :cook, :recurse_callback
     end
-    class CookBook::Recipe
-      include PopulateMe::Document
+    class CookBook::Recipe < PopulateMe::Document
       attr_accessor :name, :_log
       def ingredients; @ingredients ||= []; end
       before :cook, :recurse_callback
@@ -919,8 +888,7 @@ describe 'PopulateMe::Document' do
         @_log = 'Learn'
       end
     end
-    class CookBook::Recipe::Ingredient
-      include PopulateMe::Document
+    class CookBook::Recipe::Ingredient < PopulateMe::Document
       attr_accessor :name, :_log
       def validate
         error_on(:name,'Dangerous') if self.name=='Poison'
@@ -1003,8 +971,7 @@ describe 'PopulateMe::Document' do
 
   describe 'Admin related methods' do
 
-    class SuperHeroTeam
-      include PopulateMe::Document
+    class SuperHeroTeam < PopulateMe::Document
       field :name
       field :score, form_field: false
       field :active, type: :boolean, wrap: false
@@ -1031,8 +998,7 @@ describe 'PopulateMe::Document' do
       end
     end
 
-    class SuperHeroTeam::Member
-      include PopulateMe::Document
+    class SuperHeroTeam::Member < PopulateMe::Document
     end
 
     def find_field fields, name

@@ -2,17 +2,13 @@ require 'populate_me/document'
 
 module PopulateMe
 
-  module Mongo
+  class Mongo < Document
 
-    include Document 
+    class << self
 
-    def self.included base 
-      Document.included(base)
-      base.extend ClassMethods
-    end
-
-    module ClassMethods
-      include Document::ClassMethods
+      def inherited base 
+        PopulateMe::Document.inherited base
+      end
 
       # Mongo specific method
       def collection_name name=nil
@@ -106,8 +102,4 @@ module PopulateMe
     
   end
 end
-
-
-#  TODO 
-# take care of before and after callbacks
 
