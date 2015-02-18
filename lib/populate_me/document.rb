@@ -3,6 +3,7 @@ require 'populate_me/utils'
 module PopulateMe
 
   class MissingDocumentError < StandardError; end
+  class MissingAttachmentClassError < StandardError; end
 
   module Document
 
@@ -60,7 +61,7 @@ module PopulateMe
         Utils.ensure_key o, :wrap, ![:hidden,:list].include?(o[:type])
         Utils.ensure_key o, :label, Utils.label_for_field(name)
         if o[:type]==:attachment
-          o[:class_name] = Utils.guess_related_class_name(PopulateMe,o[:class_name]||:attachment)
+          raise MissingAttachmentClassError, "No attachment class was provided for the #{self.name} field: #{name}" unless o.key?(:class_name)
         end
         if o[:type]==:list
           o[:class_name] = Utils.guess_related_class_name(self.name,o[:class_name]||name)
