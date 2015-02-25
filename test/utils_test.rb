@@ -118,6 +118,19 @@ describe 'PopulateMe::Utils' do
 
   end
 
+  describe '#deep_copy' do
+
+    it 'Works on nested objects' do
+      original = {nested_hash: {one: 1}, nested_array: [1]}
+      copy = PopulateMe::Utils.deep_copy(original)
+      copy[:nested_hash][:one] = 2
+      copy[:nested_array] << 2
+      original[:nested_hash].should=={one: 1}
+      original[:nested_array].should==[1]
+    end
+
+  end
+
   describe '#ensure_key' do
 
     it 'Sets the key if the key did not exist' do

@@ -61,6 +61,11 @@ module PopulateMe
     end
     module_function :get_value
 
+    def deep_copy original
+      Marshal.load(Marshal.dump(original))
+    end
+    module_function :deep_copy
+
     def ensure_key h, k, v
       h[k] = v unless h.key?(k)
       h[k]
