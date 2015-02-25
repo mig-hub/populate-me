@@ -8,6 +8,8 @@ MONGO.drop_database('populate-me-test')
 MONGO.drop_database('populate-me-test-other')
 DB = MONGO['populate-me-test']
 OTHER_DB = MONGO['populate-me-test-other']
+class NoMongoDB < PopulateMe::Mongo; end
+PopulateMe::Mongo.set :db, DB
 
 
 describe 'PopulateMe::Mongo' do
@@ -40,28 +42,25 @@ describe 'PopulateMe::Mongo' do
 
   describe 'Database connection' do 
 
-    it 'Should have db set by default' do 
-      CatFish.db.should == DB
+    it 'Should raise if db is not set' do 
+      lambda{ NoMongoDB.collection }.should.raise(PopulateMe::MissingMongoDBError)
+    end
+
+    it 'Should have db set by the parent class' do
+      CatFish.settings.db.should == DB
     end
 
     it 'Can override db' do 
-      CatFish.db(OTHER_DB)
-      CatFish.db.should == OTHER_DB
-      CatFish.db(DB)
-      CatFish.db.should == DB
+      CatFish.set :db, OTHER_DB
+      CatFish.settings.db.should == OTHER_DB
+      CatFish.set :db, DB
+      CatFish.settings.db.should == DB
     end
 
     it 'Should set DB collection to dasherized full class name by default' do 
-      CatFish.collection_name.should == "cat-fish"
-      Paradise::CatFish.collection_name.should == "paradise--cat-fish"
+      CatFish.settings.collection_name.should == "cat-fish"
+      Paradise::CatFish.settings.collection_name.should == "paradise--cat-fish"
     end
-
-    it 'Should override db collection name' do 
-      CatFish.collection_name('dog-fish')
-      CatFish.collection_name.should == "dog-fish"
-      CatFish.collection_name('cat-fish')
-      CatFish.collection_name.should == "cat-fish"
-    end 
 
     it 'Finds collection in DB' do 
       CatFish.collection.name.should == DB['cat-fish'].name

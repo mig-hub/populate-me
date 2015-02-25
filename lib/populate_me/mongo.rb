@@ -2,33 +2,20 @@ require 'populate_me/document'
 
 module PopulateMe
 
+  class MissingMongoDBError < StandardError; end
+
   class Mongo < Document
 
     class << self
 
-      def inherited base 
-        PopulateMe::Document.inherited base
-      end
-
-      # Mongo specific method
-      def collection_name name=nil
-        if name==nil
-          @collection_name ||= Utils.dasherize_class_name self.name
-        else
-          @collection_name = name
-        end
-      end
-
-      def db new_db=nil
-        if new_db==nil
-          @db ||= DB 
-        else
-          @db = new_db
-        end
+      def inherited sub 
+        super
+        sub.set :collection_name, Utils.dasherize_class_name(sub.name)
       end
 
       def collection
-        db[collection_name]
+        raise MissingMongoDBError, "Document class #{self.name} does not have a Mongo database." if settings.db.nil?
+        settings.db[settings.collection_name]
       end
 
       def bulk o={}

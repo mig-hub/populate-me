@@ -1,4 +1,5 @@
 require 'populate_me/utils'
+require 'ostruct'
 
 module PopulateMe
 
@@ -9,20 +10,14 @@ module PopulateMe
 
     class << self
 
-      def inherited base 
-        [:save,:create,:update,:delete].each do |cb|
-          base.before cb, :recurse_callback
-          base.after cb, :recurse_callback
-        end
-        base.before :create, :ensure_id
-        base.after :create, :ensure_not_new
-        base.before :delete, :ensure_delete_related
-        base.before :delete, :ensure_delete_attachments
-        base.after :delete, :ensure_new
+      def inherited sub 
+        super
+        sub.callbacks = Utils.deep_copy callbacks
+        sub.settings = settings.dup # no deep copy because of Mongo.settings.db
       end
 
       attr_writer :fields, :documents
-      attr_accessor :callbacks, :label_field
+      attr_accessor :callbacks, :settings, :label_field
 
       def to_s
         super.gsub(/[A-Z]/, ' \&')[1..-1].gsub('::','')
@@ -61,7 +56,9 @@ module PopulateMe
         Utils.ensure_key o, :wrap, ![:hidden,:list].include?(o[:type])
         Utils.ensure_key o, :label, Utils.label_for_field(name)
         if o[:type]==:attachment
-          raise MissingAttachmentClassError, "No attachment class was provided for the #{self.name} field: #{name}" unless o.key?(:class_name)
+          Utils.ensure_key o, :class_name, settings.default_attachment_class
+          raise MissingAttachmentClassError, "No attachment class was provided for the #{self.name} field: #{name}" if o[:class_name].nil?
+          o[:class_name] = o[:class_name].name unless o[:class_name].is_a?(String)
         end
         if o[:type]==:list
           o[:class_name] = Utils.guess_related_class_name(self.name,o[:class_name]||name)
@@ -152,12 +149,12 @@ module PopulateMe
           options = item || {}
           item = block
         end
-        @callbacks ||= {}
-        @callbacks[name] ||= []
+        self.callbacks ||= {}
+        self.callbacks[name] ||= []
         if options[:prepend]
-          @callbacks[name].unshift item
+          self.callbacks[name].unshift item
         else
-          @callbacks[name] << item
+          self.callbacks[name] << item
         end
       end
       def before name, item=nil, options={}, &block
@@ -165,6 +162,11 @@ module PopulateMe
       end
       def after name, item=nil, options={}, &block
         register_callback "after_#{name}", item, options, &block
+      end
+
+      # inheritable settings
+      def set name, value
+        self.settings[name] = value
       end
 
     end
@@ -267,6 +269,12 @@ module PopulateMe
       attacher.new self, f
     end
 
+    # class settings
+    def settings
+      self.class.settings
+    end
+    self.settings = OpenStruct.new
+
     # Typecasting
     def typecast k, v
       return Utils.automatic_typecast(v) unless self.class.fields.key?(k)
@@ -308,6 +316,7 @@ module PopulateMe
 
 
     # Callbacks
+    #
     def exec_callback name
       name = name.to_sym
       return self if self.class.callbacks[name].nil?
@@ -321,20 +330,29 @@ module PopulateMe
       end
       self
     end
+
     def recurse_callback name
       nested_docs.each do |d|
         d.exec_callback name
       end
     end
-    def ensure_id # before_create
+    [:save,:create,:update,:delete].each do |cb|
+      before cb, :recurse_callback
+      after cb, :recurse_callback
+    end
+
+    def ensure_id
       if self.id.nil?
         self.id = Utils::generate_random_id
       end
       self
     end
-    def ensure_new; self._is_new = true; end # after_delete
-    def ensure_not_new; self._is_new = false; end # after_create
-    def ensure_delete_related # before_delete
+    before :create, :ensure_id
+
+    def ensure_not_new; self._is_new = false; end
+    after :create, :ensure_not_new
+
+    def ensure_delete_related
       self.class.relationships.each do |k,v|
         if v[:dependent]
           klass = Utils.resolve_class_name v[:class_name]
@@ -345,13 +363,19 @@ module PopulateMe
         end
       end
     end
-    def ensure_delete_attachments # before_delete
+    before :delete, :ensure_delete_related
+
+    def ensure_delete_attachments
       self.class.fields.each do |k,v|
         if v[:type]==:attachment
           self.attachment(k).delete
         end
       end
     end
+    before :delete, :ensure_delete_attachments
+
+    def ensure_new; self._is_new = true; end
+    after :delete, :ensure_new
 
     # Validation
     def error_on k,v 

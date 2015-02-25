@@ -10,9 +10,11 @@ require 'mongo'
 # MONGO = Mongo::Connection.new
 # DB    = MONGO['blog-populate-me-test']
 
+PopulateMe::Document.set :default_attachment_class, PopulateMe::Attachment
+
 class BlogPost < PopulateMe::Document
   field :title, required: true
-  field :thumbnail, type: :attachment, class_name: 'PopulateMe::Attachment'
+  field :thumbnail, type: :attachment
   field :content, type: :text
   field :authors, type: :list
   field :published, type: :boolean

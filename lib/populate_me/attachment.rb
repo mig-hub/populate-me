@@ -1,15 +1,59 @@
 require "populate_me/utils"
 require "fileutils"
+require "ostruct"
 
 module PopulateMe
 
   class Attachment
+
+    class << self
+
+      attr_accessor :settings
+
+      # inheritable settings
+      def set name, value
+        self.settings[name] = value
+      end
+
+
+      def root path
+        settings.root = File.expand_path(path)
+      end
+
+      def url_prefix path
+        settings.url_prefix = path
+      end
+
+      def inherited sub
+        super
+        sub.settings = settings.dup
+        sub::Middleware.parent = sub
+      end
+
+      def middleware
+        Rack::Static
+      end
+
+      def middleware_options
+        [
+          {
+            urls: [settings.url_prefix], 
+            root: settings.root
+          }
+        ]
+      end
+
+    end
 
     attr_accessor :document, :field
 
     def initialize doc, field
       @document = doc
       @field = field
+    end
+
+    def settings
+      self.class.settings
     end
 
     def field_value
@@ -25,7 +69,7 @@ module PopulateMe
     end
 
     def location_root
-      self.class.settings[:root]
+      settings.root
     end
 
     def location version=:original
@@ -52,41 +96,9 @@ module PopulateMe
       end
     end
 
-    class << self
-
-      def settings
-        @settings ||= {
-          root: '/',
-          url_prefix: Dir.tmpdir
-        }
-      end
-
-      def root path
-        self.settings[:root] = File.expand_path(path)
-      end
-
-      def url_prefix path
-        self.settings[:url_prefix] = path
-      end
-
-      def inherited subclass
-        subclass::Middleware.parent = subclass
-      end
-
-      def middleware
-        Rack::Static
-      end
-
-      def middleware_options
-        [
-          {
-            urls: [self.settings[:url_prefix]], 
-            root: self.settings[:root]
-          }
-        ]
-      end
-
-    end
+    self.settings = OpenStruct.new
+    set :root, '/'
+    set :url_prefix, Dir.tmpdir
 
     class Middleware
 
