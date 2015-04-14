@@ -82,7 +82,11 @@ module PopulateMe
     end
 
     def perform_create hash
-      hash[:tempfile].path
+      # Rack 1.6 deletes multipart files after request
+      src = hash[:tempfile].path
+      dest = "#{File.dirname(src)}/PopulateMe-#{File.basename(src)}"
+      FileUtils.copy_entry(src,dest) 
+      dest
     end
 
     def deletable? version=nil
