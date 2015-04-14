@@ -471,6 +471,41 @@ describe 'PopulateMe::Document' do
       lambda{Tomato.from_hash(42)}.should.raise(TypeError)
     end
 
+    describe 'with schema/fields' do
+
+      class House < PopulateMe::Document
+        field :price, type: :price
+        field :rooms, type: :list
+      end
+      class House::Room < PopulateMe::Document
+        field :width, type: :integer
+      end
+      
+      before do
+        @h = {
+          '_class'=>'House',
+          'price'=>'42.99',
+          'rooms'=>[
+            {
+              '_class'=>'House::Room',
+              'width'=>'42'
+            }
+          ]
+        }
+      end
+
+      it 'Typecasts when the option is on' do
+        House.new.set_from_hash(@h).price.should=='42.99'
+        House.new.set_from_hash(@h,{typecast: true}).price.should==4299
+      end
+
+      it 'Typecasts the nested documents when the option is on' do
+        House.new.set_from_hash(@h).rooms[0].width.should=='42'
+        House.new.set_from_hash(@h,{typecast: true}).rooms[0].width.should==42
+      end
+
+    end
+
     # it 'Can be created from Post' do
     # end
 

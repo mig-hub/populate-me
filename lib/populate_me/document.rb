@@ -253,7 +253,7 @@ module PopulateMe
         if v.is_a? Array
           __send__(k.to_sym).clear
           v.each do |d|
-            obj =  Utils.resolve_class_name(d['_class']).new.set_from_hash(d)
+            obj =  Utils.resolve_class_name(d['_class']).new.set_from_hash(d,o)
             __send__(k.to_sym) << obj
           end
         else
