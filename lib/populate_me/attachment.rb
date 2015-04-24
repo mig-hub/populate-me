@@ -96,8 +96,12 @@ module PopulateMe
     def delete version=nil
       # delete all if version is nil
       if self.deletable?
-        FileUtils.rm self.location
+        perform_delete version
       end
+    end
+
+    def perform_delete version=nil
+      FileUtils.rm self.location
     end
 
     self.settings = OpenStruct.new
@@ -108,6 +112,9 @@ module PopulateMe
 
       # Used for proxing a rack middleware adapted to the attachment system.
       # The options are then taken from the attachment class.
+      # It can be used in rackup file as:
+      #
+      # use AtachmentClass::Middleware
 
       class << self
         attr_accessor :parent
