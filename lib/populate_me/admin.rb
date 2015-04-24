@@ -15,8 +15,8 @@ class PopulateMe::Admin < Sinatra::Base
   set :index_path, '/menu'
   enable :cerberus
   set :cerberus_active, Proc.new{
-    const_defined?(:Cerberus) &&
-    ENV['CERBERUS_PASS'] &&
+    Kernel.const_defined?(:Cerberus) &&
+    !!ENV['CERBERUS_PASS'] &&
     settings.cerberus?
   }
   set :logout_path, Proc.new{ settings.cerberus_active ? '/logout' : false }

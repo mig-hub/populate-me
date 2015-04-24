@@ -24,6 +24,7 @@ module PopulateMe
 
     def resolve_class_name s, context=Kernel
       current, *payload = s.to_s.split('::')
+      raise(NameError) if current.nil?
       const = context.const_get(current)
       if payload.empty?
         const
