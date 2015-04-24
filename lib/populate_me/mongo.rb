@@ -1,4 +1,5 @@
 require 'populate_me/document'
+require 'mongo'
 
 module PopulateMe
 
