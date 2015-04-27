@@ -3,9 +3,9 @@ $:.unshift File.expand_path('../../lib', __FILE__)
 
 # Models ##########
 
-require 'populate_me/mongo'
+require 'populate_me/document'
 require 'populate_me/attachment'
-require 'mongo'
+# require 'mongo'
 
 # MONGO = Mongo::Connection.new
 # DB    = MONGO['blog-populate-me-test']
