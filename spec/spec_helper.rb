@@ -26,7 +26,6 @@ RSpec::Matchers.define :be_json do
   match do |res|
     result = res.content_type=='application/json'
     result &&=res.status==@code unless @code.nil?
-    result &&=res.status==@code unless @code.nil?
     result
   end
   chain :with_code do |code|
