@@ -16,47 +16,6 @@ describe 'PopulateMe::Document' do
   # in memory. Which means it is only for tests and conceptual
   # understanding.
 
-  describe 'Descriptive methods' do
-
-    class Catalogue < PopulateMe::Document
-    end
-    class Catalogue::Chapter < PopulateMe::Document
-    end
-    class Catalogue::Chapter::AttachedFile < PopulateMe::Document
-      attr_accessor :name, :size
-      label :name
-    end
-
-    it 'Has a friendly name on Class::to_s' do
-      Catalogue::Chapter::AttachedFile.name.should=='Catalogue::Chapter::AttachedFile'
-      Catalogue::Chapter::AttachedFile.to_s.should=='Catalogue Chapter Attached File'
-    end
-
-    it 'Has a version for name without modules' do
-      Catalogue.to_s_short.should=='Catalogue'
-      Catalogue::Chapter::AttachedFile.to_s_short.should=='Attached File'
-    end
-
-    it 'Has a plural version which only adds a `s` by default' do
-      Catalogue::Chapter::AttachedFile.to_s_plural.should=='Catalogue Chapter Attached Files'
-    end
-
-    it 'Uses the label variable as a description for instances when there is one' do
-      file = Catalogue::Chapter::AttachedFile.new
-      file.name = 'file.pdf'
-      file.size = '300KB'
-      file.to_s.should=='file.pdf'
-    end
-
-    it 'Uses a default name instead when the label field is blank or not set' do
-      file = Catalogue::Chapter::AttachedFile.new
-      file.to_s.should==file.inspect
-      Catalogue::Chapter::AttachedFile.label_field = nil
-      file.to_s.should==file.inspect
-    end
-
-  end
-
   class Couch < PopulateMe::Document
     field :colour, required: true
     field :capacity, type: :integer, wrap: false
@@ -187,49 +146,6 @@ describe 'PopulateMe::Document' do
 
   end
 
-  describe 'Typecasting' do
-
-    # We typecast values which come from post requests, a CVS file or the like.
-    # Not sure these methods need to be instance methods but just in case...
-
-    class Outcast < PopulateMe::Document
-      field :name
-      field :shared, type: :boolean
-      field :age, type: :integer
-      field :salary, type: :price
-      field :dob, type: :date
-      field :when, type: :datetime
-    end
-
-    it 'Uses automatic or specific typecast when relevant' do
-      Outcast.new.typecast(:name,nil).should==nil
-      Outcast.new.typecast(:name,'').should==nil
-      Outcast.new.typecast(:name,'Bob').should=='Bob'
-      Outcast.new.typecast(:name,'5').should=='5'
-      Outcast.new.typecast(:shared,'true').should==true
-      Outcast.new.typecast(:shared,'false').should==false
-      Outcast.new.typecast(:age,'42').should==42
-      Outcast.new.typecast(:age,'42 yo').should==42
-      Outcast.new.typecast(:age,'42.50').should==42
-      Outcast.new.typecast(:salary,'42').should==4200
-      Outcast.new.typecast(:salary,'42.50').should==4250
-      Outcast.new.typecast(:salary,'42.5').should==4250
-      Outcast.new.typecast(:salary,'$42.5').should==4250
-      Outcast.new.typecast(:salary,'42.5 Dollars').should==4250
-      Outcast.new.typecast(:salary,'').should==nil
-      Outcast.new.typecast(:dob,'').should==nil
-      Outcast.new.typecast(:dob,'10/11').should==nil
-      Outcast.new.typecast(:dob,'10/11/1979').should==Date.parse('10/11/1979')
-      Outcast.new.typecast(:dob,'10-11-1979').should==Date.parse('10/11/1979')
-      Outcast.new.typecast(:when,'').should==nil
-      Outcast.new.typecast(:when,'10/11').should==nil
-      Outcast.new.typecast(:when,'10/11/1979').should==nil
-      Outcast.new.typecast(:when,'10/11/1979 12:30:4').should==Time.utc(1979,11,10,12,30,4)
-      Outcast.new.typecast(:when,'10-11-1979 12:30:4').should==Time.utc(1979,11,10,12,30,4)
-    end
-
-  end
-
   class Egg < PopulateMe::Document
     attr_accessor :size, :taste, :_hidden
   end
@@ -328,102 +244,6 @@ describe 'PopulateMe::Document' do
       tap.status.should=='open'
       tap.set_defaults(force: true)
       tap.status.should=='closed'
-    end
-
-  end
-
-  describe 'Callbacks' do
-
-    class Hamburger < PopulateMe::Document
-      attr_accessor :taste
-
-      register_callback :layers, :bread
-      register_callback :layers, :cheese
-      register_callback :layers do
-        self.taste
-      end
-
-      register_callback :after_cook, :add_salad
-      register_callback :after_cook do
-        taste << ' with more cheese'
-      end
-      def add_salad
-        taste << ' with salad'
-      end
-
-      register_callback :after_eat do
-        taste << ' stomach'
-      end
-      register_callback :after_eat, prepend: true do
-        taste << ' my'
-      end
-      register_callback :after_eat, :prepend_for, prepend: true
-      def prepend_for
-        taste << ' for'
-      end
-
-      before :digest do
-        taste << ' taste'
-      end
-      before :digest, :add_dot
-      before :digest, prepend: true do
-        taste << ' the'
-      end
-      before :digest, :prepend_was, prepend: true
-      after :digest do
-        taste << ' taste'
-      end
-      after :digest, :add_dot
-      after :digest, prepend: true do
-        taste << ' the'
-      end
-      after :digest, :prepend_was, prepend: true
-      def add_dot; taste << '.'; end
-      def prepend_was; taste << ' was'; end
-
-      before :argument do |name|
-        taste << " #{name}"
-      end
-      after :argument, :after_with_arg
-      def after_with_arg(name)
-        taste << " #{name}"
-      end
-    end
-
-    it 'Registers callbacks as symbols or blocks' do
-      Hamburger.callbacks[:layers].size.should==3
-      Hamburger.callbacks[:layers][0].should==:bread
-      Hamburger.callbacks[:layers][1].should==:cheese
-      h = Hamburger.new taste: 'good'
-      h.instance_eval(&Hamburger.callbacks[:layers][2]).should=='good'
-    end
-
-    it 'Executes symbol or block callbacks' do
-      h = Hamburger.new taste: 'good'
-      h.exec_callback('after_cook').taste.should=='good with salad with more cheese'
-    end
-
-    it 'Does not raise if executing a callback which does not exist' do
-      h = Hamburger.new taste: 'good'
-      h.exec_callback(:after_burn).taste.should=='good'
-    end
-
-    it 'Has an option to prepend when registering callbacks' do
-      h = Hamburger.new taste: 'good'
-      h.exec_callback(:after_eat).taste.should=='good for my stomach'
-    end
-
-    it 'Has callback shortcuts for before and after' do
-      h = Hamburger.new taste: 'good'
-      h.exec_callback(:before_digest).taste.should=='good was the taste.'
-      h.taste = 'good'
-      h.exec_callback(:after_digest).taste.should=='good was the taste.'
-    end
-
-    it 'Optionally takes the callback name as an argument' do
-      h = Hamburger.new taste: 'good'
-      h.exec_callback(:before_argument).taste.should=='good before_argument'
-      h.exec_callback(:after_argument).taste.should=='good before_argument after_argument'
     end
 
   end
