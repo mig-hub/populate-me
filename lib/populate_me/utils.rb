@@ -5,12 +5,23 @@ require 'rack/utils'
 module PopulateMe
   module Utils
 
+    # Most methods are supposed to be as simple as possible
+    # and just cover most cases.
+    # I would rather override specific cases rather than making
+    # complicated methods.
+
     extend Rack::Utils
 
     def blank? s
       s.to_s.strip==''
     end
     module_function :blank?
+
+    def pluralize s
+      s<<'e' if s[-1,1]=='x'
+      s<<'s'
+    end
+    module_function :pluralize
 
     def dasherize_class_name s
       s.gsub(/[A-Z]/){|s|"-#{s.downcase}"}[1..-1].gsub('::','-')

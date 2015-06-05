@@ -36,6 +36,19 @@ RSpec.describe PopulateMe::Utils do
     end
   end
 
+  describe '#pluralize' do
+
+    it "Just adds an 's' at the end" do
+      expect(utils.pluralize('bag')).to eq 'bags'
+    end
+    context "The word ends with 'x'" do
+      it "Adds 'es' instead" do
+        expect(utils.pluralize('fox')).to eq 'foxes'
+      end
+    end
+
+  end
+
   describe 'dasherize/undasherize class name' do
 
     let(:cases) {
