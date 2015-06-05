@@ -174,6 +174,17 @@ module PopulateMe
     end
     module_function :parse_price
 
+    def branded_filename path, brand='PopulateMe'
+      "#{File.dirname(path)}/#{brand}-#{File.basename(path)}".sub(/^\.\//,'')
+    end
+    module_function :branded_filename
+
+    def filename_variation path, variation, ext
+      old_ext = File.extname(path) 
+      path.sub(/#{Regexp.escape old_ext}$/, ".#{variation}.#{ext}")
+    end
+    module_function :filename_variation
+
   end
 end
 

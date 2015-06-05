@@ -391,5 +391,29 @@ RSpec.describe PopulateMe::Utils do
     end
   end
 
+  describe '#branded_filename' do
+    it 'Adds PopulateMe to the file name' do
+      expect(utils.branded_filename("/path/to/file.png")).to eq("/path/to/PopulateMe-file.png")
+    end
+    it 'Works when there is just a file name' do
+      expect(utils.branded_filename("file.png")).to eq("PopulateMe-file.png")
+    end
+    it 'Can change the brand' do
+      expect(utils.branded_filename("/path/to/file.png",'Brand')).to eq("/path/to/Brand-file.png")
+    end
+  end
+
+  describe '#filename_variation' do
+    it 'Replaces the ext with variation name and new ext' do
+      expect(utils.filename_variation("/path/to/file.png", :thumb, :gif)).to eq("/path/to/file.thumb.gif")
+    end
+    it 'Works when there is just a filename' do
+      expect(utils.filename_variation("file.png", :thumb, :gif)).to eq("file.thumb.gif")
+    end
+    it "Works when there is no ext to start with" do
+      expect(utils.filename_variation("/path/to/file", :thumb, :gif)).to eq("/path/to/file.thumb.gif")
+    end
+  end
+
 end
 
