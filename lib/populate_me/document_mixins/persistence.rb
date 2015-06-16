@@ -78,6 +78,12 @@ module PopulateMe
           self
         end
 
+        def is_unique unique_id='unique'
+          if self.admin_get(unique_id).nil?
+            self.new.set_from_hash({id:unique_id}).save
+          end
+        end
+
       end
 
     end
