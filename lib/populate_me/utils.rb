@@ -142,7 +142,7 @@ module PopulateMe
     module_function :nl2br
 
     def complete_link link
-      if link =~ /^(\/|[a-z]*:)/
+      if blank?(link) or link=~/^(\/|[a-z]*:)/
         link
       else
         "//#{link}"

@@ -317,7 +317,9 @@ RSpec.describe PopulateMe::Utils do
         ['://www.populate-me.com','://www.populate-me.com'],
         ['http://www.populate-me.com','http://www.populate-me.com'],
         ['ftp://www.populate-me.com','ftp://www.populate-me.com'],
-        ['mailto:populate&#64;me.com','mailto:populate&#64;me.com']
+        ['mailto:populate&#64;me.com','mailto:populate&#64;me.com'],
+        ['',''],
+        [' ',' '],
       ].each do |(arg,result)|
         expect(utils.complete_link(arg)).to eq(result)
       end
