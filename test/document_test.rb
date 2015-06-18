@@ -175,7 +175,9 @@ describe 'PopulateMe::Document' do
 
     it 'Cannot set variables without an accessor' do
       obj = Egg.new
-      lambda{ obj.set color: 'blue' }.should.raise(NoMethodError)
+      # lambda{ obj.set color: 'blue' }.should.raise(NoMethodError)
+      obj.set color: 'blue'
+      obj.instance_variable_get('@color').should==nil
     end
 
     it 'Can set values when initializing' do

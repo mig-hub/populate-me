@@ -116,7 +116,12 @@ module PopulateMe
 
     def set attributes
       attributes.dup.each do |k,v| 
-        __send__ "#{k}=", v
+        setter = "#{k}="
+        if respond_to? setter
+          __send__ setter, v
+        else
+          puts "! #{self.class} has no field called #{k}" unless ENV['RACK_ENV']=='test'
+        end
       end
       self
     end
