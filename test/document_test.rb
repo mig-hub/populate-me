@@ -288,6 +288,15 @@ describe 'PopulateMe::Document' do
       retrieved.to_h.should==Tomato.documents[0]
     end
 
+    it 'Saves an old version of the document for comparisons' do
+      tom = Tomato.new taste: 'good'
+      tom._old.should==nil
+      tom = Tomato.from_hash( taste: 'good' )
+      tom.taste = 'bad'
+      tom.taste.should=='bad'
+      tom._old.taste.should=='good'
+    end
+
     it 'Raises if trying to create from something that is not a Hash' do
       lambda{Tomato.from_hash(nil)}.should.raise(TypeError)
       lambda{Tomato.from_hash(42)}.should.raise(TypeError)

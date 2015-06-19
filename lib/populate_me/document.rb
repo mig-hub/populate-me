@@ -56,7 +56,8 @@ module PopulateMe
       def to_s_short_plural; Utils.pluralize(self.to_s_short); end
 
       def from_hash hash, o={}
-        self.new(_is_new: false).set_from_hash hash, o
+        old = self.new(_is_new: false).set_from_hash hash, o
+        self.new(_is_new: false, _old: old).set_from_hash hash, o
       end
 
       # inheritable settings
@@ -67,7 +68,7 @@ module PopulateMe
 
     end
 
-    attr_accessor :id, :_is_new
+    attr_accessor :id, :_is_new, :_old
 
     def initialize attributes=nil 
       self._is_new = true
