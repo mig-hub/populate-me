@@ -56,8 +56,7 @@ module PopulateMe
       def to_s_short_plural; Utils.pluralize(self.to_s_short); end
 
       def from_hash hash, o={}
-        old = self.new(_is_new: false).set_from_hash hash, o
-        self.new(_is_new: false, _old: old).set_from_hash hash, o
+        self.new(_is_new: false).set_from_hash(hash, o).snapshot
       end
 
       # inheritable settings
@@ -102,6 +101,11 @@ module PopulateMe
     end
     alias_method :to_hash, :to_h
 
+    def snapshot
+      self._old = self.to_h
+      self
+    end
+
     def nested_docs
       persistent_instance_variables.map do |var|
         instance_variable_get var
@@ -120,8 +124,6 @@ module PopulateMe
         setter = "#{k}="
         if respond_to? setter
           __send__ setter, v
-        else
-          puts "! #{self.class} has no field called #{k}" unless ENV['RACK_ENV']=='test'
         end
       end
       self
@@ -141,15 +143,17 @@ module PopulateMe
       hash = hash.dup # Leave original untouched
       hash.delete('_class')
       hash.each do |k,v|
+        getter = k.to_sym
         if v.is_a? Array
-          __send__(k.to_sym).clear
+          break unless respond_to?(getter)
+          __send__(getter).clear
           v.each do |d|
             obj =  Utils.resolve_class_name(d['_class']).new.set_from_hash(d,o)
-            __send__(k.to_sym) << obj
+            __send__(getter) << obj
           end
         else
-          v = typecast(k.to_sym,v) if o[:typecast]
-          set k.to_sym => v
+          v = typecast(getter,v) if o[:typecast]
+          set getter => v
         end
       end
       self
