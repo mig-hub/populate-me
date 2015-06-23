@@ -56,7 +56,7 @@ module PopulateMe
         end
 
         def position_field o={}
-          name = o[:name]||'position'
+          name = o[:name]||:position
           o[:type] = :position
           field name, o
           sort_by name
