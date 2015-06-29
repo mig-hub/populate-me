@@ -1,7 +1,7 @@
 .DS_STORE
 *.swp
 *.sass-cache
-/pkg
+pkg/
 Gemfile.lock
 .bundle/
 
