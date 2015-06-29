@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.author = "Mickael Riga"
   s.email = "mig@mypeplum.com"
   s.files = `git ls-files`.split("\n").sort
-  s.test_files = s.files.select { |p| p =~ /^test\/.*_test.rb/ }
+  s.test_files = s.files.select { |p| p =~ /^spec\/.*_spec.rb/ }
   s.require_path = './lib'
   s.homepage = "https://github.com/mig-hub/populate-me"
   s.license = 'MIT'
