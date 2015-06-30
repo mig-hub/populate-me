@@ -1,7 +1,7 @@
 require 'populate_me/api'
 require "json"
 begin
-  require "cerberus"
+  require "rack/cerberus"
 rescue LoadError
   puts "Cerberus not loaded."
 end
@@ -15,7 +15,7 @@ class PopulateMe::Admin < Sinatra::Base
   set :index_path, '/menu'
   enable :cerberus
   set :cerberus_active, Proc.new{
-    Kernel.const_defined?(:Cerberus) &&
+    Rack.const_defined?(:Cerberus) &&
     !!ENV['CERBERUS_PASS'] &&
     settings.cerberus?
   }
@@ -41,7 +41,7 @@ class PopulateMe::Admin < Sinatra::Base
     content_type :json
   end
 
-  get '/' do
+  get '/?' do
     content_type :html
     erb :page, layout: false
   end
@@ -121,10 +121,9 @@ class PopulateMe::Admin < Sinatra::Base
     def setup_cerberus builder
       return unless cerberus_active
       cerberus_settings = settings.cerberus==true ? {} : settings.cerberus
-      builder.use Cerberus, cerberus_settings do |user,pass,req|
-        authenticated = pass==ENV['CERBERUS_PASS']
-        req.env['rack.session']['populate_me_user'] = user if authenticated
-        authenticated
+      cerberus_settings[:session_key] = 'populate_me_user'
+      builder.use Rack::Cerberus, cerberus_settings do |user,pass,req|
+        pass==ENV['CERBERUS_PASS']
       end
     end
 

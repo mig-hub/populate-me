@@ -28,7 +28,7 @@ RSpec.describe PopulateMe::Admin do
     allow(ENV).to receive(:[]).with('CERBERUS_PASS').and_return('123')
   }
   let(:cerberus_not_defined) {
-    allow(Kernel).to receive(:const_defined?).with(:Cerberus).and_return(false)
+    allow(Rack).to receive(:const_defined?).with(:Cerberus).and_return(false)
   }
   let(:set_cerberus_active) {
     setenv_cerberus_pass
