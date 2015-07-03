@@ -21,7 +21,7 @@
       <h1>{{page_title}}</h1>
       <ol class='menu'>
         {{#items}}
-          <li><a href="{{href}}" class='column-push'>{{title}}</a></li>
+          <li><a href="{{href}}" class='column-push' title='Open'>{{title}}</a></li>
         {{/items}}
       </ol>
     </script>
@@ -31,7 +31,7 @@
         {{page_title}}
       </h1>
       <p class='new-document-btn-wrap'>
-        <a href="<%= request.script_name %>/form/{{dasherized_class_name}}{{#new_data}}?{{new_data}}{{/new_data}}" class='column-push new-document-btn'>+</a>
+        <a href="<%= request.script_name %>/form/{{dasherized_class_name}}{{#new_data}}?{{new_data}}{{/new_data}}" class='column-push new-document-btn' title='Create'>+</a>
       </p>
       <ol class='documents' data-sort-field='{{sort_field}}' data-sort-url='<%= request.script_name %>/api/{{dasherized_class_name}}'>
         {{#items}}{{#custom_partial_or_default}}template_document{{/custom_partial_or_default}}{{/items}}
@@ -41,13 +41,13 @@
     <script id="template-document" type="x-tmpl-mustache">
       <li class='admin-list-item' data-id='{{id}}'>
         {{#sort_field}}
-          <span class='handle' title='Drag and drop'>&#8597;</span> 
+          <span class='handle' title='Drag and drop'>&#8597;</span><br>
         {{/sort_field}}
-        <a href="<%= request.script_name %>/form/{{admin_url}}" class='column-push'>{{title}}</a>
+        <a href="<%= request.script_name %>/form/{{admin_url}}" class='column-push' title='Edit'>{{title}}</a>
         <button type='button' class='admin-delete' title='Delete' value='<%= request.script_name %>/api/{{admin_url}}'>&times;</button>
         <ol class='local-menu'>
           {{#local_menu}}
-            <li><a href="{{href}}" class='column-push'>{{title}}</a></li>
+            <li>&rarr; <a href="{{href}}" class='column-push' title='Open'>{{title}}</a></li>
           {{/local_menu}}
         </ol>
       </li>

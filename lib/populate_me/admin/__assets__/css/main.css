@@ -4,7 +4,7 @@ html, body {
   margin: 0;
   padding: 0;
   color: #002b36;
-  background: #eee8d5;
+  background-color: #eee8d5;
   height: 100%;
   font-family: 'Avenir', sans-serif;
 }
@@ -47,7 +47,7 @@ ol {
 a {
   color: #002b36;
   text-decoration: none;
-  border-bottom: 1px solid #002b36;
+  /* border-bottom: 1px solid #002b36; */
 }
 a:hover, a.selected {
   /* Blue */
@@ -67,35 +67,33 @@ button { cursor: pointer; }
 }
 
 button.admin-delete, button.admin-delete-nested, .handle {
-  display: inline-block; vertical-align: top;
+  display: inline-block; vertical-align: middle;
   font-size: 1em; line-height: 1em;
   width: auto; height: auto;
-  padding: 0.25em;
+  padding: 0.25em 0.5em;
   border: 0px;
 }
 button.admin-delete, button.admin-delete-nested {
-  color: #fdf6e3;
-  background: #dc322f;
+  color: #dc322f;
+  background-color: transparent;
 }
 button.admin-delete:hover, button.admin-delete-nested:hover {
-  color: #002b36;
 }
 .handle {
   cursor: move;
-  color: #fdf6e3;
-  background: #b58900;
-  padding-left: 0.5em; padding-right: 0.5em;
+  color: #b58900;
 }
-.handle:hover { color: #002b36; }
+.handle:hover { 
+}
 
 [type=submit] {
   border: 0px;
-  background: #eee8d5;
-  color: #002b36;
+  cursor: pointer;
+  color: #fdf6e3;
+  background-color: #859900;
 }
 [type=submit]:hover {
-  color: #fdf6e3;
-  background: #859900;
+  background-color: #268bd2;
 }
 
 .documents, .nested-documents {
@@ -110,6 +108,10 @@ button.admin-delete:hover, button.admin-delete-nested:hover {
   display: block;
   margin-bottom: 1em;
 }
+.documents > li:hover, .nested-documents > li:hover {
+  background-color: #eee8d5;
+  outline: 0.5em solid #eee8d5;
+}
 .nested-documents > li > header {
   background: #002b36;
   height: 1.5em;
@@ -117,9 +119,9 @@ button.admin-delete:hover, button.admin-delete-nested:hover {
 }
 .documents .sortable-placeholder, .nested-documents .sortable-placeholder {
   border: 1px dashed #839496;
-  background: none;
+  background-color: #eee8d5;
 }
-.local-menu { font-size: 0.6em; }
+.local-menu { font-size: 0.7em; }
 
 /* Forms */
 
@@ -136,7 +138,7 @@ textarea {
   border: 0px;
   color: #839496;
   background: #ffffff;
-  width: 250px;
+  width: 400px;
   padding: 5px;
   font-size: 1em;
 }
@@ -145,9 +147,7 @@ textarea:focus {
   color: #002b36;
 }
 
-textarea {
-  height: 4em;
-}
+textarea { height: 6em; }
 
 fieldset {
   border: 0;
