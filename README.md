@@ -6,8 +6,18 @@ Overview
 
 Warning: This is a work in process so this is why no gem is currently released with this code. If you install the Gem, you would have the version of the branch called `ground-zero`.
 
-PopulateMe is a modular system which provides an admin backend for any Ruby/Rack web applications.
+`PopulateMe` is a modular system which provides an admin backend for any Ruby/Rack web application.
 It is made with Sinatra but you can code your frontend with any other Framework like Rails.
+
+Table of contents
+----------------
+
+- [Overview](#overview)
+- [Table of contents](#table-of-contents)
+- [Documents](#documents)
+- [Admin](#admin)
+- [API](#api)
+- [Utils](#utils)
 
 Documents
 ---------
@@ -33,4 +43,7 @@ Admin
 
 API
 ---
+
+Utils
+-----
 
