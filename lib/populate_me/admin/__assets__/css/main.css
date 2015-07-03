@@ -70,14 +70,16 @@ button.admin-delete, button.admin-delete-nested, .handle {
   display: inline-block; vertical-align: middle;
   font-size: 1em; line-height: 1em;
   width: auto; height: auto;
-  padding: 0.25em 0.5em;
+  margin: 0;
+  padding: 0.5em 0.5em 0.5em 0;
   border: 0px;
 }
 button.admin-delete, button.admin-delete-nested {
   color: #dc322f;
   background-color: transparent;
 }
-button.admin-delete:hover, button.admin-delete-nested:hover {
+button.admin-delete:focus, button.admin-delete-nested:focus, .handle:focus {
+  outline: 0;
 }
 .handle {
   cursor: move;
