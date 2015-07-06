@@ -136,9 +136,79 @@ end
 Admin
 -----
 
+A basic admin would look like this:
+
+``` ruby
+# lib/admin.rb
+require "populate_me/admin"
+
+class Admin < PopulateMe::Admin
+  # Since we are in lib we use this to move
+  # the root one level up.
+  # Not mandatory but useful if you plan to have
+  # custom views in the main views folder
+  set :root, ::File.expand_path('../..', __FILE__)
+  # Only if you use Rack::Cerberus for authentication
+  # you can pass the settings
+  set :cerberus, {company_name: 'Nintendo'}
+  # Build menu and sub-menus
+  set :menu, [ 
+    ['Settings', '/admin/form/settings/unique'],
+    ['Articles', '/admin/list/article'],
+    ['Staff', [
+      ['Designers', '/admin/list/staff-member?filter[job]=Designer'],
+      ['Developers', '/admin/list/staff-member?filter[job]=Developer'],
+    ]]
+  ]
+end
+```
+
+So the main thing you need is to define your menu. Then mount it in
+your `config.ru` whereever you want.
+
+``` ruby
+# config.ru
+require 'admin'
+
+map '/admin' do
+  run Admin
+end
+```
+
 API
 ---
 
 Utils
 -----
+
+The `Utils` module is quite similar to its counterpart in `Rack`.
+It gathers methods that are used in many places in the project.
+Many of them are similar to methods you would have in `Active::Support`
+but without monkey patching.
+
+Anyway it is a good idea to mix it to your helpers, some of the
+methods are even added just for this purpose. Also it has `Rack::Utils`
+included so you don't need to put both.
+
+Here is how you would have it in a `Sinatra` frontend:
+
+``` ruby
+require 'sinatra/base'
+require 'populate_me/utils'
+
+class Main < Sinatra::Base
+
+  # Your frontend code...
+
+  helpers do
+    include PopulateMe::Utils
+    # Your other helpers...
+  end
+
+end
+```
+
+Here is a list of the available methods:
+
+
 

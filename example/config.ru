@@ -48,7 +48,6 @@ end
 
 require "populate_me/admin"
 class Admin < PopulateMe::Admin
-  enable :sessions
   set :menu, [ 
     ['Blog Posts', '/list/blog-post'],
     ['Articles', '/list/article'],
