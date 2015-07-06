@@ -6,6 +6,8 @@ module PopulateMe
 
   class Attachment
 
+    Variation = Struct.new :name, :ext, :job
+
     class << self
 
       attr_accessor :settings
@@ -13,15 +15,6 @@ module PopulateMe
       # inheritable settings
       def set name, value
         self.settings[name] = value
-      end
-
-
-      def root path
-        settings.root = File.expand_path(path)
-      end
-
-      def url_prefix path
-        settings.url_prefix = path
       end
 
       def inherited sub
@@ -43,6 +36,24 @@ module PopulateMe
         ]
       end
 
+      # Variation
+      
+      def variation name, ext, job_as_proc=nil, &job_as_block
+        Variation.new name, ext, job_as_proc||job_as_block
+      end
+      def image_magick_variation name, ext, convert_string, options={}
+        o = {
+          strip: true, progressive: true,
+        }.merge(options)
+        defaults = ""
+        defaults << "-strip " if o[:strip]
+        defaults << "-interlace Plane " if o[:progressive] and [:jpg,:jpeg].include?(ext.to_sym)
+        job = lambda{ |src,dst|
+          Kernel.system "convert \"#{src}\" #{defaults}#{convert_string} \"#{dst}\""
+        }
+        Variation.new name, ext, job
+      end
+
     end
 
     attr_accessor :document, :field
@@ -60,12 +71,16 @@ module PopulateMe
       self.document.__send__(field)
     end
 
+    def field_filename version=nil
+      self.field_value
+    end
+
     def attachee_prefix
       Utils.dasherize_class_name self.document.class.name
     end
     
     def url version=:original
-      self.field_value
+      self.field_filename
     end
 
     def location_root
@@ -73,24 +88,41 @@ module PopulateMe
     end
 
     def location version=:original
-      File.join(self.location_root,self.field_value)
+      File.join(self.location_root,self.field_filename)
+    end
+
+    def ensure_local_path
+      self.location
     end
     
     def create hash
       self.delete
-      perform_create hash
+      out = perform_create hash
+      create_variations hash[:tempfile].path
+      out
+    end
+
+    def create_variations path=nil
+      variations = self.document.class.fields[self.field][:variations]
+      return if variations.nil? or variations.empty?
+      if path.nil? or !File.exist?(path)
+        path = ensure_local_path
+      end
+      variations.each do |v|
+        v.job.call(path, Utils.filename_variation(path,v.name,v.ext))
+      end
     end
 
     def perform_create hash
       # Rack 1.6 deletes multipart files after request
       src = hash[:tempfile].path
-      dest = "#{File.dirname(src)}/PopulateMe-#{File.basename(src)}"
-      FileUtils.copy_entry(src,dest) 
-      dest
+      dst = Utils.branded_filename(src)
+      FileUtils.copy_entry(src,dst) 
+      dst
     end
 
     def deletable? version=nil
-      !Utils.blank?(self.field_value) and File.exist?(self.location)
+      !Utils.blank?(self.field_filename) and File.exist?(self.location)
     end
 
     def delete version=nil

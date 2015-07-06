@@ -8,8 +8,8 @@ module PopulateMe
     set :url_prefix, '/attachment'
 
     def url version=:original
-      return nil if Utils.blank?(self.field_value)
-      "#{settings.url_prefix.sub(/\/$/,'')}/#{self.attachee_prefix}/#{self.field_value}"
+      return nil if Utils.blank?(self.field_filename)
+      "#{settings.url_prefix.sub(/\/$/,'')}/#{self.attachee_prefix}/#{self.field_filename}"
     end
 
     def location_root
