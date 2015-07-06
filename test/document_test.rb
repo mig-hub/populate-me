@@ -294,7 +294,7 @@ describe 'PopulateMe::Document' do
       tom = Tomato.from_hash( taste: 'good' )
       tom.taste = 'bad'
       tom.taste.should=='bad'
-      tom._old.taste.should=='good'
+      tom._old['taste'].should=='good'
     end
 
     it 'Raises if trying to create from something that is not a Hash' do
