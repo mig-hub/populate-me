@@ -62,6 +62,7 @@ module PopulateMe
           end
           before :create, :ensure_id
           after :create, :ensure_not_new
+          after :save, :snapshot
           before :delete, :ensure_delete_related
           before :delete, :ensure_delete_attachments
           after :delete, :ensure_new
