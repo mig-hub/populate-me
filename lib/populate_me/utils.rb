@@ -20,8 +20,21 @@ module PopulateMe
     def pluralize s
       s<<'e' if s[-1,1]=='x'
       s<<'s'
+      s.sub(/([b-df-hj-np-tv-z])ys$/,'\1ies')
     end
     module_function :pluralize
+
+    def singularize s
+      case s
+      when /xes$/
+        s[0..-3]
+      when /ies$/
+        s.sub(/ies$/, 'y')
+      when /s$/
+        s[0..-2]
+      end
+    end
+    module_function :singularize
 
     def dasherize_class_name s
       s.gsub(/[A-Z]/){|s|"-#{s.downcase}"}[1..-1].gsub('::','-')

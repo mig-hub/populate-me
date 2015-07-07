@@ -40,10 +40,34 @@ RSpec.describe PopulateMe::Utils do
 
     it "Just adds an 's' at the end" do
       expect(utils.pluralize('bag')).to eq 'bags'
+      expect(utils.pluralize('day')).to eq 'days'
     end
     context "The word ends with 'x'" do
       it "Adds 'es' instead" do
         expect(utils.pluralize('fox')).to eq 'foxes'
+      end
+    end
+    context "The word ends with a consonant and 'y'" do
+      it "Replaces 'y' with 'ie'" do
+        expect(utils.pluralize('copy')).to eq 'copies'
+      end
+    end
+
+  end
+
+  describe '#singularize' do
+
+    it "Removes the trailing 's'" do
+      expect(utils.singularize('bags')).to eq 'bag'
+    end
+    context "The word ends with 'xes'" do
+      it "Removes the 'e' as well" do
+        expect(utils.singularize('foxes')).to eq 'fox'
+      end
+    end
+    context "The word ends with 'ies'" do
+      it "Replaces 'ie' with 'y'" do
+        expect(utils.singularize('copies')).to eq 'copy'
       end
     end
 
