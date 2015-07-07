@@ -32,6 +32,8 @@ module PopulateMe
         s.sub(/ies$/, 'y')
       when /s$/
         s[0..-2]
+      else
+        s
       end
     end
     module_function :singularize
@@ -68,7 +70,7 @@ module PopulateMe
       clue = clue.to_s
       return clue if clue=~/^[A-Z]/
       if clue=~/^[a-z]/
-        clue = undasherize_class_name clue.sub(/s$/,'').gsub('_','-')
+        clue = undasherize_class_name singularize(clue).gsub('_','-')
         clue = "::#{clue}"
       end
       "#{context}#{clue}"
