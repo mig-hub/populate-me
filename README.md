@@ -131,6 +131,93 @@ end
 
 ### Callbacks
 
+There are some classic hooks which trigger the callbacks you declare.
+Here is a basic example:
+
+```ruby
+require 'populate_me/document'
+
+class Person < PopulateMe::Document
+  
+  field :firstname
+  field :lastname
+  field :fullname, form_field: false
+
+  before :save do
+    self.fullname = "#{self.firstname} #{self.lastname}"
+  end
+
+  after :delete, :goodbye
+
+  def goodbye
+    puts "So long and thanks for all the fish"
+  end
+
+end
+```
+
+First you can note that the field option `form_field: false` makes it a field
+that does not appear in the form. This is generally the case for fields that 
+are generated from other fields.
+
+Anyway, here we define a callback which `PopulateMe` runs each time a document
+is saved. And with the second one, you can see that we can pass the name of
+a method instead of a block.
+
+The list of hooks is quite common but here it is as a reminder:
+
+- `before :validation`
+- `after :validation`
+- `before :create`
+- `after :create`
+- `before :update`
+- `after :update`
+- `before :save` (both create or update)
+- `after :save` (both create or update)
+- `before :delete`
+- `after :delete`
+
+Now you can register many callbacks for the same hook. They will be chained in
+the order you register them. However, if for any reason you need to register a
+callback and make sure it runs before the others, you can add `prepend: true`.
+
+```ruby
+before :save, prepend: true do
+  puts 'Shotgun !!!'
+end
+```
+
+If you want to go even further and create your own hooks, this is very easy.
+You can create a hook like this:
+
+```ruby
+document.exec_callback(:my_hook)
+```
+
+And you would then register a callback like this:
+
+```ruby
+register_callback :my_hook do
+  # Do something...
+end
+```
+
+You can use `before` and `after` as well. In fact this:
+
+```ruby
+after :lunch do
+  # Do something...
+end
+```
+
+Is equivalent to:
+
+```ruby
+register_callback :after_lunch do
+  # Do something...
+end
+```
+
 ### Mongo Documents
 
 Admin
