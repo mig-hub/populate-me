@@ -42,7 +42,7 @@ For the moment, `PopulateMe` only ships with a [MongoDB](#mongo-documents) docum
 
 Here is an example of a document class:
 
-``` ruby
+```ruby
 require 'populate_me/document'
 
 class BlogArticle < PopulateMe::Document
@@ -83,7 +83,7 @@ Available types are:
 
 In its simplest form, validations are done by overriding the `#validate` method and declaring errors with the `#error_on` method.
 
-``` ruby
+```ruby
 class Person < PopulateMe::Document
   
   field :name
@@ -98,7 +98,7 @@ end
 If you don't use the `PopulateMe` interface and create a document
 programmatically, here is what it could look like:
 
-``` ruby
+```ruby
 person = Person.new(name: 'John Doe')
 person.new? # returns true
 person.save # fails
@@ -111,7 +111,7 @@ person.errors # returns { name: ['Cannot be fake'] }
 In its simplest form, when using the modules convention, relationships
 can be declared this way:
 
-``` ruby
+```ruby
 class BlogArticle < PopulateMe::Document
   
   field :title
@@ -220,12 +220,65 @@ end
 
 ### Mongo Documents
 
+Now let's declare a real document class which can persist on a database,
+the `MongoDB` kind of document. The first thing we need to clarify is the
+setup. Here is a classic setup:
+
+```ruby
+# lib/db.rb
+require 'mongo'
+require 'populate_me/mongo'
+
+connection = Mongo::Connection.new
+
+PopulateMe::Mongo.set :db, connection['your-database-name']
+
+require 'person'
+```
+
+Then the document is pretty much the same as the prototype except that it
+subclasses `PopulateMe::Mongo` instead.
+
+```ruby
+# lib/person.rb
+require 'populate_me/mongo'
+
+class Person < PopulateMe::Mongo
+  field :firstname
+  field :lastname
+end
+```
+
+As you can see in setup, you can define inheritable settings on 
+`PopulateMe::Mongo`, meaning that any subclass after this will have the `:db`
+and you can set it only once.
+
+Nevertheless it is obviously possible to set a different `:db` for each class.
+
+```ruby
+# lib/person.rb
+require 'populate_me/mongo'
+
+class Person < PopulateMe::Mongo
+
+  set :db, $my_db
+
+  field :firstname
+  field :lastname
+
+end
+```
+
+This is particularly useful if you keep a type of documents in a different 
+location for example. Otherwise it is more convenient to set it once 
+and for all.
+
 Admin
 -----
 
 A basic admin would look like this:
 
-``` ruby
+```ruby
 # lib/admin.rb
 require "populate_me/admin"
 
@@ -253,7 +306,7 @@ end
 So the main thing you need is to define your menu. Then mount it in
 your `config.ru` whereever you want.
 
-``` ruby
+```ruby
 # config.ru
 require 'admin'
 
@@ -279,7 +332,7 @@ included so you don't need to put both.
 
 Here is how you would have it in a `Sinatra` frontend:
 
-``` ruby
+```ruby
 require 'sinatra/base'
 require 'populate_me/utils'
 
