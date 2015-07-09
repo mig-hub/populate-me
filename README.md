@@ -19,6 +19,7 @@ Table of contents
   - [Validations](#validations)
   - [Relationships](#relationships)
   - [Callbacks](#callbacks)
+  - [Single Documents](#single-documents)
   - [Mongo documents](#mongo-documents)
 - [Admin](#admin)
 - [API](#api)
@@ -218,6 +219,30 @@ register_callback :after_lunch do
 end
 ```
 
+### Single Documents
+
+Sometimes you want a collection with only one document, like for recording
+settings for example. In this case you can use the `::is_unique` class method.
+
+```ruby
+require 'populate_me/document'
+
+class GeneralWebsiteSettings < PopulateMe::Document
+  field :main_meta_title
+  field :main_meta_description
+  field :google_analytics_ref
+end
+
+GeneralWebsiteSettings.is_unique
+```
+
+It just creates the document if it does not exist yet with the ID `unique`.
+If you want a different ID, you can pass it as an argument.
+
+Just make sure that if you have fields with `required: true`, they also have
+a `:default` value. Otherwise the creation of the document will fail because it
+is not `self.valid?`.
+
 ### Mongo Documents
 
 Now let's declare a real document class which can persist on a database,
@@ -314,6 +339,22 @@ map '/admin' do
   run Admin
 end
 ```
+
+Most of the URLs in your menu will probably be for the admin itself and use
+the admin URL patterns, but this is not mandatory. A link to an external page 
+would load in a new tab. Whereas admin URLs create columns in the `PopulateMe`
+user interface. Many things are possible with these patterns but here are 
+the main ones:
+
+- `/:path_to_admin/list/:dasherized_document_class` This gives you the list of
+documents from the desired class. They are ordered as specified by `sort_by`.
+You can also filter like in the example to get only specific documents.
+- `:path_to_admin/form/:dasherized_document_class/:id` You would rarely use this
+one which directly opens the form of a specific document, since all this is 
+generally accessed from the list page. It doesn't need to be coded. The only is
+probably for [single documents](#single-documents) because they are not part of
+a list. The ID would then be litterally `unique`, or whatever ID you declared
+instead.
 
 API
 ---
