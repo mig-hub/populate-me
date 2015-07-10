@@ -298,6 +298,31 @@ This is particularly useful if you keep a type of documents in a different
 location for example. Otherwise it is more convenient to set it once 
 and for all.
 
+You can also set `:collection_name`, but in most cases you would let `PopulateMe`
+defaults it to the dasherized class name. So `BlogArticle::Comment` would be
+in the collection called `blog-article--comment`.
+
+Whatever you choose, you will have access to the collection object with the
+`::collection` class method. Which allows you to do anything the driver does.
+
+```ruby
+first_pedro = Person.collection.find_one({ 'firstname' => 'Pedro' })
+mcs = Person.collection.find({ 'lastname' => /^Mc/i })
+```
+
+Although since these are methods from the driver, `first_pedro` returns a hash,
+and `mcs` returns a `Mongo::Cursor`. If you want document object, you can use
+the `::cast` class method which takes a block in the class context/scope and
+casts either a single hash into a full featured document, or casts the items of
+an array (or anything which responds to `:map`).
+
+```ruby
+first_pedro = Person.cast{ collection.find_one({ 'firstname' => 'Pedro' }) }
+mcs = Person.cast{ collection.find({ 'lastname' => /^Mc/i }) }
+first_pedro.class # returns Person
+mcs[0].class # returns Person
+```
+
 Admin
 -----
 

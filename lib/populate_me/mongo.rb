@@ -57,15 +57,14 @@ module PopulateMe
 
       def admin_get theid
         theid = BSON::ObjectId.from_string(theid) if BSON::ObjectId.legal?(theid)
-        hash = self.collection.find_one({self.id_string_key => theid})
-        hash.nil? ? nil : from_hash(hash) 
+        self.cast{ collection.find_one({id_string_key => theid}) }
       end
       alias_method :[], :admin_get
 
       def admin_find o={}
         query = o.delete(:query) || {}
         o[:sort] ||= @current_sort
-        self.collection.find(query, o).map{|d| self.from_hash(d) }
+        self.cast{ collection.find(query, o) }
       end
 
     end

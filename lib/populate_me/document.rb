@@ -59,6 +59,14 @@ module PopulateMe
         self.new(_is_new: false).set_from_hash(hash, o).snapshot
       end
 
+      def cast o={}, &block
+        target = block.arity==0 ? instance_eval(&block) : block.call(self)
+        return nil if target.nil?
+        return from_hash(target, o) if target.is_a?(Hash)
+        return target.map{|t| from_hash(t,o)} if target.respond_to?(:map)
+        raise(TypeError, "The block passed to #{self.name}::cast is meant to return a Hash or a list of Hash which respond to `map`")
+      end
+
       # inheritable settings
       attr_accessor :settings
       def set name, value

@@ -50,13 +50,47 @@ RSpec.describe PopulateMe::Document do
 
     describe '::to_s' do
       it 'Returns a human friendly classname including parent modules' do
-        expect(Car::RearviewMirror.to_s).to eq('Car Rearview Mirror')
+        expect(subject_class.to_s).to eq('Car Rearview Mirror')
       end
     end
 
     describe '::to_s_short' do
       it 'Returns a human friendly classname' do
-        expect(Car::RearviewMirror.to_s_short).to eq('Rearview Mirror')
+        expect(subject_class.to_s_short).to eq('Rearview Mirror')
+      end
+    end
+
+    describe '::cast' do
+      before do
+        allow(subject_class).to receive(:documents) do 
+          [{my_label_field: 'A'},{my_label_field: 'B'}]
+        end
+      end
+      it 'Can return a single object from the block' do
+        out = subject_class.cast{ |c| c.documents[0] }
+        expect(out.class).to eq subject_class
+      end
+      it 'Can return a list of objects from the block' do
+        out = subject_class.cast{ |c| c.documents }
+        expect(out[0].class).to eq subject_class
+        expect(out[1].class).to eq subject_class
+      end
+      context 'The block returns nil' do
+        it 'Returns nil as well' do
+          expect(subject_class.cast{|c|nil}).to be_nil
+        end
+      end
+      context 'The block does not return the right thing' do
+        it 'Raises type error' do
+          expect{subject_class.cast{|c|3}}.to raise_error TypeError
+        end
+      end
+      context 'No argument is given to the block' do
+        it 'Calls the block in the class context' do
+          out = subject_class.cast{ documents }
+          expect(out[0].class).to eq subject_class
+          expect(out[1].class).to eq subject_class
+        end
       end
     end
 

@@ -56,16 +56,14 @@ module PopulateMe
       module ClassMethods
 
         def admin_get id
-          hash = self.documents.find{|doc| doc[self.id_string_key]==id }
-          return nil if hash.nil?
-          from_hash hash
+          self.cast do
+            documents.find{|doc| doc[id_string_key]==id }
+          end
         end
 
         def admin_find o={}
           o[:query] ||= {}
-          docs = self.documents.map do |d| 
-            self.from_hash(d) 
-          end.find_all do |d|
+          docs = self.cast{documents}.find_all do |d|
             o[:query].inject(true) do |out,(k,v)|
               out && (d.__send__(k)==v)
             end
