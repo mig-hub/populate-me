@@ -88,7 +88,7 @@ describe 'PopulateMe::Admin' do
     end
 
     it 'Has no sessions by default even with Cerberus active' do
-      lambda{ REQ_WITH_CERBERUS_PASS_NO_SESSIONS.get('/') }.should.raise(Cerberus::NoSessionError)
+      lambda{ REQ_WITH_CERBERUS_PASS_NO_SESSIONS.get('/') }.should.raise(Rack::Cerberus::NoSessionError)
     end
 
   end
