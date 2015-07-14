@@ -384,6 +384,22 @@ instead.
 API
 ---
 
+In a normal use, you most likely don't have anything to do with the `API` module.
+It is just another middleware automatically mounted under `/api` on your `Admin`.
+So if your `Admin` path is `/admin`, then your `API` path is `/admin/api`.
+
+The purpose of the `API` module is to provide all the path patterns for creating,
+deleting and updating documents. The interface does all the job for you. But if
+you end up building your all custom interface, you probably want to [have a look 
+at the implementation](lib/populate_me/api.rb).
+
+Another aspect of the `API` is that it relies on document methods. So if you 
+want to create a subclass of `Document`, make sure that you override everything
+that the `API` or the `Admin` may need.
+
+This module is derived from a Gem I did called [rack-backend-api](https://github.com/mig-hub/backend-api). It is not maintained any more since `PopulateMe` is the evolution
+of this Gem.
+
 Utils
 -----
 
