@@ -141,15 +141,16 @@ textarea {
   color: #839496;
   background: #ffffff;
   width: 400px;
-  padding: 5px;
+  padding: 0.5em;
   font-size: 1em;
 }
 input[type=text]:focus, input[type=email]:focus,
 textarea:focus {
-  color: #002b36;
+  /* color: #002b36; */
 }
 
-textarea { height: 6em; }
+textarea { height: 6em; resize: vertical; }
+textarea.oneline { height: 1em; resize: none; }
 
 fieldset {
   border: 0;
