@@ -454,5 +454,32 @@ RSpec.describe PopulateMe::Utils do
     end
   end
 
+  describe '#initial_request?' do
+    let(:req) { 
+      Rack::Request.new(
+        Rack::MockRequest.env_for(
+          '/path', 
+          {'HTTP_REFERER'=>referer}
+        )
+      ) 
+    }
+    let(:referer) { nil }
+    it 'Returns true' do
+      expect(utils.initial_request?(req)).to eq(true)
+    end
+    context 'Request comes from another domain' do
+      let(:referer) { 'https://www.google.com/path' }
+      it 'Returns true' do
+        expect(utils.initial_request?(req)).to eq(true)
+      end
+    end
+    context 'Request comes from same domain' do
+      let(:referer) { 'http://example.org' }
+      it 'Returns false' do
+        expect(utils.initial_request?(req)).to eq(false)
+      end
+    end
+  end
+
 end
 

@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 require 'rack/utils'
+require 'uri'
 
 module PopulateMe
   module Utils
@@ -210,6 +211,12 @@ module PopulateMe
       path.sub(/#{Regexp.escape old_ext}$/, ".#{variation}.#{ext}")
     end
     module_function :filename_variation
+
+    def initial_request? request
+      return true unless request.referer=~URI.regexp
+      URI.parse(request.referer).host!=request.host
+    end
+    module_function :initial_request?
 
   end
 end
