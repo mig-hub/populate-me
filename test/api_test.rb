@@ -233,7 +233,10 @@ describe 'PopulateMe::API' do
     end
     # it 'Updates nested documents' do
     #   obj = Band.admin_get('3')
-    #   res = API.put('/band/3', {params: {data: {members: [{id: obj.members[0].id, name: 'Joey Ramone'}]}}})
+    #   res = API.put('/band/3', {params: {data: {members: [
+    #     {id: obj.members[0].id, _class: 'Band::Member', name: 'Joey Ramone'},
+    #     {id: obj.members[1].id, _class: 'Band::Member'},
+    #   ]}}})
     #   successful_update(res)
     #   obj = Band.admin_get('3')
     #   obj.awsome.should=='yes'
