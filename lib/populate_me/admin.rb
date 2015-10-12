@@ -1,5 +1,6 @@
 require 'populate_me/api'
-require "json"
+require 'json'
+require 'tilt/erb'
 begin
   require "rack/cerberus"
 rescue LoadError
