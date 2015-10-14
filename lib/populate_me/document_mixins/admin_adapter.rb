@@ -85,9 +85,9 @@ module PopulateMe
         def to_admin_list o={}
           o[:params] ||= {}
           unless o[:params][:filter].nil?
-            query = o[:params][:filter].inject({}) do |query, (k,v)|
-              query[k.to_sym] = self.new.typecast(k,v)
-              query
+            query = o[:params][:filter].inject({}) do |q, (k,v)|
+              q[k.to_sym] = self.new.typecast(k,v)
+              q
             end
             new_data = Rack::Utils.build_nested_query(data: o[:params][:filter])
           end

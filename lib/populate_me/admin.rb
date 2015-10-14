@@ -55,7 +55,7 @@ class PopulateMe::Admin < Sinatra::Base
       page_title, current_level = current_level.find{|item| slugify(item[0])==l}
     end
     items = current_level.map do |l|
-      href = l[1].is_a?(String) ? l[1] : "#{request.script_name}/menu#{levels.map{|l|'/'+l}.join}/#{slugify(l[0])}" 
+      href = l[1].is_a?(String) ? l[1] : "#{request.script_name}/menu#{levels.map{|level|'/'+level}.join}/#{slugify(l[0])}" 
       { title: l[0], href: href }
     end
     {
