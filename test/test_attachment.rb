@@ -10,9 +10,12 @@ describe PopulateMe::Attachment do
   let(:document) { Minitest::Mock.new }
   let(:field) { :thumbnail }
 
-  it "Keeps document and field as attributes" do
-    _(subject.document).must_equal(document)
-    _(subject.field).must_equal(field)
+  describe "Kept attributes" do
+    let(:document) { Hash.new }
+    it "Keeps document and field as attributes" do
+      _(subject.document).must_equal(document)
+      _(subject.field).must_equal(field)
+    end
   end
 
   it "Delegates settings to its class" do
@@ -58,20 +61,12 @@ describe PopulateMe::Attachment do
     end
   end
 
-  describe "#deleteable?" do
-    let(:fake) { "attachment.path" }
+  describe "#deletable?" do
+    let(:fake) { File.expand_path(__FILE__) }
     def setup_stubs
       subject.stub(:field_value, path) do
-        PopulateMe::Utils.stub(:blank?, false, [fake]) do
-          PopulateMe::Utils.stub(:blank?, true, ['']) do
-            subject.stub(:location, loc) do
-              File.stub(:exist?, true, [fake]) do
-                File.stub(:exist?, false, ['']) do
-                  yield
-                end
-              end
-            end
-          end
+        subject.stub(:location, loc) do
+          yield
         end
       end
     end
@@ -93,7 +88,7 @@ describe PopulateMe::Attachment do
       end
     end
     describe "When the file does not exist" do
-      let(:loc) { '' }
+      let(:loc) { 'non-existing.path' }
       it "is false" do
         setup_stubs do
           _(subject.deletable?).must_equal(false)
@@ -105,15 +100,16 @@ describe PopulateMe::Attachment do
   describe "#delete" do
     it "Performs if deletable" do
       subject.stub(:deletable?, true) do
-        subject.must_receive(:perform_delete) do
+        assert_receive(subject, :perform_delete, nil, [nil]) do
           subject.delete
         end
       end
     end
     it "Does not perform if not deletable" do
       subject.stub(:deletable?, false) do
-        is_expected.not_to receive(:perform_delete)
-        subject.delete
+        refute_receive(subject, :perform_delete) do
+          subject.delete
+        end
       end
     end
   end
