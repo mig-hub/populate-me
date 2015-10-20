@@ -17,7 +17,7 @@ class PopulateMe::Admin < Sinatra::Base
   enable :cerberus
   set :cerberus_active, Proc.new{
     Rack.const_defined?(:Cerberus) &&
-    !!ENV['CERBERUS_PASS'] &&
+    !!cerberus_pass &&
     settings.cerberus?
   }
   set :logout_path, Proc.new{ settings.cerberus_active ? '/logout' : false }
@@ -100,6 +100,10 @@ class PopulateMe::Admin < Sinatra::Base
 
   class << self
 
+    def cerberus_pass
+      ENV['CERBERUS_PASS']
+    end
+
     private
 
     def setup_default_middleware builder
@@ -120,11 +124,11 @@ class PopulateMe::Admin < Sinatra::Base
     end
 
     def setup_cerberus builder
-      return unless cerberus_active
+      return unless settings.cerberus_active
       cerberus_settings = settings.cerberus==true ? {} : settings.cerberus
       cerberus_settings[:session_key] = 'populate_me_user'
       builder.use Rack::Cerberus, cerberus_settings do |user,pass,req|
-        pass==ENV['CERBERUS_PASS']
+        pass==cerberus_pass
       end
     end
 

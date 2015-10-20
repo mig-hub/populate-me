@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
 
   s.platform = Gem::Platform::RUBY
   s.files = `git ls-files`.split("\n").sort
-  s.test_files = s.files.grep(/^spec\//)
+  s.test_files = s.files.grep(/^test\//)
   s.require_paths = ['lib']
   s.add_dependency('sinatra')
   s.add_dependency('json')

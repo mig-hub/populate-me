@@ -1,3 +1,4 @@
+require 'helper'
 require 'populate_me/document'
 
 class Hamburger < PopulateMe::Document
@@ -56,48 +57,50 @@ class Hamburger < PopulateMe::Document
   end
 end
 
-RSpec.describe PopulateMe::Document, 'Callbacks' do
+describe PopulateMe::Document, 'Callbacks' do
+
+  parallelize_me!
 
   let(:subject_class) { Hamburger }
   subject { subject_class.new taste: 'good' }
   let(:layers_callbacks) { subject_class.callbacks[:layers] }
 
   it 'Registers callbacks as symbols or blocks' do
-    expect(layers_callbacks.size).to eq 3
-    expect(layers_callbacks[0]).to eq :bread
-    expect(layers_callbacks[1]).to eq :cheese
-    expect(subject.instance_eval(&layers_callbacks[2])).to eq 'good'
+    _(layers_callbacks.size).must_equal 3
+    _(layers_callbacks[0]).must_equal :bread
+    _(layers_callbacks[1]).must_equal :cheese
+    _(subject.instance_eval(&layers_callbacks[2])).must_equal 'good'
   end
 
   it 'Executes symbol or block callbacks' do
     subject.exec_callback('after_cook')
-    expect(subject.taste).to eq 'good with salad with more cheese'
+    _(subject.taste).must_equal 'good with salad with more cheese'
   end
 
   it 'Does not raise if executing a callback which does not exist' do
     subject.exec_callback(:after_burn)
-    expect(subject.taste).to eq 'good'
+    _(subject.taste).must_equal 'good'
   end
 
   it 'Has an option to prepend when registering callbacks' do
     subject.exec_callback(:after_eat)
-    expect(subject.taste).to eq 'good for my stomach'
+    _(subject.taste).must_equal 'good for my stomach'
   end
 
   it 'Has callbacks shortcut for before_ prefix' do
     subject.exec_callback(:before_digest)
-    expect(subject.taste).to eq 'good was the taste.'
+    _(subject.taste).must_equal 'good was the taste.'
   end
   it 'Has callbacks shortcut for after_ prefix' do
     subject.exec_callback(:after_digest)
-    expect(subject.taste).to eq 'good was the taste.'
+    _(subject.taste).must_equal 'good was the taste.'
   end
 
   it 'Can pass the callback name as an argument to the callback method' do
     subject.exec_callback(:before_argument)
-    expect(subject.taste).to eq 'good before_argument'
+    _(subject.taste).must_equal 'good before_argument'
     subject.exec_callback(:after_argument)
-    expect(subject.taste).to eq 'good before_argument after_argument'
+    _(subject.taste).must_equal 'good before_argument after_argument'
   end
 
 end
