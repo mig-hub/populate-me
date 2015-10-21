@@ -2,6 +2,7 @@ require 'helper'
 require 'populate_me/document'
 
 class Stuborn < PopulateMe::Document
+  attr_accessor :age
 end
 
 describe PopulateMe::Document, 'Persistence' do
@@ -13,50 +14,40 @@ describe PopulateMe::Document, 'Persistence' do
 
   describe '::is_unique' do
 
-    def doc_doesnt_exist
-      subject_class.stub(:admin_get, nil) do
-        yield
-      end
-    end
-    def doc_exists
-      subject_class.stub(:admin_get, subject) do
-        yield
-      end
+    before do
+      Stuborn.documents = []
     end
 
+    # def doc_doesnt_exist
+    #   subject_class.stub(:admin_get, nil) do
+    #     yield
+    #   end
+    # end
+    # def doc_exists
+    #   subject_class.stub(:admin_get, subject) do
+    #     yield
+    #   end
+    # end
+
     describe 'The document does not exist yet' do
-      it 'Saves an entry with the ID unique' do
-        doc_doesnt_exist do
-          # expect_any_instance_of(subject_class).to receive(:set_from_hash).with({id:'unique'}) { subject }
-          # expect_any_instance_of(subject_class).to receive(:perform_create)
-          # subject_class.is_unique
-          assert_any_receive(subject_class, :set_from_hash, subject, [{id:'unique'}]) do
-            assert_any_receive(subject_class, :perform_create) do
-              subject_class.is_unique
-            end
-          end
-        end
+      it 'Saves an entry with the ID `unique` by default' do
+        Stuborn.is_unique
+        _(Stuborn.documents.count).must_equal 1
+        _(Stuborn.documents[0]['id']).must_equal 'unique'
       end
-      it 'Can save an entry with a different ID' do
-        doc_doesnt_exist do
-          expect_any_instance_of(subject_class).to receive(:set_from_hash).with({id:'different_id'}) { subject }
-          expect_any_instance_of(subject_class).to receive(:perform_create)
-          subject_class.is_unique('different_id')
-        end
+      it 'Saves an entry with a provided ID' do
+        Stuborn.is_unique('provided_id')
+        _(Stuborn.documents.count).must_equal 1
+        _(Stuborn.documents[0]['id']).must_equal 'provided_id'
       end
     end
     describe 'The document already exist' do
-      it 'Does not modify the existing document' do
-        doc_exists do
-          expect_any_instance_of(subject_class).not_to receive(:perform_update)
-          subject_class.is_unique
-        end
-      end
-      it 'Does not create a new document' do
-        doc_exists do
-          expect_any_instance_of(subject_class).not_to receive(:perform_create)
-          subject_class.is_unique
-        end
+      it 'Does not create a new document and preserve the current one' do
+        doc = Stuborn.new({'id'=>'unique', 'age'=>4})
+        doc.save
+        Stuborn.is_unique
+        _(Stuborn.documents.count).must_equal 1
+        _(Stuborn.documents[0]).must_equal doc.to_h
       end
     end
   end
