@@ -137,11 +137,12 @@ describe 'PopulateMe::Mongo' do
 
   describe 'High level CRUD' do 
 
-    it 'Should use after_save callback' do 
+    it 'Should use callbacks' do 
       danny = CatFish.new(name: "danny")
+      _(danny.id).must_equal nil
       _(danny.new?).must_equal true
       danny.save
-      CatFish.collection.find_one({"_id"=> danny.id}).wont_equal nil
+      _(danny.id).wont_equal nil
       _(danny.new?).must_equal false
     end
 
