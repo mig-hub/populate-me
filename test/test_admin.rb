@@ -20,13 +20,13 @@ class AdminCerberusDisabled < PopulateMe::Admin
   disable :cerberus
 end
 
-$mutex = Mutex.new
+# $mutex = Mutex.new
 
 describe PopulateMe::Admin do
 
   parallelize_me!
 
-  let(:app) { Admin.new }
+  let(:app) { ::Admin.new }
 
   let(:settings) { app.settings }
 
@@ -36,9 +36,9 @@ describe PopulateMe::Admin do
     #   yield
     #   ENV.delete('CERBERUS_PASS')
     # end
-    $mutex.synchronize do
-      Admin.stub(:cerberus_pass, '123') { yield }
-    end
+    # $mutex.synchronize do
+      app.stub(:cerberus_pass, '123') { yield }
+    # end
   end
 
   def unsetenv_cerberus_pass
