@@ -38,7 +38,6 @@ end
 
 class Minitest::Spec
   include Rack::Test::Methods
-  include Minitest::Assertions
 end
 
 class Object
