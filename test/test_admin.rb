@@ -16,11 +16,15 @@ class Admin < PopulateMe::Admin
   ]
 end
 
-class AdminCerberusDisabled < PopulateMe::Admin
-  disable :cerberus
+class AdminWithCerberusPass < Admin
+  def self.cerberus_pass
+    '123'
+  end
 end
 
-# $mutex = Mutex.new
+class AdminCerberusDisabled < AdminWithCerberusPass
+  disable :cerberus
+end
 
 describe PopulateMe::Admin do
 
@@ -29,26 +33,6 @@ describe PopulateMe::Admin do
   let(:app) { ::Admin.new }
 
   let(:settings) { app.settings }
-
-  def setenv_cerberus_pass
-    # $mutex.synchronize do
-    #   ENV['CERBERUS_PASS'] = '123'
-    #   yield
-    #   ENV.delete('CERBERUS_PASS')
-    # end
-    # $mutex.synchronize do
-      app.stub(:cerberus_pass, '123') { yield }
-    # end
-  end
-
-  def unsetenv_cerberus_pass
-    # $mutex.synchronize do
-    #   old = ENV['CERBERUS_PASS']
-    #   ENV['CERBERUS_PASS'] = nil
-    #   yield
-    #   ENV['CERBERUS_PASS'] = old
-    # end
-  end
 
   def cerberus_not_defined
     Rack.stub(:const_defined?, false, [:Cerberus]) { yield }
@@ -71,47 +55,38 @@ describe PopulateMe::Admin do
     end
     describe 'when ENV CERBERUS_PASS is not set' do
       it 'Does not have cerberus_active' do
-        # unsetenv_cerberus_pass do
-          _(settings.cerberus_active).must_equal(false)
-        # end
+        _(settings.cerberus_active).must_equal(false)
       end
     end
     describe 'when ENV CERBERUS_PASS is set' do
+      let(:app) { AdminWithCerberusPass.new }
       it 'Has cerberus_active' do
-        setenv_cerberus_pass do
-          _(settings.cerberus_active).must_equal(true)
-        end
+        _(settings.cerberus_active).must_equal(true)
       end
     end
     describe 'when ENV CERBERUS_PASS is set but gem not loaded' do
+      let(:app) { AdminWithCerberusPass.new }
       it 'Does not have cerberus_active' do
-        setenv_cerberus_pass do
-          cerberus_not_defined do
-            _(settings.cerberus_active).must_equal(false)
-          end
+        cerberus_not_defined do
+          _(settings.cerberus_active).must_equal(false)
         end
       end
     end
     describe 'when ENV CERBERUS_PASS is set but cerberus is disabled' do
       let(:app) { AdminCerberusDisabled.new }
       it 'Does not have cerberus_active' do
-        setenv_cerberus_pass do
-          _(settings.cerberus_active).must_equal(false)
-        end
+        _(settings.cerberus_active).must_equal(false)
       end
     end
     describe 'when Cerberus is active' do
+      let(:app) { AdminWithCerberusPass.new }
       it 'Sets logout_path to /logout' do
-        setenv_cerberus_pass do
-          _(settings.logout_path).must_equal('/logout')
-        end
+        _(settings.logout_path).must_equal('/logout')
       end
     end
     describe 'when Cerberus is not active' do
       it 'Sets logout_path to false' do
-        # unsetenv_cerberus_pass do
-          _(settings.logout_path).must_equal(false)
-        # end
+        _(settings.logout_path).must_equal(false)
       end
     end
   end
@@ -134,20 +109,17 @@ describe PopulateMe::Admin do
     end
 
     describe 'when cerberus is active' do
+      let(:app) { AdminWithCerberusPass.new }
       it 'Uses Cerberus for authentication' do
-        setenv_cerberus_pass do
-          _(settings.cerberus_active).must_equal(true)
-          get '/'
-          _(last_response.status).must_equal(401)
-        end
+        _(settings.cerberus_active).must_equal(true)
+        get '/'
+        _(last_response.status).must_equal(401)
       end
     end
     describe 'when cerberus is inactive' do
       it 'Does not use Cerberus' do
-        # unsetenv_cerberus_pass do
-          get '/'
-          _(last_response).must_be :ok?
-        # end
+        get '/'
+        _(last_response).must_be :ok?
       end
     end
 
