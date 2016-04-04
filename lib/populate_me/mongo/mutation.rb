@@ -71,9 +71,9 @@ module PopulateMe
         def delete(id); collection.remove(ref(id)); end
 
         def get_multiple(ids, opts={})
-          ids.map!{|id|correct_id_class(id)}
-          sort_proc = proc{ |a,b| ids.index(a['_id'])<=>ids.index(b['_id']) }
-          self.find(ref(ids), opts).to_a.sort(&sort_proc)
+          corrected_ids = ids.map{|id| correct_id_class(id) }
+          sort_proc = proc{ |a,b| corrected_ids.index(a['_id'])<=>corrected_ids.index(b['_id']) }
+          self.find(ref(corrected_ids), opts).to_a.sort(&sort_proc)
         end
 
     		def is_unique(doc={})
