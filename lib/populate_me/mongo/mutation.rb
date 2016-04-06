@@ -242,6 +242,14 @@ module PopulateMe
           end
         end
       end
+      def fix_type_select(k,v)
+        if v.is_a?(Array)
+          @doc[k] = v - ['nil']
+        end
+      end
+      def fix_type_children(k,v)
+        self.fix_type_select(k,v)
+      end
 
       def save
         return nil unless valid?

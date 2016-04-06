@@ -79,7 +79,14 @@ module PopulateMe
               "%s%s<input type='file' name='%s' id='%s' class='%s' />%s\n" % [m.to_thumb(c), deleter, o[:input_name], m.field_id_for(c), o[:input_class], o[:required]]
             end,
             :select => proc do |m,c,o|
-              out = "<select name='%s%s' id='%s' class='%s' %s title='-- Select --'>\n" % [o[:input_name], ('[]' if o[:multiple]), m.field_id_for(c), o[:input_class], ('multiple' if o[:multiple])]
+              # starter ensures it sends something when multiple is empty
+              # Otherwise it is not sent and therefore not updated
+              starter = if o[:multiple]
+                          "<input type='hidden' name='%s[]' value='nil' class='multiple-select-starter' />\n" % [o[:input_name]]
+                        else
+                          ''
+                        end
+              out = "%s<select name='%s%s' id='%s' class='%s' %s title='-- Select --'>\n" % [starter, o[:input_name], ('[]' if o[:multiple]), m.field_id_for(c), o[:input_class], ('multiple' if o[:multiple])]
               o[:select_options] = m.__send__(o[:select_options]) unless o[:select_options].kind_of?(Array)
               select_options = o[:select_options].dup
               if (o[:multiple] && !o[:input_value].nil? && o[:input_value].size>1)
