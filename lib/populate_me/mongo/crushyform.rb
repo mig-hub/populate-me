@@ -209,6 +209,9 @@ module PopulateMe
         return crushyinput(col,o) if (o[:input_type]=='hidden' || model.schema[col][:input_type]=='hidden')
         default_field_name = col[/^id_/] ? Kernel.const_get(col.sub(/^id_/, '')).human_name : col.tr('_', ' ').capitalize
         field_name = o[:name] || model.schema[col][:name] || default_field_name
+        if field_name.is_a?(Proc)
+          field_name = field_name.(self)
+        end
         error_list = errors_on(col).map{|e|" - #{e}"} if !errors_on(col).nil?
         "<p class='crushyfield %s'><label for='%s'>%s</label><span class='crushyfield-error-list'>%s</span><br />\n%s</p>\n" % [error_list&&'crushyfield-error', field_id_for(col), field_name, error_list, crushyinput(col, o)]
       end
