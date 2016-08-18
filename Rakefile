@@ -9,7 +9,6 @@ Rake::TestTask.new do |t|
     t.pattern = t.pattern.sub(/\*/, ENV['TESTONLY'])
   end
   t.options = '--pride'
-  # t.verbose = true
   # t.warning = true
 end
 
