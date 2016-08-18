@@ -22,6 +22,12 @@ class AdminWithCerberusPass < Admin
   end
 end
 
+class AdminCerberusNotAvailable < AdminWithCerberusPass
+  def self.cerberus_available?
+    false
+  end
+end
+
 class AdminCerberusDisabled < AdminWithCerberusPass
   disable :cerberus
 end
@@ -33,10 +39,6 @@ describe PopulateMe::Admin do
   let(:app) { ::Admin.new }
 
   let(:settings) { app.settings }
-
-  def cerberus_not_defined
-    Rack.stub(:const_defined?, false, [:Cerberus]) { yield }
-  end
 
   let(:json) { JSON.parse(last_response.body) }
 
@@ -65,11 +67,9 @@ describe PopulateMe::Admin do
       end
     end
     describe 'when ENV CERBERUS_PASS is set but gem not loaded' do
-      let(:app) { AdminWithCerberusPass.new }
+      let(:app) { AdminCerberusNotAvailable.new }
       it 'Does not have cerberus_active' do
-        cerberus_not_defined do
-          _(settings.cerberus_active).must_equal(false)
-        end
+        _(settings.cerberus_active).must_equal(false)
       end
     end
     describe 'when ENV CERBERUS_PASS is set but cerberus is disabled' do
@@ -94,12 +94,10 @@ describe PopulateMe::Admin do
   describe 'Middlewares' do
 
     it 'Has API middleware mounted on /api' do
-      msg = 'API mounted'
-      res = [200,{'Content-Type'=>'text/plain'},[msg]]
-      PopulateMe::API.stub_any_instance(:call, res) do
-        get('/api')
-        _(last_response.body).must_equal(msg)
-      end
+      get '/api'
+      _(last_response).must_be :ok?
+      _(last_response).must_be_json
+      _(json['success']).must_equal true
     end
 
     it 'Has assets available on /__assets__' do
@@ -111,7 +109,6 @@ describe PopulateMe::Admin do
     describe 'when cerberus is active' do
       let(:app) { AdminWithCerberusPass.new }
       it 'Uses Cerberus for authentication' do
-        _(settings.cerberus_active).must_equal(true)
         get '/'
         _(last_response.status).must_equal(401)
       end

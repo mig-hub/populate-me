@@ -17,6 +17,11 @@ class PopulateMe::API < Sinatra::Base
     redirect(params['_destination']) unless params['_destination'].nil?
   end
 
+  get '/' do
+    status 200
+    {'success'=>true}.to_json
+  end
+
   get '/version' do
     status 200
     {'success'=>true, 'version'=>PopulateMe::VERSION}.to_json

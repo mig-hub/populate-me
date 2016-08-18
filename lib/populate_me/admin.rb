@@ -16,7 +16,7 @@ class PopulateMe::Admin < Sinatra::Base
   set :index_path, '/menu'
   enable :cerberus
   set :cerberus_active, Proc.new{
-    Rack.const_defined?(:Cerberus) &&
+    cerberus_available? &&
     !!cerberus_pass &&
     settings.cerberus?
   }
@@ -101,7 +101,12 @@ class PopulateMe::Admin < Sinatra::Base
   class << self
 
     def cerberus_pass
+      # Method = overridable = testable
       ENV['CERBERUS_PASS']
+    end
+    def cerberus_available?
+      # Method = overridable = testable
+      Rack.const_defined?(:Cerberus)
     end
 
     private

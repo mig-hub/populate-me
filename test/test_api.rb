@@ -87,16 +87,6 @@ describe 'PopulateMe::API' do
     _(json['message']).must_equal 'Deleted Successfully'
   end
 
-  before do
-    Band.documents = []
-    Band.new(id: '1', name: 'Gang of Four').save
-    Band.new(id: '2', name: 'Autolux').save
-    ramones = Band.new(id: '3', name: 'Ramones')
-    ramones.members << Band::Member.new(name: 'Joey')
-    ramones.members << Band::Member.new(name: 'Deedee Ramone')
-    ramones.save
-  end
-
   describe 'GET /version' do
     it 'Returns the PopulateMe version' do
       get('/version')
@@ -110,9 +100,9 @@ describe 'PopulateMe::API' do
   describe 'POST /:model' do
 
     it 'Creates successfully' do
-      post('/band', {data: {id: '4', name: 'Neurosis'}})
+      post('/band', {data: {id: 'neurosis', name: 'Neurosis'}})
       must_be_successful_creation
-      _(json['data']).must_equal Band.admin_get('4').to_h
+      _(json['data']['name']).must_equal 'Neurosis'
     end
 
     it 'Typecasts before creating' do
@@ -122,18 +112,15 @@ describe 'PopulateMe::API' do
     end
 
     it 'Can create a doc even if no data is sent' do
-      count = Band.documents.size
       post '/band'
       must_be_successful_creation
-      _(Band.documents.size).must_equal (count+1)
     end
 
     it 'Fails if the doc is invalid' do
-      count = Band.documents.size
-      post('/band', {data: {name: 'ZZ Top'}})
+      post('/band', {data: {id: 'invalid_doc_post', name: 'ZZ Top'}})
       must_be_invalid_instance
       _(json['data']).must_equal({'name'=>['WTF']})
-      _(Band.documents.size).must_equal count
+      _(Band.admin_get('invalid_doc_post')).must_be_nil
     end
 
     it 'Redirects if destination is given' do
@@ -147,29 +134,32 @@ describe 'PopulateMe::API' do
   describe 'PUT /:model' do
 
     it 'Can set indexes for sorting' do
+      post('/band', {data: {id: 'sortable1', name: 'Sortable 1'}})
+      post('/band', {data: {id: 'sortable2', name: 'Sortable 2'}})
+      post('/band', {data: {id: 'sortable3', name: 'Sortable 3'}})
       put '/band', {
         'action'=>'sort',
         'field'=>'position',
-        'ids'=> ['2','3','1']
+        'ids'=> ['sortable2','sortable3','sortable1']
       }
       must_be_successful_sorting
-      _(Band.admin_get('2').position).must_equal 0
-      _(Band.admin_get('3').position).must_equal 1
-      _(Band.admin_get('1').position).must_equal 2
+      _(Band.admin_get('sortable2').position).must_equal 0
+      _(Band.admin_get('sortable3').position).must_equal 1
+      _(Band.admin_get('sortable1').position).must_equal 2
     end
 
     it 'Redirects after sorting if destination is given' do
+      post('/band', {data: {id: 'redirectsortable1', name: 'Redirect Sortable 1'}})
+      post('/band', {data: {id: 'redirectsortable2', name: 'Redirect Sortable 2'}})
+      post('/band', {data: {id: 'redirectsortable3', name: 'Redirect Sortable 3'}})
       put '/band', {
         'action'=>'sort',
         'field'=>'position',
-        'ids'=> ['3','2','1'],
+        'ids'=> ['redirectsortable2','redirectsortable3','redirectsortable1'],
         '_destination'=>'http://example.org/anywhere'
       }
       _(last_response.status).must_equal 302
       _(last_response.header['Location']).must_equal 'http://example.org/anywhere'
-      _(Band.admin_get('3').position).must_equal 0
-      _(Band.admin_get('2').position).must_equal 1
-      _(Band.admin_get('1').position).must_equal 2
     end
 
   end
@@ -179,10 +169,6 @@ describe 'PopulateMe::API' do
       get('/wizz/42')
       must_be_not_found
     end
-    # it 'Sends not-found when the model is not provided' do
-    #   res = API.get('//42')
-    #   should_not_found(res)
-    # end
     it 'Sends not-found when the model is a class but not a model' do
       get('/string/42')
       must_be_not_found
@@ -196,9 +182,10 @@ describe 'PopulateMe::API' do
       must_be_not_found
     end
     it 'Sends the instance if it exists' do
-      get('/band/2')
+      post('/band', {data: {id: 'sendable', name: 'Morphine'}})
+      get('/band/sendable')
       must_be_successful_instance
-      _(json['data']).must_equal Band.admin_get('2').to_h
+      _(json['data']).must_equal Band.admin_get('sendable').to_h
     end
   end
 
@@ -208,21 +195,19 @@ describe 'PopulateMe::API' do
       must_be_not_found
     end
     it 'Fails if the document is invalid' do
-      put('/band/2', {data: {name: 'ZZ Top'}})
+      post('/band', {data: {id: 'invalid_doc_put', name: 'Valid here'}})
+      put('/band/invalid_doc_put', {data: {name: 'ZZ Top'}})
       must_be_invalid_instance
       _(json['data']).must_equal({'name'=>['WTF']})
-      _(Band.admin_get('2').name).wont_equal 'ZZ Top'
+      _(Band.admin_get('invalid_doc_put').name).wont_equal 'ZZ Top'
     end
     it 'Updates documents' do
-      put('/band/3', {data: {awsome: 'yes'}})
+      post('/band', {data: {id: 'updatable', name: 'Updatable'}})
+      put('/band/updatable', {data: {awsome: 'yes'}})
       must_be_successful_update
-      put('/band/3', {data: {name: 'The Ramones'}})
-      must_be_successful_update
-      obj = Band.admin_get('3')
+      obj = Band.admin_get('updatable')
       _(obj.awsome).must_equal 'yes'
-      _(obj.name).must_equal 'The Ramones'
-      _(obj.members.size).must_equal 2
-      _(obj.members[0].name).must_equal 'Joey'
+      _(obj.name).must_equal 'Updatable'
     end
     # it 'Updates nested documents' do
     #   obj = Band.admin_get('3')
@@ -246,10 +231,10 @@ describe 'PopulateMe::API' do
       must_be_not_found
     end
     it 'Returns a deletion response when the instance exists' do
-      obj = Band.admin_get('1')
-      delete('/band/1')
+      post('/band', {data: {id: 'deletable', name: '1D'}})
+      delete('/band/deletable')
       must_be_successful_deletion
-      _(json['data']).must_equal obj.to_h
+      _(json['data']).must_be_instance_of Hash
     end
     it 'Redirects if destination is given' do
       delete('/band/2', {'_destination'=>'http://example.org/anywhere'})

@@ -77,12 +77,8 @@ describe 'PopulateMe::Mongo' do
     end
 
     it 'Should create' do
-      count = CatFish.collection.count
-      fred = CatFish.new(name: "Fred")
-      fred.perform_create
-      jerry = CatFish.new(name: "Jerry")
-      jerry.perform_create
-      _(CatFish.collection.count).must_equal(count+2)
+      CatFish.new(name: "Fred").perform_create
+      _(CatFish.collection.find_one({'name'=>"Fred"})).wont_equal(nil)
     end
 
     it 'Should create with custom id' do 
