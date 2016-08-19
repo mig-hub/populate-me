@@ -44,49 +44,49 @@ describe PopulateMe::Admin do
 
   describe 'Settings' do
     it 'Sets paths based on the subclass file path' do
-      _(settings.app_file).must_equal(__FILE__)
+      assert_equal __FILE__, settings.app_file
     end
     it 'Has a default value for the page title tag' do
-      _(settings.meta_title).must_equal('Populate Me')
+      assert_equal 'Populate Me', settings.meta_title
     end
     it 'Has a default index_path' do
-      _(settings.index_path).must_equal('/menu')
+      assert_equal '/menu', settings.index_path
     end
     it 'Has cerberus enabled by default' do
-      _(settings.cerberus?).must_equal(true)
+      assert settings.cerberus?
     end
     describe 'when ENV CERBERUS_PASS is not set' do
       it 'Does not have cerberus_active' do
-        _(settings.cerberus_active).must_equal(false)
+        refute settings.cerberus_active
       end
     end
     describe 'when ENV CERBERUS_PASS is set' do
       let(:app) { AdminWithCerberusPass.new }
       it 'Has cerberus_active' do
-        _(settings.cerberus_active).must_equal(true)
+        assert settings.cerberus_active
       end
     end
     describe 'when ENV CERBERUS_PASS is set but gem not loaded' do
       let(:app) { AdminCerberusNotAvailable.new }
       it 'Does not have cerberus_active' do
-        _(settings.cerberus_active).must_equal(false)
+        refute settings.cerberus_active
       end
     end
     describe 'when ENV CERBERUS_PASS is set but cerberus is disabled' do
       let(:app) { AdminCerberusDisabled.new }
       it 'Does not have cerberus_active' do
-        _(settings.cerberus_active).must_equal(false)
+        refute settings.cerberus_active
       end
     end
     describe 'when Cerberus is active' do
       let(:app) { AdminWithCerberusPass.new }
       it 'Sets logout_path to /logout' do
-        _(settings.logout_path).must_equal('/logout')
+        assert_equal '/logout', settings.logout_path
       end
     end
     describe 'when Cerberus is not active' do
       it 'Sets logout_path to false' do
-        _(settings.logout_path).must_equal(false)
+        refute settings.logout_path
       end
     end
   end
@@ -95,28 +95,28 @@ describe PopulateMe::Admin do
 
     it 'Has API middleware mounted on /api' do
       get '/api'
-      _(last_response).must_be :ok?
-      _(last_response).must_be_json
-      _(json['success']).must_equal true
+      assert_predicate last_response, :ok?
+      assert_json last_response
+      assert json['success']
     end
 
     it 'Has assets available on /__assets__' do
       get('/__assets__/css/main.css')
-      _(last_response).must_be :ok?
-      _(last_response.content_type).must_equal('text/css')
+      assert_predicate last_response, :ok?
+      assert_equal 'text/css', last_response.content_type
     end
 
     describe 'when cerberus is active' do
       let(:app) { AdminWithCerberusPass.new }
       it 'Uses Cerberus for authentication' do
         get '/'
-        _(last_response.status).must_equal(401)
+        assert_equal 401, last_response.status
       end
     end
     describe 'when cerberus is inactive' do
       it 'Does not use Cerberus' do
         get '/'
-        _(last_response).must_be :ok?
+        assert_predicate last_response, :ok?
       end
     end
 
@@ -129,25 +129,27 @@ describe PopulateMe::Admin do
       describe 'when url is root' do
         it 'Returns the correct info' do
           get '/menu'
-          _(last_response).must_be :ok?
-          _(last_response).must_be_json
-          _(json).must_be_for_view('template_menu','Menu')
-          _(json['items'].size).must_equal(2)
-          _(json['items'][0]).must_equal({
+          assert_predicate last_response, :ok?
+          assert_json last_response
+          assert_for_view json, 'template_menu', 'Menu'
+          assert_equal 2, json['items'].size
+          expected_h = {
             'title'=> 'Home Details', 'href'=> '/admin/form/home-details/0'
-          })
+          }
+          assert_equal expected_h, json['items'][0]
         end
       end
       describe 'when url is nested' do
         it 'Returns the correct info' do
           get '/menu/project-page/checks' 
-          _(last_response).must_be :ok?
-          _(last_response).must_be_json
-          _(json).must_be_for_view('template_menu','Checks')
-          _(json['items'].size).must_equal(2)
-          _(json['items'][0]).must_equal({
+          assert_predicate last_response, :ok?
+          assert_json last_response
+          assert_for_view json, 'template_menu', 'Checks'
+          assert_equal 2, json['items'].size
+          expected_h = {
             'title'=> 'Check 1', 'href'=> '/check/1'
-          })
+          }
+          assert_equal expected_h, json['items'][0]
         end
       end
 

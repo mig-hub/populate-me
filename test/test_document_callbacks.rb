@@ -66,41 +66,41 @@ describe PopulateMe::Document, 'Callbacks' do
   let(:layers_callbacks) { subject_class.callbacks[:layers] }
 
   it 'Registers callbacks as symbols or blocks' do
-    _(layers_callbacks.size).must_equal 3
-    _(layers_callbacks[0]).must_equal :bread
-    _(layers_callbacks[1]).must_equal :cheese
-    _(subject.instance_eval(&layers_callbacks[2])).must_equal 'good'
+    assert_equal 3, layers_callbacks.size
+    assert_equal :bread, layers_callbacks[0]
+    assert_equal :cheese, layers_callbacks[1]
+    assert_equal 'good', subject.instance_eval(&layers_callbacks[2])
   end
 
   it 'Executes symbol or block callbacks' do
     subject.exec_callback('after_cook')
-    _(subject.taste).must_equal 'good with salad with more cheese'
+    assert_equal 'good with salad with more cheese', subject.taste
   end
 
   it 'Does not raise if executing a callback which does not exist' do
     subject.exec_callback(:after_burn)
-    _(subject.taste).must_equal 'good'
+    assert_equal 'good', subject.taste
   end
 
   it 'Has an option to prepend when registering callbacks' do
     subject.exec_callback(:after_eat)
-    _(subject.taste).must_equal 'good for my stomach'
+    assert_equal 'good for my stomach', subject.taste
   end
 
   it 'Has callbacks shortcut for before_ prefix' do
     subject.exec_callback(:before_digest)
-    _(subject.taste).must_equal 'good was the taste.'
+    assert_equal 'good was the taste.', subject.taste
   end
   it 'Has callbacks shortcut for after_ prefix' do
     subject.exec_callback(:after_digest)
-    _(subject.taste).must_equal 'good was the taste.'
+    assert_equal 'good was the taste.', subject.taste
   end
 
   it 'Can pass the callback name as an argument to the callback method' do
     subject.exec_callback(:before_argument)
-    _(subject.taste).must_equal 'good before_argument'
+    assert_equal 'good before_argument', subject.taste
     subject.exec_callback(:after_argument)
-    _(subject.taste).must_equal 'good before_argument after_argument'
+    assert_equal 'good before_argument after_argument', subject.taste
   end
 
 end

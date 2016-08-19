@@ -21,39 +21,39 @@ describe PopulateMe::Utils do
     describe 'with blank strings' do
       it 'is true' do
         ['',' '," \n \t"].each do |s|
-          _(utils.blank?(s)).must_equal(true)
+          assert utils.blank?(s)
         end
       end
     end
     describe 'with nil' do
-      it('is true') { _(utils.blank?(nil)).must_equal(true) }
+      it('is true') { assert utils.blank?(nil) }
     end
     describe 'with non-blank strings' do
       it 'is false' do
         ['a','abc', '  abc  '].each do |s|
-          _(utils.blank?(s)).must_equal(false)
+          refute utils.blank?(s)
         end
       end
     end
     describe 'with integer' do
-      it('is false') { _(utils.blank?(1234)).must_equal(false) }
+      it('is false') { refute utils.blank?(1234) }
     end
   end
 
   describe '#pluralize' do
 
     it "Just adds an 's' at the end" do
-      _(utils.pluralize('bag')).must_equal 'bags'
-      _(utils.pluralize('day')).must_equal 'days'
+      assert_equal 'bags', utils.pluralize('bag')
+      assert_equal 'days', utils.pluralize('day')
     end
     describe "The word ends with 'x'" do
       it "Adds 'es' instead" do
-        _(utils.pluralize('fox')).must_equal 'foxes'
+        assert_equal 'foxes', utils.pluralize('fox')
       end
     end
     describe "The word ends with a consonant and 'y'" do
       it "Replaces 'y' with 'ie'" do
-        _(utils.pluralize('copy')).must_equal 'copies'
+        assert_equal 'copies', utils.pluralize('copy')
       end
     end
 
@@ -62,16 +62,16 @@ describe PopulateMe::Utils do
   describe '#singularize' do
 
     it "Removes the trailing 's'" do
-      _(utils.singularize('bags')).must_equal 'bag'
+      assert_equal 'bag', utils.singularize('bags')
     end
     describe "The word ends with 'xes'" do
       it "Removes the 'e' as well" do
-        _(utils.singularize('foxes')).must_equal 'fox'
+        assert_equal 'fox', utils.singularize('foxes')
       end
     end
     describe "The word ends with 'ies'" do
       it "Replaces 'ie' with 'y'" do
-        _(utils.singularize('copies')).must_equal 'copy'
+        assert_equal 'copy', utils.singularize('copies')
       end
     end
 
@@ -96,7 +96,7 @@ describe PopulateMe::Utils do
     describe '#dasherize_class_name' do
       it "Translates correctly" do
         cases.each do |(classname,dashname)|
-          _(utils.dasherize_class_name(classname)).must_equal(dashname)
+          assert_equal dashname, utils.dasherize_class_name(classname)
         end
       end
     end
@@ -104,7 +104,7 @@ describe PopulateMe::Utils do
     describe '#undasherize_class_name' do
       it "Translates correctly" do
         cases.each do |(classname,dashname)|
-          _(utils.undasherize_class_name(dashname)).must_equal(classname)
+          assert_equal classname, utils.undasherize_class_name(dashname)
         end
       end
     end
@@ -118,14 +118,16 @@ describe PopulateMe::Utils do
           ['String',String],
           ['PopulateMe::Utils',PopulateMe::Utils],
         ].each do |(classname,constant)|
-          _(utils.resolve_class_name(classname)).must_equal(constant)
+          assert_equal constant, utils.resolve_class_name(classname)
         end
       end
     end
     describe 'when the constant does not exist' do
       it 'Raise if the constant does not exist' do
         ['Strang','PopulateMe::Yootils','',nil].each do |classname|
-          _ {utils.resolve_class_name(classname)}.must_raise(NameError)
+          assert_raises(NameError) do
+            utils.resolve_class_name(classname)
+          end
         end
       end
     end
@@ -133,8 +135,8 @@ describe PopulateMe::Utils do
 
   describe '#resolve_dasherized_class_name' do
     it 'Chains both methods for sugar' do
-      _(utils.resolve_dasherized_class_name('populate-me--utils')).must_equal PopulateMe::Utils
-      _(utils.resolve_dasherized_class_name(:'populate-me--utils')).must_equal PopulateMe::Utils
+      assert_equal PopulateMe::Utils, utils.resolve_dasherized_class_name('populate-me--utils')
+      assert_equal PopulateMe::Utils, utils.resolve_dasherized_class_name(:'populate-me--utils')
     end
   end
 
@@ -144,18 +146,18 @@ describe PopulateMe::Utils do
 
     describe 'when it starts with a lowercase letter' do
       it 'Should guess a singular class_name in the context' do
-        _(utils.guess_related_class_name(PopulateMe::Utils, :related_things)).must_equal('PopulateMe::Utils::RelatedThing')
-        _(utils.guess_related_class_name(PopulateMe::Utils, :related_thing)).must_equal('PopulateMe::Utils::RelatedThing')
+        assert_equal 'PopulateMe::Utils::RelatedThing', utils.guess_related_class_name(PopulateMe::Utils, :related_things)
+        assert_equal 'PopulateMe::Utils::RelatedThing', utils.guess_related_class_name(PopulateMe::Utils, :related_thing)
       end
     end
     describe 'when it starts with an uppercase letter' do
       it 'Should return the class_name as-is' do
-        _(utils.guess_related_class_name(PopulateMe::Utils, 'Class::Given')).must_equal('Class::Given')
+        assert_equal 'Class::Given', utils.guess_related_class_name(PopulateMe::Utils, 'Class::Given')
       end
     end
     describe 'when it starts with ::' do
       it 'Should prepend the class_name whith the context' do
-        _(utils.guess_related_class_name(PopulateMe::Utils, '::RelatedThing')).must_equal('PopulateMe::Utils::RelatedThing')
+        assert_equal 'PopulateMe::Utils::RelatedThing', utils.guess_related_class_name(PopulateMe::Utils, '::RelatedThing')
       end
     end
   end
@@ -163,23 +165,23 @@ describe PopulateMe::Utils do
   describe '#get_value' do
     describe 'when arg is a simple object' do
       it 'Returns it as-is' do
-        _(utils.get_value('Hello')).must_equal('Hello')
+        assert_equal 'Hello', utils.get_value('Hello')
       end
     end
     describe 'when arg is a proc' do
       it 'Returns after calling the proc' do
-        _(utils.get_value(proc{'Hello'})).must_equal('Hello')
+        assert_equal 'Hello', utils.get_value(proc{'Hello'})
       end
     end
     describe 'when arg is a symbol' do
       describe 'and a context is passed as a second argument' do
         it 'Sends the message to the context' do
-          _(utils.get_value(:capitalize,'hello')).must_equal('Hello')
+          assert_equal 'Hello', utils.get_value(:capitalize,'hello')
         end
       end
       describe 'and no context is passed' do
         it 'Sends the message to Kernel' do
-          _(utils.get_value(:to_s)).must_equal('Kernel')
+          assert_equal 'Kernel', utils.get_value(:to_s)
         end
       end
     end
@@ -191,8 +193,8 @@ describe PopulateMe::Utils do
       copy = utils.deep_copy(original)
       copy[:nested_hash][:one] = 2
       copy[:nested_array] << 2
-      _(original[:nested_hash]).must_equal({one: 1})
-      _(original[:nested_array]).must_equal([1])
+      assert_equal({one: 1}, original[:nested_hash])
+      assert_equal [1], original[:nested_array]
     end
   end
 
@@ -200,15 +202,15 @@ describe PopulateMe::Utils do
     let(:arg) { {a: 3} }
     it 'Sets the key if it did not exist' do
       utils.ensure_key(arg,:b,4)
-      _(arg[:b]).must_equal(4)
+      assert_equal 4, arg[:b]
     end
     it 'Leaves the key untouched if it already existed' do
       utils.ensure_key(arg,:a,4)
-      _(arg[:a]).must_equal(3)
+      assert_equal 3, arg[:a]
     end
     it 'Returns the value of the key' do
-      _(utils.ensure_key(arg,:b,4)).must_equal(4)
-      _(utils.ensure_key(arg,:a,4)).must_equal(3)
+      assert_equal 4, utils.ensure_key(arg,:b,4)
+      assert_equal 3, utils.ensure_key(arg,:a,4)
     end
   end
 
@@ -219,18 +221,18 @@ describe PopulateMe::Utils do
 
     let(:arg) { "Así es la vida by Daniel Bär & Mickaël ? (100%)" }
     it 'Builds a string made of lowercase URL-friendly chars' do
-      _(utils.slugify(arg)).must_equal('asi-es-la-vida-by-daniel-bar-and-mickael-100%25')
+      assert_equal 'asi-es-la-vida-by-daniel-bar-and-mickael-100%25', utils.slugify(arg)
     end
     describe 'when second argument is false' do
       it 'Does not force to lowercase' do
-        _(utils.slugify(arg,false)).must_equal('Asi-es-la-vida-by-Daniel-Bar-and-Mickael-100%25')
+        assert_equal 'Asi-es-la-vida-by-Daniel-Bar-and-Mickael-100%25', utils.slugify(arg,false)
       end
     end
     describe 'when argument is nil' do
       let(:arg) { nil }
       it 'Does not break' do
-        _(utils.slugify(arg)).must_equal('')
-        _(utils.slugify(arg,false)).must_equal('')
+        assert_equal '', utils.slugify(arg)
+        assert_equal '', utils.slugify(arg,false)
       end
     end
   end
@@ -245,7 +247,7 @@ describe PopulateMe::Utils do
         ['hello-world_1234', 'Hello World 1234'],
         [:hello_world, 'Hello World'],
       ].each do |(arg,result)|
-        _(utils.label_for_field(arg)).must_equal(result)
+        assert_equal result, utils.label_for_field(arg)
       end
     end
   end
@@ -269,11 +271,13 @@ describe PopulateMe::Utils do
       utils.each_stub(before) do |object,key_index,value|
         object[key_index] = value.to_s.downcase
       end
-      _(before).must_equal(after)
+      assert_equal after, before
     end
     it 'Raises a TypeError if The object is not appropriate' do
       [nil,'yo',4].each do |obj|
-        _ { utils.each_stub(obj) }.must_raise(TypeError)
+        assert_raises(TypeError) do
+          utils.each_stub(obj)
+        end
       end
     end
   end
@@ -295,14 +299,14 @@ describe PopulateMe::Utils do
           ['',nil],
           ['fack','fack']
         ].each do |(arg,result)|
-          _(utils.automatic_typecast(arg)).must_equal(result)
+          assert_equal result, utils.automatic_typecast(arg)
         end
       end
     end
     describe 'when not a string' do
       it 'Should leave it untouched' do
         [Time.now,1.0].each do |obj|
-          _(utils.automatic_typecast(obj)).must_equal(obj)
+          assert_equal obj, utils.automatic_typecast(obj)
         end
       end
     end
@@ -310,20 +314,20 @@ describe PopulateMe::Utils do
 
   describe '#generate_random_id' do
     it 'Has the correct format' do
-      _(utils.generate_random_id).must_match(/[a-zA-Z0-9]{16}/)
+      assert_match /[a-zA-Z0-9]{16}/, utils.generate_random_id
     end
     it 'Can have a specific length' do
-      _(utils.generate_random_id(32)).must_match (/[a-zA-Z0-9]{32}/)
+      assert_match /[a-zA-Z0-9]{32}/, utils.generate_random_id(32)
     end
   end
 
   describe '#nl2br' do
     it 'Puts unclosed tags by default' do
-      _(utils.nl2br("\nHello\nworld\n")).must_equal('<br>Hello<br>world<br>')
+      assert_equal '<br>Hello<br>world<br>', utils.nl2br("\nHello\nworld\n")
     end
     describe 'with 2nd argument' do
       it 'Replaces the tag' do
-        _(utils.nl2br("\nHello\nworld\n",'<br/>')).must_equal('<br/>Hello<br/>world<br/>')
+        assert_equal '<br/>Hello<br/>world<br/>', utils.nl2br("\nHello\nworld\n",'<br/>')
       end
     end
   end
@@ -335,7 +339,7 @@ describe PopulateMe::Utils do
         ['populate-me.com','//populate-me.com'],
         ['please.populate-me.com','//please.populate-me.com'],
       ].each do |(arg,result)|
-        _(utils.complete_link(arg)).must_equal(result)
+        assert_equal result, utils.complete_link(arg)
       end
     end
     it 'Does not alter the url when it does not need double slash' do
@@ -348,7 +352,7 @@ describe PopulateMe::Utils do
         ['',''],
         [' ',' '],
       ].each do |(arg,result)|
-        _(utils.complete_link(arg)).must_equal(result)
+        assert_equal result, utils.complete_link(arg)
       end
     end
   end
@@ -366,7 +370,7 @@ describe PopulateMe::Utils do
         ['/populate/me', false],
         ['populate-me.html', false],
       ].each do |(url,bool)|
-        _(utils.external_link?(url)).must_equal(bool)
+        assert_equal bool, utils.external_link?(url)
       end
     end
   end
@@ -375,85 +379,89 @@ describe PopulateMe::Utils do
     it 'Automates links and line breaks' do
       input = "Hello\nme@site.co.uk\nNot the begining me@site.co.uk\nme@site.co.uk not the end\nwww.site.co.uk\nVisit www.site.co.uk\nwww.site.co.uk rules\nhttp://www.site.co.uk\nVisit http://www.site.co.uk\nhttp://www.site.co.uk rules"
       output = "Hello<br><a href='mailto:me&#64;site.co.uk'>me&#64;site.co.uk</a><br>Not the begining <a href='mailto:me&#64;site.co.uk'>me&#64;site.co.uk</a><br><a href='mailto:me&#64;site.co.uk'>me&#64;site.co.uk</a> not the end<br><a href='//www.site.co.uk' target='_blank'>www.site.co.uk</a><br>Visit <a href='//www.site.co.uk' target='_blank'>www.site.co.uk</a><br><a href='//www.site.co.uk' target='_blank'>www.site.co.uk</a> rules<br><a href='http://www.site.co.uk' target='_blank'>http://www.site.co.uk</a><br>Visit <a href='http://www.site.co.uk' target='_blank'>http://www.site.co.uk</a><br><a href='http://www.site.co.uk' target='_blank'>http://www.site.co.uk</a> rules"
-      _(utils.automatic_html(input)).must_equal(output)
+      assert_equal output, utils.automatic_html(input)
     end
   end
 
   describe '#truncate' do
     it 'Truncates to the right amount of letters' do
-      _(utils.truncate('abc defg hijklmnopqrstuvwxyz',3)).must_equal('abc...')
+      assert_equal 'abc...', utils.truncate('abc defg hijklmnopqrstuvwxyz',3)
     end
     it 'Does not cut words' do
-      _(utils.truncate('abcdefg hijklmnopqrstuvwxyz',3)).must_equal('abcdefg...')
+      assert_equal 'abcdefg...', utils.truncate('abcdefg hijklmnopqrstuvwxyz',3)
     end
     it 'Removes HTML tags' do
-      _(utils.truncate('<br>abc<a href=#>def</a>g hijklmnopqrstuvwxyz',3)).must_equal('abcdefg...')
+      assert_equal 'abcdefg...', utils.truncate('<br>abc<a href=#>def</a>g hijklmnopqrstuvwxyz',3)
     end
     it 'Does not print the ellipsis if the string is already short enough' do
-      _(utils.truncate('abc def',50)).must_equal('abc def')
+      assert_equal 'abc def', utils.truncate('abc def',50)
     end
     describe 'with a 3rd argument' do 
       it 'Replaces the ellipsis' do
-        _(utils.truncate('abc defg hijklmnopqrstuvwxyz',3,'!')).must_equal('abc!')
-        _(utils.truncate('abc defg hijklmnopqrstuvwxyz',3,'')).must_equal('abc')
+        assert_equal 'abc!', utils.truncate('abc defg hijklmnopqrstuvwxyz',3,'!')
+        assert_equal 'abc', utils.truncate('abc defg hijklmnopqrstuvwxyz',3,'')
       end
     end
   end
 
   describe '#display_price' do
     it 'Turns a price number in cents/pence into a displayable one' do
-      _(utils.display_price(4595)).must_equal('45.95')
+      assert_equal '45.95', utils.display_price(4595)
     end
     it 'Removes cents if it is 00' do
-      _(utils.display_price(7000)).must_equal('70')
+      assert_equal '70', utils.display_price(7000)
     end
     it 'Adds comma delimiters on thousands' do
-      _(utils.display_price(1234567890)).must_equal('12,345,678.90')
+      assert_equal '12,345,678.90', utils.display_price(1234567890)
     end
     it 'Works with negative numbers' do
-      _(utils.display_price(-140000)).must_equal('-1,400')
+      assert_equal '-1,400', utils.display_price(-140000)
     end
     it 'Raises when argument is not int' do
-      _ {utils.display_price('abc')}.must_raise(TypeError)
+      assert_raises(TypeError) do
+        utils.display_price('abc')
+      end
     end
   end
 
   describe '#parse_price' do
     it 'Parses a string and find the price in cents/pence' do
-      _(utils.parse_price('45.95')).must_equal(4595)
+      assert_equal 4595, utils.parse_price('45.95')
     end
     it 'Works when you omit the cents/pence' do
-      _(utils.parse_price('28')).must_equal(2800)
+      assert_equal 2800, utils.parse_price('28')
     end
     it 'Ignores visual help but works with negative prices' do
-      _(utils.parse_price('   £-12,345,678.90   ')).must_equal(-1234567890)
+      assert_equal -1234567890, utils.parse_price('   £-12,345,678.90   ')
     end
     it 'Raises when argument is not string' do
-      _ {utils.parse_price(42)}.must_raise(TypeError)
+      assert_raises(TypeError) do
+        utils.parse_price(42)
+      end
     end
   end
 
   describe '#branded_filename' do
     it 'Adds PopulateMe to the file name' do
-      _(utils.branded_filename("/path/to/file.png")).must_equal("/path/to/PopulateMe-file.png")
+      assert_equal "/path/to/PopulateMe-file.png", utils.branded_filename("/path/to/file.png")
     end
     it 'Works when there is just a file name' do
-      _(utils.branded_filename("file.png")).must_equal("PopulateMe-file.png")
+      assert_equal "PopulateMe-file.png", utils.branded_filename("file.png")
     end
     it 'Can change the brand' do
-      _(utils.branded_filename("/path/to/file.png",'Brand')).must_equal("/path/to/Brand-file.png")
+      assert_equal "/path/to/Brand-file.png", utils.branded_filename("/path/to/file.png",'Brand')
     end
   end
 
   describe '#filename_variation' do
     it 'Replaces the ext with variation name and new ext' do
-      _(utils.filename_variation("/path/to/file.png", :thumb, :gif)).must_equal("/path/to/file.thumb.gif")
+      assert_equal "/path/to/file.thumb.gif", utils.filename_variation("/path/to/file.png", :thumb, :gif)
     end
     it 'Works when there is just a filename' do
-      _(utils.filename_variation("file.png", :thumb, :gif)).must_equal("file.thumb.gif")
+      assert_equal "file.thumb.gif", utils.filename_variation("file.png", :thumb, :gif)
     end
     it "Works when there is no ext to start with" do
-      _(utils.filename_variation("/path/to/file", :thumb, :gif)).must_equal("/path/to/file.thumb.gif")
+      assert_equal "/path/to/file.thumb.gif", utils.filename_variation("/path/to/file", :thumb, :gif)
     end
   end
 
@@ -468,18 +476,18 @@ describe PopulateMe::Utils do
     }
     let(:referer) { nil }
     it 'Returns true' do
-      _(utils.initial_request?(req)).must_equal(true)
+      assert utils.initial_request?(req)
     end
     describe 'Request comes from another domain' do
       let(:referer) { 'https://www.google.com/path' }
       it 'Returns true' do
-        _(utils.initial_request?(req)).must_equal(true)
+        assert utils.initial_request?(req)
       end
     end
     describe 'Request comes from same domain' do
       let(:referer) { 'http://example.org' }
       it 'Returns false' do
-        _(utils.initial_request?(req)).must_equal(false)
+        refute utils.initial_request?(req)
       end
     end
   end

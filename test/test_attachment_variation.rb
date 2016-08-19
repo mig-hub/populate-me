@@ -13,16 +13,16 @@ describe PopulateMe::Attachment::Variation do
 
   def self.it_has_attributes_set
     it 'Has attributes set' do
-      _(subject.name).must_equal(attachment_name)
-      _(subject.ext).must_equal(ext)
-      _(subject.job).must_be_instance_of(Proc)
+      assert_equal attachment_name, subject.name
+      assert_equal ext, subject.ext
+      assert_instance_of Proc, subject.job
     end
   end
 
   it_has_attributes_set
 
   it "Can call the job" do
-    _(subject.job.call).must_equal(:expected)
+    assert_equal :expected, subject.job.call
   end
 
   describe "From Attachment class methods" do
@@ -36,7 +36,7 @@ describe PopulateMe::Attachment::Variation do
       it_has_attributes_set
 
       it "Can call the job" do
-        _(subject.job.call).must_equal(:expected)
+        assert_equal :expected, subject.job.call
       end
 
       describe "Job is a block" do
@@ -46,7 +46,7 @@ describe PopulateMe::Attachment::Variation do
           end
         }
         it "Can call the job" do
-          _(subject.job.call).must_equal(:expected_in_block)
+          assert_equal :expected_in_block, subject.job.call
         end
       end
 
@@ -66,7 +66,7 @@ describe PopulateMe::Attachment::Variation do
       it_has_attributes_set
 
       it "Has a job waiting for src and dst" do
-        _(subject.job.arity).must_equal(2)
+        assert_equal 2, subject.job.arity
       end
 
       it "Triggers a well formed convert job" do

@@ -19,42 +19,42 @@ describe PopulateMe::Document, 'Typecasting' do
 
   describe "Value is blank or nil" do
     it "Returns nil" do
-      _(subject.typecast(:name,nil)).must_equal(nil)
-      _(subject.typecast(:name,'')).must_equal(nil)
-      _(subject.typecast(:salary,'')).must_equal(nil)
-      _(subject.typecast(:dob,'')).must_equal(nil)
-      _(subject.typecast(:when,'')).must_equal(nil)
+      assert_nil subject.typecast(:name,nil)
+      assert_nil subject.typecast(:name,'')
+      assert_nil subject.typecast(:salary,'')
+      assert_nil subject.typecast(:dob,'')
+      assert_nil subject.typecast(:when,'')
     end
   end
 
   describe "Field has type :string" do
     it "Returns it as-is" do
-      _(subject.typecast(:name,'Bob')).must_equal('Bob')
-      _(subject.typecast(:name,'5')).must_equal('5')
+      assert_equal 'Bob', subject.typecast(:name,'Bob')
+      assert_equal '5', subject.typecast(:name,'5')
     end
   end
 
   describe "Field has type :boolean" do
     it "Casts as a boolean" do
-      _(subject.typecast(:shared,'true')).must_equal(true)
-      _(subject.typecast(:shared,'false')).must_equal(false)
+      assert subject.typecast(:shared,'true')
+      refute subject.typecast(:shared,'false')
     end
   end
 
   describe "Field has type :integer" do
     describe "Value is just an integer" do
       it "Casts it as integer" do
-        _(subject.typecast(:age,'42')).must_equal(42)
+        assert_equal 42, subject.typecast(:age,'42')
       end
     end
     describe "Value has something written at the end" do
       it "Ignores it" do
-        _(subject.typecast(:age,'42 yo')).must_equal(42)
+        assert_equal 42, subject.typecast(:age,'42 yo')
       end
     end
     describe "Value is a float" do
       it "Rounds it" do
-        _(subject.typecast(:age,'42.50')).must_equal(42)
+        assert_equal 42, subject.typecast(:age,'42.50')
       end
     end
   end
@@ -62,57 +62,57 @@ describe PopulateMe::Document, 'Typecasting' do
   describe "Field has type :price" do
     describe "Value is an integer" do
       it "Casts it in cents/pence (x100)" do
-        _(subject.typecast(:salary,'42')).must_equal(4200)
+        assert_equal 4200, subject.typecast(:salary,'42')
       end
     end
     describe "Value is a float with 2 decimals" do
       it "Casts it in cents/pence" do
-        _(subject.typecast(:salary,'42.50')).must_equal(4250)
+        assert_equal 4250, subject.typecast(:salary,'42.50')
       end
     end
     describe "Value is a float with irregular decimals for a price" do
       it "Rounds it" do
-        _(subject.typecast(:salary,'42.5')).must_equal(4250)
-        _(subject.typecast(:salary,'42.567')).must_equal(4257)
+        assert_equal 4250, subject.typecast(:salary,'42.5')
+        assert_equal 4257, subject.typecast(:salary,'42.567')
       end
     end
     describe "Value is prefixed or suffixed" do
       it "Ignores what is not part of the price" do
-        _(subject.typecast(:salary,'$42.5')).must_equal(4250)
-        _(subject.typecast(:salary,'42.5 Dollars')).must_equal(4250)
+        assert_equal 4250, subject.typecast(:salary,'$42.5')
+        assert_equal 4250, subject.typecast(:salary,'42.5 Dollars')
       end
     end
   end
 
   describe "Field has type :date" do
     it "Parses the date with Date.parse" do
-      _(subject.typecast(:dob,'10/11/1979')).must_equal(Date.parse('10/11/1979'))
+      assert_equal Date.parse('10/11/1979'), subject.typecast(:dob,'10/11/1979')
     end
     describe "Delimiter is a dash" do
       it "Replaces them with forward slash before parsing" do
-        _(subject.typecast(:dob,'10-11-1979')).must_equal(Date.parse('10/11/1979'))
+        assert_equal Date.parse('10/11/1979'), subject.typecast(:dob,'10-11-1979')
       end
     end
     describe "Value is malformed" do
       it "Returns nil" do
-        _(subject.typecast(:dob,'10/11')).must_equal(nil)
+        assert_nil subject.typecast(:dob,'10/11')
       end
     end
   end
 
   describe "Field has type :datetime" do
     it "Splits the numbers and feed them to Time.utc" do
-      _(subject.typecast(:when,'10/11/1979 12:30:4')).must_equal(Time.utc(1979,11,10,12,30,4))
+      assert_equal Time.utc(1979,11,10,12,30,4), subject.typecast(:when,'10/11/1979 12:30:4')
     end
     describe "Delimiter is a dash" do
       it "Replaces them with forward slash before parsing" do
-        _(subject.typecast(:when,'10-11-1979 12:30:4')).must_equal(Time.utc(1979,11,10,12,30,4))
+        assert_equal Time.utc(1979,11,10,12,30,4), subject.typecast(:when,'10-11-1979 12:30:4')
       end
     end
     describe "Value is malformed" do
       it "Returns nil" do
-        _(subject.typecast(:when,'10/11')).must_equal(nil)
-        _(subject.typecast(:when,'10/11/1979')).must_equal(nil)
+        assert_nil subject.typecast(:when,'10/11')
+        assert_nil subject.typecast(:when,'10/11/1979')
       end
     end
   end

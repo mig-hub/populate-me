@@ -13,21 +13,21 @@ describe PopulateMe::Attachment do
   describe "Kept attributes" do
     let(:document) { Hash.new }
     it "Keeps document and field as attributes" do
-      _(subject.document).must_equal(document)
-      _(subject.field).must_equal(field)
+      assert_equal document, subject.document
+      assert_equal field, subject.field
     end
   end
 
   it "Delegates settings to its class" do
     described_class.stub(:settings, :mock_settings) do
-      _(subject.settings).must_equal(:mock_settings)
+      assert_equal :mock_settings, subject.settings
     end
   end
 
   describe "#field_value" do
     it "Gets the field value of its document" do
       document.expect(field, :mock_value)
-      _(subject.field_value).must_equal(:mock_value)
+      assert_equal :mock_value, subject.field_value
       document.verify
     end
   end
@@ -36,7 +36,7 @@ describe PopulateMe::Attachment do
     it "Returns the dasherized version of its document class" do
       document.expect(:class, String)
       PopulateMe::Utils.stub(:dasherize_class_name, :mock_prefix, ['String']) do
-        _(subject.attachee_prefix).must_equal(:mock_prefix)
+        assert_equal :mock_prefix, subject.attachee_prefix
       end
     end
   end
@@ -46,7 +46,7 @@ describe PopulateMe::Attachment do
       settings = Minitest::Mock.new
       settings.expect(:root, :mock_root)
       subject.stub(:settings, settings) do 
-        _(subject.location_root).must_equal(:mock_root)
+        assert_equal :mock_root, subject.location_root
       end
     end
   end
@@ -55,7 +55,7 @@ describe PopulateMe::Attachment do
     it "Combines location root and the field value" do
       subject.stub(:location_root, 'mock_root') do
         subject.stub(:field_value, 'mock_value') do
-          _(subject.location).must_equal(File.join('mock_root','mock_value'))
+          assert_equal File.join('mock_root','mock_value'), subject.location
         end
       end
     end
@@ -75,7 +75,7 @@ describe PopulateMe::Attachment do
     describe "When there is something to delete" do
       it "is true" do
         setup_stubs do
-          _(subject.deletable?).must_equal(true)
+          assert subject.deletable?
         end
       end
     end
@@ -83,7 +83,7 @@ describe PopulateMe::Attachment do
       let(:path) { '' }
       it "is false" do
         setup_stubs do
-          _(subject.deletable?).must_equal(false)
+          refute subject.deletable?
         end
       end
     end
@@ -91,7 +91,7 @@ describe PopulateMe::Attachment do
       let(:loc) { 'non-existing.path' }
       it "is false" do
         setup_stubs do
-          _(subject.deletable?).must_equal(false)
+          refute subject.deletable?
         end
       end
     end

@@ -38,62 +38,62 @@ describe 'PopulateMe::API' do
     JSON.parse(last_response.body)
   }
 
-  def must_be_not_found
-    _(last_response).must_be_json
-    _(last_response.status).must_equal 404
-    _(last_response.headers['X-Cascade']).must_equal 'pass'
-    _(json['success']).must_equal false
-    _(json['message']).must_equal 'Not Found'
+  def assert_not_found
+    assert_json last_response
+    assert_equal 404, last_response.status
+    assert_equal 'pass', last_response.headers['X-Cascade']
+    refute json['success']
+    assert_equal 'Not Found', json['message']
   end
   
-  def must_be_successful_creation
-    _(last_response).must_be_json
-    _(last_response.status).must_equal 201
-    _(json['success']).must_equal true
-    _(json['message']).must_equal 'Created Successfully'
+  def assert_successful_creation
+    assert_json last_response
+    assert_equal 201, last_response.status
+    assert json['success']
+    assert_equal 'Created Successfully', json['message']
   end
 
-  def must_be_successful_sorting
-    _(last_response).must_be_json
-    _(last_response).must_be :ok?
-    _(json['success']).must_equal true
-    _(json['message']).must_equal 'Sorted Successfully'
+  def assert_successful_sorting
+    assert_json last_response
+    assert_predicate last_response, :ok?
+    assert json['success']
+    assert_equal 'Sorted Successfully', json['message']
   end
 
-  def must_be_invalid_instance
-    _(last_response).must_be_json
-    _(last_response.status).must_equal 400
-    _(json['success']).must_equal false
-    _(json['message']).must_equal 'Invalid Document'
+  def assert_invalid_instance
+    assert_json last_response
+    assert_equal 400, last_response.status
+    refute json['success']
+    assert_equal 'Invalid Document', json['message']
   end
 
-  def must_be_successful_instance
-    _(last_response).must_be_json
-    _(last_response).must_be :ok?
-    _(json['success']).must_equal true
+  def assert_successful_instance
+    assert_json last_response
+    assert_predicate last_response, :ok?
+    assert json['success']
   end
 
-  def must_be_successful_update
-    _(last_response).must_be_json
-    _(last_response).must_be :ok?
-    _(json['success']).must_equal true
-    _(json['message']).must_equal 'Updated Successfully'
+  def assert_successful_update
+    assert_json last_response
+    assert_predicate last_response, :ok?
+    assert json['success']
+    assert_equal 'Updated Successfully', json['message']
   end
 
-  def must_be_successful_deletion
-    _(last_response).must_be_json
-    _(last_response).must_be :ok?
-    _(json['success']).must_equal true
-    _(json['message']).must_equal 'Deleted Successfully'
+  def assert_successful_deletion
+    assert_json last_response
+    assert_predicate last_response, :ok?
+    assert json['success']
+    assert_equal 'Deleted Successfully', json['message']
   end
 
   describe 'GET /version' do
     it 'Returns the PopulateMe version' do
       get('/version')
-      _(last_response).must_be_json
-      _(last_response).must_be :ok?
-      _(json['success']).must_equal true
-      _(json['version']).must_equal PopulateMe::VERSION
+      assert_json last_response
+      assert_predicate last_response, :ok?
+      assert json['success']
+      assert_equal PopulateMe::VERSION, json['version']
     end
   end
 
@@ -101,32 +101,32 @@ describe 'PopulateMe::API' do
 
     it 'Creates successfully' do
       post('/band', {data: {id: 'neurosis', name: 'Neurosis'}})
-      must_be_successful_creation
-      _(json['data']['name']).must_equal 'Neurosis'
+      assert_successful_creation
+      assert_equal 'Neurosis', json['data']['name']
     end
 
     it 'Typecasts before creating' do
       post('/band', {data: {name: 'Arcade Fire', awsome: 'true'}})
-      must_be_successful_creation
-      _(json['data']['awsome']).must_equal true
+      assert_successful_creation
+      assert json['data']['awsome']
     end
 
     it 'Can create a doc even if no data is sent' do
       post '/band'
-      must_be_successful_creation
+      assert_successful_creation
     end
 
     it 'Fails if the doc is invalid' do
       post('/band', {data: {id: 'invalid_doc_post', name: 'ZZ Top'}})
-      must_be_invalid_instance
-      _(json['data']).must_equal({'name'=>['WTF']})
-      _(Band.admin_get('invalid_doc_post')).must_be_nil
+      assert_invalid_instance
+      assert_equal({'name'=>['WTF']}, json['data'])
+      assert_nil Band.admin_get('invalid_doc_post')
     end
 
     it 'Redirects if destination is given' do
       post '/band', {'_destination'=>'http://example.org/anywhere'}
-      _(last_response.status).must_equal 302
-      _(last_response.header['Location']).must_equal 'http://example.org/anywhere'
+      assert_equal 302, last_response.status
+      assert_equal 'http://example.org/anywhere', last_response.header['Location']
     end
 
   end
@@ -142,10 +142,10 @@ describe 'PopulateMe::API' do
         'field'=>'position',
         'ids'=> ['sortable2','sortable3','sortable1']
       }
-      must_be_successful_sorting
-      _(Band.admin_get('sortable2').position).must_equal 0
-      _(Band.admin_get('sortable3').position).must_equal 1
-      _(Band.admin_get('sortable1').position).must_equal 2
+      assert_successful_sorting
+      assert_equal 0, Band.admin_get('sortable2').position
+      assert_equal 1, Band.admin_get('sortable3').position
+      assert_equal 2, Band.admin_get('sortable1').position
     end
 
     it 'Redirects after sorting if destination is given' do
@@ -158,8 +158,8 @@ describe 'PopulateMe::API' do
         'ids'=> ['redirectsortable2','redirectsortable3','redirectsortable1'],
         '_destination'=>'http://example.org/anywhere'
       }
-      _(last_response.status).must_equal 302
-      _(last_response.header['Location']).must_equal 'http://example.org/anywhere'
+      assert_equal 302, last_response.status
+      assert_equal 'http://example.org/anywhere', last_response.header['Location']
     end
 
   end
@@ -167,47 +167,47 @@ describe 'PopulateMe::API' do
   describe 'GET /:model/:id' do
     it 'Sends a not-found when the model is not a class' do
       get('/wizz/42')
-      must_be_not_found
+      assert_not_found
     end
     it 'Sends not-found when the model is a class but not a model' do
       get('/string/42')
-      must_be_not_found
+      assert_not_found
     end
     it 'Sends not-found when the id is not provided' do
       get('/band/')
-      must_be_not_found
+      assert_not_found
     end
     it 'Sends not-found when the instance does not exist' do
       get('/band/666')
-      must_be_not_found
+      assert_not_found
     end
     it 'Sends the instance if it exists' do
       post('/band', {data: {id: 'sendable', name: 'Morphine'}})
       get('/band/sendable')
-      must_be_successful_instance
-      _(json['data']).must_equal Band.admin_get('sendable').to_h
+      assert_successful_instance
+      assert_equal Band.admin_get('sendable').to_h, json['data']
     end
   end
 
   describe 'PUT /:model/:id' do
     it 'Sends not-found if the instance does not exist' do
       put('/band/666')
-      must_be_not_found
+      assert_not_found
     end
     it 'Fails if the document is invalid' do
       post('/band', {data: {id: 'invalid_doc_put', name: 'Valid here'}})
       put('/band/invalid_doc_put', {data: {name: 'ZZ Top'}})
-      must_be_invalid_instance
-      _(json['data']).must_equal({'name'=>['WTF']})
-      _(Band.admin_get('invalid_doc_put').name).wont_equal 'ZZ Top'
+      assert_invalid_instance
+      assert_equal({'name'=>['WTF']}, json['data'])
+      refute_equal 'ZZ Top', Band.admin_get('invalid_doc_put').name
     end
     it 'Updates documents' do
       post('/band', {data: {id: 'updatable', name: 'Updatable'}})
       put('/band/updatable', {data: {awsome: 'yes'}})
-      must_be_successful_update
+      assert_successful_update
       obj = Band.admin_get('updatable')
-      _(obj.awsome).must_equal 'yes'
-      _(obj.name).must_equal 'Updatable'
+      assert_equal 'yes', obj.awsome
+      assert_equal 'Updatable', obj.name
     end
     # it 'Updates nested documents' do
     #   obj = Band.admin_get('3')
@@ -215,31 +215,31 @@ describe 'PopulateMe::API' do
     #     {id: obj.members[0].id, _class: 'Band::Member', name: 'Joey Ramone'},
     #     {id: obj.members[1].id, _class: 'Band::Member'},
     #   ]}})
-    #   must_be_successful_update
+    #   assert_successful_update
     #   obj = Band.admin_get('3')
-    #   _(obj.awsome).must_equal 'yes'
-    #   _(obj.name).must_equal 'The Ramones'
-    #   _(obj.members.size).must_equal 2
-    #   _(obj.members[0].name).must_equal 'Joey Ramone'
-    #   _(obj.members[1].name).must_equal 'Deedee Ramone'
+    #   assert_equal 'yes', obj.awsome
+    #   assert_equal 'The Ramones', obj.name
+    #   assert_equal 2, obj.members.size
+    #   assert_equal 'Joey Ramone', obj.members[0].name
+    #   assert_equal 'Deedee Ramone', obj.members[1].name
     # end
   end
 
   describe 'DELETE /:model/:id' do
     it 'Sends not-found if the instance does not exist' do
       delete('/band/666')
-      must_be_not_found
+      assert_not_found
     end
     it 'Returns a deletion response when the instance exists' do
       post('/band', {data: {id: 'deletable', name: '1D'}})
       delete('/band/deletable')
-      must_be_successful_deletion
-      _(json['data']).must_be_instance_of Hash
+      assert_successful_deletion
+      assert_instance_of Hash, json['data']
     end
     it 'Redirects if destination is given' do
       delete('/band/2', {'_destination'=>'http://example.org/anywhere'})
-      _(last_response.status).must_equal 302
-      _(last_response.header['Location']).must_equal 'http://example.org/anywhere'
+      assert_equal 302, last_response.status
+      assert_equal 'http://example.org/anywhere', last_response.header['Location']
     end
   end
 end

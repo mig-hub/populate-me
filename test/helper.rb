@@ -31,11 +31,6 @@ module Minitest::Assertions
   end
 end
 
-module Minitest::Expectations
-  infect_an_assertion :assert_json, :must_be_json, :unary
-  infect_an_assertion :assert_for_view, :must_be_for_view, :reverse
-end
-
 class Minitest::Spec
   include Rack::Test::Methods
 end

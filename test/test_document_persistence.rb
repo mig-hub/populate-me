@@ -32,13 +32,13 @@ describe PopulateMe::Document, 'Persistence' do
     describe 'The document does not exist yet' do
       it 'Saves an entry with the ID `unique` by default' do
         Stuborn.is_unique
-        _(Stuborn.documents.count).must_equal 1
-        _(Stuborn.documents[0]['id']).must_equal 'unique'
+        assert_equal 1, Stuborn.documents.count
+        assert_equal 'unique', Stuborn.documents[0]['id']
       end
       it 'Saves an entry with a provided ID' do
         Stuborn.is_unique('provided_id')
-        _(Stuborn.documents.count).must_equal 1
-        _(Stuborn.documents[0]['id']).must_equal 'provided_id'
+        assert_equal 1, Stuborn.documents.count
+        assert_equal 'provided_id', Stuborn.documents[0]['id']
       end
     end
     describe 'The document already exist' do
@@ -46,8 +46,8 @@ describe PopulateMe::Document, 'Persistence' do
         doc = Stuborn.new({'id'=>'unique', 'age'=>4})
         doc.save
         Stuborn.is_unique
-        _(Stuborn.documents.count).must_equal 1
-        _(Stuborn.documents[0]).must_equal doc.to_h
+        assert_equal 1, Stuborn.documents.count
+        assert_equal doc.to_h, Stuborn.documents[0]
       end
     end
   end
