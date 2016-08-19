@@ -86,6 +86,9 @@ describe PopulateMe::Utils do
         ['HTTPRequest','h-t-t-p-request'],
         ['RestAPI','rest-a-p-i'],
         ['AlteredSMTPAttachment','altered-s-m-t-p-attachment'],
+        ['View360', 'view-360'],
+        ['View360Degree', 'view-360-degree'],
+        ['Degree360::View', 'degree-360--view'],
         ['RestAPI::Request::Post','rest-a-p-i--request--post'],
       ]
     }

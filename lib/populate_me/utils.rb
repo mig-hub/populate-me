@@ -40,12 +40,12 @@ module PopulateMe
     module_function :singularize
 
     def dasherize_class_name s
-      s.gsub(/[A-Z]/){|str|"-#{str.downcase}"}[1..-1].gsub('::','-')
+      s.gsub(/([A-Z]|\d+)/){|str|"-#{str.downcase}"}[1..-1].gsub('::','-')
     end
     module_function :dasherize_class_name
 
     def undasherize_class_name s
-      s.capitalize.gsub(/\-([a-z])/){|str|$1.upcase}.gsub('-','::')
+      s.capitalize.gsub(/\-([a-z0-9])/){|str|$1.upcase}.gsub('-','::')
     end
     module_function :undasherize_class_name
 
