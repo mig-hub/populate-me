@@ -46,7 +46,7 @@ module PopulateMe
       def ensure_delete_attachments
         self.class.fields.each do |k,v|
           if v[:type]==:attachment
-            self.attachment(k).delete
+            self.attachment(k).delete_all
           end
         end
       end

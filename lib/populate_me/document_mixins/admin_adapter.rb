@@ -6,12 +6,19 @@ module PopulateMe
         "#{Utils.dasherize_class_name(self.class.name)}/#{id}".sub(/\/$/,'')
       end
 
+      def admin_image_url
+        thefield = self.class.admin_image_field
+        return nil if thefield.nil?
+        self.attachment(thefield).url(:populate_me_thumb)
+      end
+
       def to_admin_list_item o={}
         {
           class_name: self.class.name,
           id: self.id,
           admin_url: to_admin_url,
           title: to_s,
+          image_url: admin_image_url,
           local_menu: self.class.relationships.inject([]) do |out,(k,v)|
             unless v[:hidden]
               out << {
@@ -54,6 +61,17 @@ module PopulateMe
       end
 
       module ClassMethods
+
+        def admin_image_field
+          res = self.fields.find do |k,v|
+            if v[:type]==:attachment and !v[:variations].nil?
+              v[:variations].any?{|var|var.name==:populate_me_thumb}
+            else
+              false
+            end
+          end
+          res.nil? ? nil : res[0]
+        end
 
         def admin_get id
           self.cast do

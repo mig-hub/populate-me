@@ -1,12 +1,11 @@
-require "populate_me/utils"
-require "fileutils"
-require "ostruct"
+require 'populate_me/utils'
+require 'populate_me/variation'
+require 'fileutils'
+require 'ostruct'
 
 module PopulateMe
 
   class Attachment
-
-    Variation = Struct.new :name, :ext, :job
 
     class << self
 
@@ -36,24 +35,6 @@ module PopulateMe
         ]
       end
 
-      # Variation
-      
-      def variation name, ext, job_as_proc=nil, &job_as_block
-        Variation.new name, ext, job_as_proc||job_as_block
-      end
-      def image_magick_variation name, ext, convert_string, options={}
-        o = {
-          strip: true, progressive: true,
-        }.merge(options)
-        defaults = ""
-        defaults << "-strip " if o[:strip]
-        defaults << "-interlace Plane " if o[:progressive] and [:jpg,:jpeg].include?(ext.to_sym)
-        job = lambda{ |src,dst|
-          Kernel.system "convert \"#{src}\" #{defaults}#{convert_string} \"#{dst}\""
-        }
-        Variation.new name, ext, job
-      end
-
     end
 
     attr_accessor :document, :field
@@ -71,69 +52,84 @@ module PopulateMe
       self.document.__send__(field)
     end
 
-    def field_filename version=nil
-      self.field_value
+    def variations
+      self.document.class.fields[self.field][:variations]
+    end
+
+    def field_filename variation_name=:original
+      return nil if self.field_value.nil?
+      return self.field_value if variation_name==:original
+      v = self.variations.find{|var|var.name==variation_name}
+      Utils.filename_variation(self.field_value, v.name, v.ext)
     end
 
     def attachee_prefix
       Utils.dasherize_class_name self.document.class.name
     end
     
-    def url version=:original
-      self.field_filename
+    def url variation_name=:original
+      self.field_filename variation_name
     end
 
     def location_root
       settings.root
     end
 
-    def location version=:original
-      File.join(self.location_root,self.field_filename)
+    def location variation_name=:original
+      File.join(self.location_root,self.field_filename(variation_name))
     end
 
     def ensure_local_path
       self.location
     end
     
-    def create hash
+    def create form_hash
       self.delete
-      out = perform_create hash
-      create_variations hash[:tempfile].path
-      out
+
+      # Rack 1.6 deletes multipart files after request
+      # So we have to create a branded copy
+      path = Utils.branded_filename(form_hash[:tempfile].path)
+      FileUtils.copy_entry(form_hash[:tempfile].path, path) 
+
+      future_field_value = perform_create form_hash.merge(branded_path: path)
+      create_variations path
+      future_field_value
     end
 
     def create_variations path=nil
-      variations = self.document.class.fields[self.field][:variations]
-      return if variations.nil? or variations.empty?
+      return if self.variations.nil? or self.variations.empty?
       if path.nil? or !File.exist?(path)
         path = ensure_local_path
       end
       variations.each do |v|
+        self.delete v.name
         v.job.call(path, Utils.filename_variation(path,v.name,v.ext))
       end
     end
 
-    def perform_create hash
-      # Rack 1.6 deletes multipart files after request
-      src = hash[:tempfile].path
-      dst = Utils.branded_filename(src)
-      FileUtils.copy_entry(src,dst) 
-      dst
+    def perform_create form_hash
+      form_hash[:branded_path]
     end
 
-    def deletable? version=nil
-      !Utils.blank?(self.field_filename) and File.exist?(self.location)
+    def deletable? variation_name=:original
+      !Utils.blank?(self.field_filename(variation_name)) and File.exist?(self.location(variation_name))
     end
 
-    def delete version=nil
-      # delete all if version is nil
-      if self.deletable?
-        perform_delete version
+    def delete variation_name=:original
+      if self.deletable?(variation_name)
+        perform_delete variation_name
       end
     end
 
-    def perform_delete version=nil
-      FileUtils.rm self.location
+    def delete_all
+      to_delete =  [:original] + variations.map(&:name)
+      to_delete.each do |v_name|
+        self.delete v_name
+      end
+    end
+
+    def perform_delete variation_name=:original
+      FileUtils.rm self.location(variation_name)
     end
 
     self.settings = OpenStruct.new

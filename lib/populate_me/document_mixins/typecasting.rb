@@ -42,7 +42,7 @@ module PopulateMe
       def typecast_attachment k, v
         attached = self.attachment k
         if Utils.blank? v
-          attached.delete
+          attached.delete_all
           return nil
         elsif v.is_a?(Hash)&&v.key?(:tempfile)
           return attached.create v

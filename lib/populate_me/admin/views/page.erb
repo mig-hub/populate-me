@@ -46,7 +46,13 @@
           {{/sort_field}}
           <button type='button' class='admin-delete' title='Delete' value='<%= request.script_name %>/api/{{admin_url}}'>&times;</button>
         </header>
-        <a href="<%= request.script_name %>/form/{{admin_url}}" class='column-push' title='Edit'>{{title}}</a>
+        <a href="<%= request.script_name %>/form/{{admin_url}}" class='column-push' title='Edit'>
+          {{title}}
+          {{#image_url}}
+            <br />
+            <img src='{{image_url}}' alt='{{title}}' width='300' />
+          {{/image_url}}
+        </a>
         <ol class='local-menu'>
           {{#local_menu}}
             <li>&rarr; <a href="{{href}}" class='column-push' title='Open'>{{title}}</a></li>

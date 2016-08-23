@@ -14,7 +14,9 @@ PopulateMe::Document.set :default_attachment_class, PopulateMe::Attachment
 
 class BlogPost < PopulateMe::Document
   field :title, required: true
-  field :thumbnail, type: :attachment
+  field :thumbnail, type: :attachment, variations: [
+    PopulateMe::Variation.new_image_magick_job(:populate_me_thumb, :jpg, "-resize '400x225^' -gravity center -extent 400x225")
+  ]
   field :content, type: :text
   field :authors, type: :list
   field :published, type: :boolean

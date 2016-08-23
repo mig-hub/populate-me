@@ -1,17 +1,30 @@
 require 'helper'
-require "populate_me/attachment"
+require 'populate_me/attachment'
+require 'populate_me/document'
 
 describe PopulateMe::Attachment do
 
   parallelize_me!
 
-  subject { PopulateMe::Attachment.new(document, field) }
-  let(:described_class) { PopulateMe::Attachment }
-  let(:document) { Minitest::Mock.new }
-  let(:field) { :thumbnail }
+  class NiceAttachment < PopulateMe::Attachment
+    set :root, '/under/'
+  end
+
+  class NiceIllustration < PopulateMe::Document
+    set :default_attachment_class, NiceAttachment
+    field :name
+    field :image, type: :attachment, variations: [
+      PopulateMe::Variation.new_image_magick_job(:negated, :jpg, '-negate'),
+      PopulateMe::Variation.new_image_magick_job(:negated_gif, :gif, '-negate')
+    ]
+  end
+
+  subject { NiceAttachment.new(document, field) }
+  let(:described_class) { NiceAttachment }
+  let(:document) { NiceIllustration.new(name: 'Painting', image: 'myimage.jpg') }
+  let(:field) { :image }
 
   describe "Kept attributes" do
-    let(:document) { Hash.new }
     it "Keeps document and field as attributes" do
       assert_equal document, subject.document
       assert_equal field, subject.field
@@ -19,45 +32,39 @@ describe PopulateMe::Attachment do
   end
 
   it "Delegates settings to its class" do
-    described_class.stub(:settings, :mock_settings) do
-      assert_equal :mock_settings, subject.settings
-    end
+    assert_equal '/under/', described_class.settings.root
+    assert_equal '/under/', subject.settings.root
   end
 
   describe "#field_value" do
     it "Gets the field value of its document" do
-      document.expect(field, :mock_value)
-      assert_equal :mock_value, subject.field_value
-      document.verify
+      assert_equal 'myimage.jpg', subject.field_value
+    end
+  end
+
+  describe "#variations" do
+    it "Gets variations for the field" do
+      variations = subject.variations
+      assert_equal 2, variations.size
+      assert_equal :negated, variations[0].name
     end
   end
 
   describe "#attachee_prefix" do
     it "Returns the dasherized version of its document class" do
-      document.expect(:class, String)
-      PopulateMe::Utils.stub(:dasherize_class_name, :mock_prefix, ['String']) do
-        assert_equal :mock_prefix, subject.attachee_prefix
-      end
+      assert_equal 'nice-illustration', subject.attachee_prefix
     end
   end
 
   describe "#location_root" do
     it "Is the settings root" do
-      settings = Minitest::Mock.new
-      settings.expect(:root, :mock_root)
-      subject.stub(:settings, settings) do 
-        assert_equal :mock_root, subject.location_root
-      end
+      assert_equal '/under/', subject.location_root
     end
   end
 
   describe "#location" do
     it "Combines location root and the field value" do
-      subject.stub(:location_root, 'mock_root') do
-        subject.stub(:field_value, 'mock_value') do
-          assert_equal File.join('mock_root','mock_value'), subject.location
-        end
-      end
+      assert_equal '/under/myimage.jpg', subject.location
     end
   end
 
@@ -100,16 +107,29 @@ describe PopulateMe::Attachment do
   describe "#delete" do
     it "Performs if deletable" do
       subject.stub(:deletable?, true) do
-        assert_receive(subject, :perform_delete, nil, [nil]) do
-          subject.delete
+        assert_receive(subject, :perform_delete, nil, [:negated]) do
+          subject.delete(:negated)
         end
       end
     end
     it "Does not perform if not deletable" do
       subject.stub(:deletable?, false) do
         refute_receive(subject, :perform_delete) do
-          subject.delete
+          subject.delete(:thumb)
         end
+      end
+    end
+    it "Can delete all variations in one go" do
+      # Most used
+      subject.stub(:deletable?, true) do
+        mocked_meth = Minitest::Mock.new
+        mocked_meth.expect(:call, nil, [:original])
+        mocked_meth.expect(:call, nil, [:negated])
+        mocked_meth.expect(:call, nil, [:negated_gif])
+        subject.stub :perform_delete, mocked_meth do
+          subject.delete_all
+        end
+        assert mocked_meth.verify, "Expected #{subject.inspect} to call :perform_delete for all variations."
       end
     end
   end

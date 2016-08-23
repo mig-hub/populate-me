@@ -18,25 +18,25 @@ module PopulateMe
       self.class.gridfs
     end
 
-    def field_filename version=nil
+    def field_filename variation_name=nil
       return '' if Utils.blank?(self.field_value)
       return self.field_value if self.field_value.is_a?(String)
       raise 'PopulateMe::GridFS does not implement field_value that is not string yet'
     end
 
-    def url version=:original
-      return nil if Utils.blank?(self.field_filename)
-      "#{settings.url_prefix.sub(/\/$/,'')}/#{self.field_filename}"
+    def url variation_name=:original
+      return nil if Utils.blank?(self.field_filename(variation_name))
+      "#{settings.url_prefix.sub(/\/$/,'')}/#{self.field_filename(variation_name)}"
     end
 
-    def deletable? version=nil
+    def deletable? variation_name=nil
       !Utils.blank? self.field_filename 
       # Fine since deleting a non-existent file does not raise an error in mongo
     end
 
-    def perform_delete version=nil
+    def perform_delete variation_name=nil
       # gridfs works with names instead of IDs
-      gridfs.delete self.field_filename
+      gridfs.delete self.field_filename(variation_name)
     end
 
     def next_available_filename filename
