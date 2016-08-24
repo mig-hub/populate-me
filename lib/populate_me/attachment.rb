@@ -88,7 +88,8 @@ module PopulateMe
 
       # Rack 1.6 deletes multipart files after request
       # So we have to create a branded copy
-      path = Utils.branded_filename(form_hash[:tempfile].path)
+      unbranded_path = "#{form_hash[:tempfile].path}-#{form_hash[:filename]}"
+      path = Utils.branded_filename(unbranded_path)
       FileUtils.copy_entry(form_hash[:tempfile].path, path) 
 
       future_field_value = perform_create form_hash.merge(branded_path: path)
