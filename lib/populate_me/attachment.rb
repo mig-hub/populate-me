@@ -110,7 +110,7 @@ module PopulateMe
     end
 
     def perform_create hash
-      return hash[:variation_path] unless Utils.blank?(hash[:variation_path])
+      return File.basename(hash[:variation_path]) unless Utils.blank?(hash[:variation_path])
       # Rack 1.6 deletes multipart files after request
       # So we have to create a copy
       FileUtils.mkdir_p self.location_root
