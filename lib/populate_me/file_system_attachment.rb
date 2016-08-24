@@ -5,20 +5,20 @@ module PopulateMe
   class FileSystemAttachment < Attachment
 
     set :root, File.expand_path('public')
-    set :url_prefix, '/attachment'
+    # set :url_prefix, '/attachment'
 
-    def url variation_name=:original
-      return nil if Utils.blank?(self.field_filename(variation_name))
-      "#{settings.url_prefix.sub(/\/$/,'')}/#{self.attachee_prefix}/#{self.field_filename(variation_name)}"
-    end
+    # def url variation_name=:original
+    #   return nil if Utils.blank?(self.field_filename(variation_name))
+    #   "#{settings.url_prefix.sub(/\/$/,'')}/#{self.attachee_prefix}/#{self.field_filename(variation_name)}"
+    # end
 
-    def location_root
-      File.join(
-        settings.root, 
-        settings.url_prefix,
-        self.attachee_prefix
-      )
-    end
+    # def location_root
+    #   File.join(
+    #     settings.root, 
+    #     settings.url_prefix,
+    #     self.attachee_prefix
+    #   )
+    # end
     
     def next_available_filename filename
       FileUtils.mkdir_p self.location_root

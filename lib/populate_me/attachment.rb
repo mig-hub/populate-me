@@ -68,15 +68,23 @@ module PopulateMe
     end
     
     def url variation_name=:original
-      self.field_filename variation_name
+      return nil if Utils.blank?(self.field_filename(variation_name))
+      "#{settings.url_prefix.sub(/\/$/,'')}/#{self.attachee_prefix}/#{self.field_filename(variation_name)}"
     end
 
     def location_root
-      settings.root
+      File.join(
+        settings.root, 
+        settings.url_prefix,
+        self.attachee_prefix
+      )
     end
 
     def location variation_name=:original
-      File.join(self.location_root,self.field_filename(variation_name))
+      self.location_for_filename self.field_filename(variation_name)
+    end
+    def location_for_filename filename
+      File.join self.location_root, filename
     end
 
     def ensure_local_path
@@ -85,31 +93,33 @@ module PopulateMe
     
     def create form_hash
       self.delete
-
-      # Rack 1.6 deletes multipart files after request
-      # So we have to create a branded copy
-      unbranded_path = "#{form_hash[:tempfile].path}-#{form_hash[:filename]}"
-      path = Utils.branded_filename(unbranded_path)
-      FileUtils.copy_entry(form_hash[:tempfile].path, path) 
-
-      future_field_value = perform_create form_hash.merge(branded_path: path)
-      create_variations path
+      future_field_value = perform_create form_hash
+      create_variations form_hash.merge({future_field_value: future_field_value})
       future_field_value
     end
 
-    def create_variations path=nil
-      return if self.variations.nil? or self.variations.empty?
-      if path.nil? or !File.exist?(path)
-        path = ensure_local_path
-      end
+    def create_variations hash
+      return if self.variations.nil?
+      path = self.location_for_filename hash[:future_field_value]
       variations.each do |v|
         self.delete v.name
-        v.job.call(path, Utils.filename_variation(path,v.name,v.ext))
+        v_path = Utils.filename_variation path, v.name, v.ext
+        v.job.call path, v_path
+        self.perform_create hash.merge({variation: v, variation_path: v_path})
       end
     end
 
-    def perform_create form_hash
-      form_hash[:branded_path]
+    def perform_create hash
+      return hash[:variation_path] unless Utils.blank?(hash[:variation_path])
+      # Rack 1.6 deletes multipart files after request
+      # So we have to create a copy
+      FileUtils.mkdir_p self.location_root
+      tmppath = hash[:tempfile].path
+      unique_prefix = File.basename(tmppath, File.extname(tmppath))
+      unique_filename = "#{unique_prefix}-#{hash[:filename]}"
+      path = self.location_for_filename unique_filename
+      FileUtils.copy_entry(tmppath, path) 
+      unique_filename
     end
 
     def deletable? variation_name=:original
@@ -134,8 +144,9 @@ module PopulateMe
     end
 
     self.settings = OpenStruct.new
-    set :root, '/'
-    set :url_prefix, Dir.tmpdir
+    set :root, File.join(Dir.tmpdir, 'populate-me')
+    set :url_prefix, '/attachment'
+    FileUtils.mkdir_p self.settings.root
 
     class Middleware
 

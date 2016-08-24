@@ -7,7 +7,7 @@ describe PopulateMe::Attachment do
   parallelize_me!
 
   class NiceAttachment < PopulateMe::Attachment
-    set :root, '/under/'
+    set :url_prefix, '/under'
   end
 
   class NiceIllustration < PopulateMe::Document
@@ -32,8 +32,8 @@ describe PopulateMe::Attachment do
   end
 
   it "Delegates settings to its class" do
-    assert_equal '/under/', described_class.settings.root
-    assert_equal '/under/', subject.settings.root
+    assert_equal '/under', described_class.settings.url_prefix
+    assert_equal '/under', subject.settings.url_prefix
   end
 
   describe "#field_value" do
@@ -57,14 +57,14 @@ describe PopulateMe::Attachment do
   end
 
   describe "#location_root" do
-    it "Is the settings root" do
-      assert_equal '/under/', subject.location_root
+    it "It concatenates the root, url_prefix and class name dasherized" do
+      assert_equal "#{subject.settings.root}/under/nice-illustration", subject.location_root
     end
   end
 
   describe "#location" do
     it "Combines location root and the field value" do
-      assert_equal '/under/myimage.jpg', subject.location
+      assert_equal "#{subject.location_root}/myimage.jpg", subject.location
     end
   end
 
