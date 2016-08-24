@@ -50,7 +50,7 @@
           {{title}}
           {{#image_url}}
             <br />
-            <img src='{{image_url}}' alt='{{title}}' width='300' />
+            <img src='{{image_url}}{{cache_buster}}' alt='{{title}}' width='300' />
           {{/image_url}}
         </a>
         <ol class='local-menu'>
@@ -125,7 +125,7 @@
 
     <script id="template-attachment-field" type="x-tmpl-mustache">
       {{#url}}
-        <img src='{{url}}' alt='Preview' width='150' />
+        <img src='{{url}}{{cache_buster}}' alt='Preview' width='150' />
         <button class='attachment-deleter'>x</button>
         <br />
       {{/url}}
