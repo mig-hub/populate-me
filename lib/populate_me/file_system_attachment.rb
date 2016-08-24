@@ -1,24 +1,10 @@
-require "populate_me/attachment"
+require 'populate_me/attachment'
 
 module PopulateMe
 
   class FileSystemAttachment < Attachment
 
     set :root, File.expand_path('public')
-    # set :url_prefix, '/attachment'
-
-    # def url variation_name=:original
-    #   return nil if Utils.blank?(self.field_filename(variation_name))
-    #   "#{settings.url_prefix.sub(/\/$/,'')}/#{self.attachee_prefix}/#{self.field_filename(variation_name)}"
-    # end
-
-    # def location_root
-    #   File.join(
-    #     settings.root, 
-    #     settings.url_prefix,
-    #     self.attachee_prefix
-    #   )
-    # end
     
     def next_available_filename filename
       FileUtils.mkdir_p self.location_root
@@ -26,9 +12,9 @@ module PopulateMe
       base = File.basename(filename,ext)
       i = 0
       loop do
-        suffix = i==0 ? '' : "-#{1}"
+        suffix = i==0 ? '' : "-#{i}"
         potential_filename = [base,suffix,ext].join
-        potential_location = File.join(self.location_root,potential_filename)
+        potential_location = self.location_for_filename(potential_filename)
         if File.exist?(potential_location)
           i += 1
         else
@@ -40,9 +26,11 @@ module PopulateMe
     end
 
     def perform_create hash
-      filename = next_available_filename hash[:filename]
-      destination = File.join(self.location_root,filename)
-      FileUtils.cp hash[:tempfile].path, destination
+      return File.basename(hash[:variation_path]) unless Utils.blank?(hash[:variation_path])
+      source = hash[:tempfile].path
+      filename = self.next_available_filename hash[:filename]
+      destination = self.location_for_filename filename
+      FileUtils.cp source, destination
       filename
     end
 

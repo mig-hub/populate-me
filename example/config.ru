@@ -4,13 +4,15 @@ $:.unshift File.expand_path('../../lib', __FILE__)
 # Models ##########
 
 require 'populate_me/document'
-require 'populate_me/attachment'
 # require 'mongo'
 
 # MONGO = Mongo::Connection.new
 # DB    = MONGO['blog-populate-me-test']
 
-PopulateMe::Document.set :default_attachment_class, PopulateMe::Attachment
+# require 'populate_me/attachment'
+# PopulateMe::Document.set :default_attachment_class, PopulateMe::Attachment
+require 'populate_me/file_system_attachment'
+PopulateMe::Document.set :default_attachment_class, PopulateMe::FileSystemAttachment
 
 class BlogPost < PopulateMe::Document
   field :title, required: true
@@ -56,6 +58,6 @@ class Admin < PopulateMe::Admin
   ]
 end
 
-use PopulateMe::Attachment::Middleware
+use PopulateMe::FileSystemAttachment::Middleware
 run Admin
 
