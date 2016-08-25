@@ -57,7 +57,7 @@ module PopulateMe
     end
 
     def field_filename variation_name=:original
-      return nil if self.field_value.nil?
+      return nil if Utils.blank?(self.field_value)
       return self.field_value if variation_name==:original
       v = self.variations.find{|var|var.name==variation_name}
       Utils.filename_variation(self.field_value, v.name, v.ext)
@@ -100,11 +100,12 @@ module PopulateMe
 
     def create_variations hash
       return if self.variations.nil?
+      tmppath = hash[:tempfile].path
       path = self.location_for_filename hash[:future_field_value]
       variations.each do |v|
         self.delete v.name
         v_path = Utils.filename_variation path, v.name, v.ext
-        v.job.call path, v_path
+        v.job.call tmppath, v_path
         self.perform_create hash.merge({variation: v, variation_path: v_path})
       end
     end
