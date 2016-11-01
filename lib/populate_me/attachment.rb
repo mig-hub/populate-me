@@ -1,4 +1,4 @@
-require 'populate_me/utils'
+require 'web_utils'
 require 'populate_me/variation'
 require 'fileutils'
 require 'ostruct'
@@ -57,18 +57,18 @@ module PopulateMe
     end
 
     def field_filename variation_name=:original
-      return nil if Utils.blank?(self.field_value)
+      return nil if WebUtils.blank?(self.field_value)
       return self.field_value if variation_name==:original
       v = self.variations.find{|var|var.name==variation_name}
-      Utils.filename_variation(self.field_value, v.name, v.ext)
+      WebUtils.filename_variation(self.field_value, v.name, v.ext)
     end
 
     def attachee_prefix
-      Utils.dasherize_class_name self.document.class.name
+      WebUtils.dasherize_class_name self.document.class.name
     end
     
     def url variation_name=:original
-      return nil if Utils.blank?(self.field_filename(variation_name))
+      return nil if WebUtils.blank?(self.field_filename(variation_name))
       "#{settings.url_prefix.sub(/\/$/,'')}/#{self.attachee_prefix}/#{self.field_filename(variation_name)}"
     end
 
@@ -104,14 +104,14 @@ module PopulateMe
       path = self.location_for_filename hash[:future_field_value]
       variations.each do |v|
         self.delete v.name
-        v_path = Utils.filename_variation path, v.name, v.ext
+        v_path = WebUtils.filename_variation path, v.name, v.ext
         v.job.call tmppath, v_path
         self.perform_create hash.merge({variation: v, variation_path: v_path})
       end
     end
 
     def perform_create hash
-      return File.basename(hash[:variation_path]) unless Utils.blank?(hash[:variation_path])
+      return File.basename(hash[:variation_path]) unless WebUtils.blank?(hash[:variation_path])
       # Rack 1.6 deletes multipart files after request
       # So we have to create a copy
       FileUtils.mkdir_p self.location_root
@@ -124,7 +124,7 @@ module PopulateMe
     end
 
     def deletable? variation_name=:original
-      !Utils.blank?(self.field_filename(variation_name)) and File.exist?(self.location(variation_name))
+      !WebUtils.blank?(self.field_filename(variation_name)) and File.exist?(self.location(variation_name))
     end
 
     def delete variation_name=:original

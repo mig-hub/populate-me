@@ -26,7 +26,7 @@ module PopulateMe
     end
 
     def perform_create hash
-      return File.basename(hash[:variation_path]) unless Utils.blank?(hash[:variation_path])
+      return File.basename(hash[:variation_path]) unless WebUtils.blank?(hash[:variation_path])
       source = hash[:tempfile].path
       filename = self.next_available_filename hash[:filename]
       destination = self.location_for_filename filename

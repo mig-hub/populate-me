@@ -23,7 +23,6 @@ Table of contents
   - [Mongo documents](#mongo-documents)
 - [Admin](#admin)
 - [API](#api)
-- [Utils](#utils)
 
 Documents
 ---------
@@ -399,60 +398,4 @@ that the `API` or the `Admin` may need.
 
 This module is derived from a Gem I did called [rack-backend-api](https://github.com/mig-hub/backend-api). It is not maintained any more since `PopulateMe` is the evolution
 of this Gem.
-
-Utils
------
-
-The `Utils` module is quite similar to its counterpart in `Rack`.
-It gathers methods that are used in many places in the project.
-Many of them are similar to methods you would have in `Active::Support`
-but without monkey patching.
-
-Anyway it is a good idea to mix it to your helpers, some of the
-methods are even added just for this purpose. Also it has `Rack::Utils`
-included so you don't need to put both.
-
-Here is how you would have it in a `Sinatra` frontend:
-
-```ruby
-require 'sinatra/base'
-require 'populate_me/utils'
-
-class Main < Sinatra::Base
-
-  # Your frontend code...
-
-  helpers do
-    include PopulateMe::Utils
-    # Your other helpers...
-  end
-
-end
-```
-
-Here is a list of the available methods:
-
-- `#blank?(string)` Tells you if the string is blank or not.
-- `#pluralize(string)` Pluralize simple cases. Just override when necessary.
-- `#dasherize_class_name(string)` It is the convention used by `PopulateMe` in URLs. Module separator is a double dash. So `BlogArticle::Comment` becomes `blog-article--comment`. Also we use a straight forward method does not gather accronyms. e.g. `net--f-t-p`.
-- `#undasherize_class_name(string)` Basically the opposite.
-- `#resolve_class_name(string)` It takes the class name as a string and returns the class.
-- `#resolve_dasherized_class_name(string)` Same except that it takes the dasherized version of the class name as an argument and returns the class.
-- `#guess_related_class_name(parent_class, string)` It is mainly used for guessing the class name of a children class with a plural name. So `guess_related_class_name(BlogArticle, :comments)` will return `'BlogArticle::Comment'`.
-- `#get_value(object,context=Kernel)` It is used either take a value directly, or if the object is a `Proc`, it runs it to get the value. If the object is a symbol, it calls the method of the same name on the context. This is what `PopulateMe` uses for getting the default on fields. In this case the context is obviously `self`, the document itself.
-- `#deep_copy(object)` This makes a deeper copy of an object, since `dup` does not duplicate nested objects in a hash for example. It uses a simple marshal/unmarshal mechanism. 
-- `#ensure_key(hash,key,default_value)` If the hash does not have the key, it sets it with the default value.
-- `#slugify(string)` This makes the strings ready to be used as a slug in a URL. It removes the accents, replaces a lot of separators with dashes and escapes it. By default it forces the output to be lowercase, but if you pass `false` as a second argument, it will not change the case of letters.
-- `#each_stub(nested_object) {|object,key_or_index,value| ... }` It is used to run something on all the nested stubs of an array or a hash. The second argument of the block is either a key if the object is a hash, or an index if the object is an array.
-- `#automatic_typecast(string)` It tries to change a string value received by an HTML for or a CSV file into an object when it can. So far it recognize simple things like `true`, `false`. And an empty string is always `nil`.
-- `#generate_random_id(size)` Like the name suggest, it generates a random string of only letters and numbers. If you  don't provide a size, it defaults to 16.
-- `#nl2br(string)` The classic `nl2br` which makes sure return lines are turned into `<br>` tags. You can use the second argument if you want to specify what the replacement tag should be. Just in case you want closing tags. 
-- `#complete_link(string)` This just makes sure that a link is complete. Very often people tend to enter a URL like `www.google.com` which is a controversial `href` for some browsers, so it changes it to `//www.google.com`.
-- `#external_link?(string)` This tells you if a link is pointing to the current site or an external one. This is useful when you want to create a link tag and want to decide if target is '_blank' or '_self'.
-- `#automatic_html(string)` This automatically does `nl2br` and links recognizable things like email addresses and URLs. Not as good as markdown, but it is quite useful, should it be only for turning an email into a link.
-- `#truncate(string, size)` It truncates a string like what you have in blog summaries. It automatically removes tags and line breaks. The length is 320 by default. When the original string was longer, it puts an ellipsis at the end which can be replaced by whatever you put as a 3rd argument. e.g. `'...and more'`.
-- `#display_price(int)` It changes a price in cents/pence into a formated string like : `49,425.40`.
-- `#parse_price(string)` It does the opposite and parses a string in order to return a price in cents/pence.
-- `#branded_filename(path,prefix)` It takes the path to a file and add the prefix and a dash before the file name. By default, the prefix is `PopulateMe`.
-- `#filename_variation(path,variation,ext)` For example you have a file `/path/to/image.jpg` and you want to create its `thumbnail` in `png`, you can create the thumnail path with `filename_variation(path, :thumbnail, :png)` and it will return `/path/to/image.thumbnail.png`.
 

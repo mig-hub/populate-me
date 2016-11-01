@@ -1,4 +1,4 @@
-require 'populate_me/utils'
+require 'web_utils'
 require 'ostruct'
 
 require 'populate_me/document_mixins/typecasting'
@@ -40,7 +40,7 @@ module PopulateMe
 
       def inherited sub 
         super
-        sub.callbacks = Utils.deep_copy callbacks
+        sub.callbacks = WebUtils.deep_copy callbacks
         sub.settings = settings.dup # no deep copy because of Mongo.settings.db
       end
 
@@ -52,8 +52,8 @@ module PopulateMe
         self.name[/[^:]+$/].gsub(/[A-Z]/, ' \&')[1..-1]
       end
 
-      def to_s_plural; Utils.pluralize(self.to_s); end
-      def to_s_short_plural; Utils.pluralize(self.to_s_short); end
+      def to_s_plural; WebUtils.pluralize(self.to_s); end
+      def to_s_short_plural; WebUtils.pluralize(self.to_s_short); end
 
       def from_hash hash, o={}
         self.new(_is_new: false).set_from_hash(hash, o).snapshot
@@ -90,7 +90,7 @@ module PopulateMe
     def to_s
       return inspect if self.class.label_field.nil?
       me = self.__send__(self.class.label_field)
-      Utils.blank?(me) ? inspect : me
+      WebUtils.blank?(me) ? inspect : me
     end
 
     def new?; self._is_new; end
@@ -140,7 +140,7 @@ module PopulateMe
     def set_defaults o={}
       self.class.fields.each do |k,v|
         if v.key?(:default)&&(__send__(k).nil?||o[:force])
-          set k.to_sym => Utils.get_value(v[:default],self)
+          set k.to_sym => WebUtils.get_value(v[:default],self)
         end
       end
       self
@@ -156,7 +156,7 @@ module PopulateMe
           break unless respond_to?(getter)
           __send__(getter).clear
           v.each do |d|
-            obj =  Utils.resolve_class_name(d['_class']).new.set_from_hash(d,o)
+            obj =  WebUtils.resolve_class_name(d['_class']).new.set_from_hash(d,o)
             __send__(getter) << obj
           end
         else
