@@ -1,4 +1,4 @@
-require_relative 'lib/populate_me/version'
+require File.join(File.dirname(__FILE__), 'lib/populate_me/version')
 
 Gem::Specification.new do |s| 
 

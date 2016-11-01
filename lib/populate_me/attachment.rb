@@ -102,6 +102,7 @@ module PopulateMe
       return if self.variations.nil?
       tmppath = hash[:tempfile].path
       path = self.location_for_filename hash[:future_field_value]
+      FileUtils.mkdir_p(File.dirname(path))
       variations.each do |v|
         self.delete v.name
         v_path = WebUtils.filename_variation path, v.name, v.ext
