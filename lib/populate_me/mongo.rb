@@ -19,26 +19,24 @@ module PopulateMe
         settings.db[settings.collection_name]
       end
 
-      def bulk o={}
-        o[:ordered] ||= true
-        b = o[:ordered] ? collection.initialize_ordered_bulk_op : collection.initialize_unordered_bulk_op
-        if block_given?
-          yield b
-          b.execute
-        end
-      end
-
       def set_id_field
         field :_id, {type: :id}
       end
 
-      def sort_by f, direction=:asc
-        if f.is_a?(Array)||f.is_a?(Hash)
+      def sort_by f, direction=1
+        direction = 1 if direction==:asc
+        direction = -1 if direction==:desc
+        if f.is_a?(Hash)
           @current_sort = f
+        elsif f.is_a?(Array)
+          @current_sort = f.inject({}) do |h,pair| 
+            h.store(pair[0], pair[1])
+            h
+          end
         else
-          raise(ArgumentError) unless [:asc,:desc].include? direction
+          raise(ArgumentError) unless [1,-1].include? direction
           raise(ArgumentError) unless self.new.respond_to? f
-          @current_sort = [[f,direction]]
+          @current_sort = {f => direction}
         end
         self
       end
@@ -48,23 +46,27 @@ module PopulateMe
       end
 
       def set_indexes f, ids=[]
-        bulk do |b|
-          ids.each_with_index do |id,i|
-            b.find(self.id_string_key=>id).update_one({'$set'=>{f=>i}})
-          end
+        requests = ids.each_with_index.inject([]) do |list, (id, i)|
+          list << {update_one: 
+            {
+              filter: {self.id_string_key=>id}, 
+              update: {'$set'=>{f=>i}}
+            }
+          }
         end
+        collection.bulk_write requests
       end
 
       def admin_get theid
         theid = BSON::ObjectId.from_string(theid) if BSON::ObjectId.legal?(theid)
-        self.cast{ collection.find_one({id_string_key => theid}) }
+        self.cast{ collection.find({id_string_key => theid}).first }
       end
       alias_method :[], :admin_get
 
       def admin_find o={}
         query = o.delete(:query) || {}
         o[:sort] ||= @current_sort
-        self.cast{ collection.find(query, o) }
+        self.cast{ collection.find(query, o).to_a }
       end
 
     end
@@ -75,16 +77,20 @@ module PopulateMe
     def id= value; @_id = value; end
 
     def perform_create
-      self.id = self.class.collection.insert(self.to_h) 
+      result = self.class.collection.insert_one(self.to_h)
+      if result.ok? and self.id.nil?
+        self.id = result.inserted_id
+      end
+      self.id
     end
 
     def perform_update
-      self.class.collection.update({'_id'=> self.id}, self.to_h)
+      self.class.collection.update_one({'_id'=> self.id}, self.to_h)
       self.id
     end
 
     def perform_delete
-      self.class.collection.remove({'_id'=> self.id})
+      self.class.collection.delete_one({'_id'=> self.id})
     end
     
   end

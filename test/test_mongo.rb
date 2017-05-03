@@ -2,11 +2,12 @@ require 'helper'
 require 'populate_me/mongo'
 # require 'mongo'
 
-MONGO = Mongo::Connection.new
-MONGO.drop_database('populate-me-test')
-MONGO.drop_database('populate-me-test-other')
-DB = MONGO['populate-me-test']
-OTHER_DB = MONGO['populate-me-test-other']
+MONGO = Mongo::Client.new([ '127.0.0.1:27017' ], :database => 'populate-me-test')
+DB = MONGO.database
+DB.drop
+OTHER_MONGO = Mongo::Client.new([ '127.0.0.1:27017' ], :database => 'populate-me-test-other')
+OTHER_DB = OTHER_MONGO.database
+OTHER_DB.drop
 class NoMongoDB < PopulateMe::Mongo; end
 PopulateMe::Mongo.set :db, DB
 
@@ -75,12 +76,12 @@ describe 'PopulateMe::Mongo' do
 
     before do
       CatFish.collection.drop
-      CatFish.collection.insert(id: 42, name: "H2G2")
+      CatFish.collection.insert_one(id: 42, name: "H2G2")
     end
 
     it 'Should create' do
       CatFish.new(name: "Fred").perform_create
-      refute_nil CatFish.collection.find_one({'name'=>"Fred"})
+      refute_nil CatFish.collection.find({'name'=>"Fred"}).first
     end
 
     it 'Should create with custom id' do 
@@ -94,7 +95,7 @@ describe 'PopulateMe::Mongo' do
       jason.perform_create
       jason.name = "billy"
       jason.perform_update
-      assert_equal  "billy", CatFish.collection.find_one({'_id'=> jason.id})['name']
+      assert_equal  "billy", CatFish.collection.find({'_id'=> jason.id}).first['name']
     end
 
     it "Should get correct item" do 
@@ -113,7 +114,6 @@ describe 'PopulateMe::Mongo' do
     end
 
     it 'Should admin_find correctly' do
-      assert_equal CatFish.collection.count, CatFish.admin_find.size
       assert CatFish.admin_find.is_a?(Array)
       assert_equal CatFish.collection.find(name: 'H2G2').count, CatFish.admin_find(query: {name: 'H2G2'}).size
       assert_equal 42, CatFish.admin_find(query: {name: 'H2G2'})[0].id
@@ -122,9 +122,9 @@ describe 'PopulateMe::Mongo' do
     it 'Should delete' do
       herbert = CatFish.new(name: "herbert")
       herbert.perform_create
-      refute_nil CatFish.collection.find_one({"_id"=> herbert.id})
+      refute_nil CatFish.collection.find({"_id"=> herbert.id}).first
       herbert.perform_delete
-      assert_nil CatFish.collection.find_one({"_id"=> herbert.id})
+      assert_nil CatFish.collection.find({"_id"=> herbert.id}).first
     end
 
     it 'Should not save to the @@documents class variable' do 
@@ -173,8 +173,8 @@ describe 'PopulateMe::Mongo' do
     end
 
     it 'Can write Mongo-specific sort if a Hash or an Array is passed' do
-      assert_equal 'Tony', MongoSoldier.sort_by([[:name,:desc]]).admin_find[0].name
-      assert_equal 'Tony', MongoSoldier.sort_by({name: :desc}).admin_find[0].name
+      assert_equal 'Tony', MongoSoldier.sort_by([[:name, -1]]).admin_find[0].name
+      assert_equal 'Tony', MongoSoldier.sort_by({name: -1}).admin_find[0].name
     end
 
   end
@@ -203,6 +203,6 @@ describe 'PopulateMe::Mongo' do
 
 end
 
-MONGO.drop_database('populate-me-test')
-MONGO.drop_database('populate-me-test-other')
+DB.drop
+OTHER_DB.drop
 
