@@ -7,9 +7,14 @@ module PopulateMe
       # generally from a form or a csv file
 
       def typecast k, v
-        return Utils.automatic_typecast(v) unless self.class.fields.key?(k)
-        meth = "typecast_#{self.class.fields[k][:type]}".to_sym
-        return Utils.automatic_typecast(v) unless respond_to?(meth)
+        unless self.class.fields.key?(k)
+          return WebUtils.automatic_typecast(v) 
+        end
+        f = self.class.fields[k].dup
+        meth = "typecast_#{f[:type]}".to_sym
+        unless respond_to? meth
+          return WebUtils.automatic_typecast(v, [f[:type],:nil])
+        end
         __send__ meth, k, v
       end
 
@@ -18,8 +23,8 @@ module PopulateMe
       end
 
       def typecast_price k, v
-        return nil if Utils.blank?(v)
-        Utils.parse_price(v)
+        return nil if WebUtils.blank?(v)
+        WebUtils.parse_price(v)
       end
 
       def typecast_date k, v
@@ -41,7 +46,7 @@ module PopulateMe
 
       def typecast_attachment k, v
         attached = self.attachment k
-        if Utils.blank? v
+        if WebUtils.blank? v
           attached.delete_all
           return nil
         elsif v.is_a?(Hash)&&v.key?(:tempfile)

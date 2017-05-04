@@ -10,7 +10,7 @@ module PopulateMe
       def outcast field, item, o={}
         item[:input_name] = "#{o[:input_name_prefix]}[#{item[:field_name]}]"
         unless item[:type]==:list
-          Utils.ensure_key item, :input_value, self.__send__(field)
+          WebUtils.ensure_key! item, :input_value, self.__send__(field)
         end
         meth = "outcast_#{item[:type]}".to_sym
         __send__(meth, field, item, o) if respond_to?(meth)
@@ -24,7 +24,7 @@ module PopulateMe
 
       def outcast_select field, item, o={}
         unless item[:select_options].nil?
-          opts = Utils.get_value(item[:select_options],self).dup
+          opts = WebUtils.get_value(item[:select_options],self).dup
           opts.map! do |opt|
             if opt.is_a?(String)||opt.is_a?(Symbol)
               opt = [opt.to_s.capitalize,opt]

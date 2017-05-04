@@ -16,8 +16,17 @@ Gem::Specification.new do |s|
   s.files = `git ls-files`.split("\n").sort
   s.test_files = s.files.grep(/^test\//)
   s.require_paths = ['lib']
-  s.add_dependency('sinatra')
-  s.add_dependency('json')
 
+  s.add_dependency 'web-utils'
+  s.add_dependency 'sinatra'
+  s.add_dependency 'json'
+
+  s.add_development_dependency 'bundler', '~> 1.13'
+  s.add_development_dependency 'minitest', '~> 5.8'
+  s.add_development_dependency 'rack-test', '~> 0.6'
+  s.add_development_dependency 'rack-cerberus', '~> 1.0'
+  s.add_development_dependency 'mongo', '~> 2.0'
+  s.add_development_dependency 'racksh', '~> 1.0'
+  s.add_development_dependency 'rake', '~> 10.1'
 end
 

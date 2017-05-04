@@ -1,5 +1,5 @@
 require 'sinatra/base'
-require 'populate_me/utils'
+require 'web_utils'
 require 'populate_me/version'
 require 'json'
 
@@ -102,7 +102,7 @@ class PopulateMe::API < Sinatra::Base
 
   module Helpers
 
-    include PopulateMe::Utils
+    include WebUtils
 
     def resolve_model_class name
       model_class = resolve_dasherized_class_name(name) rescue nil

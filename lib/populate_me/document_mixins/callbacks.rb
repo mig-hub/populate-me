@@ -24,7 +24,7 @@ module PopulateMe
 
       def ensure_id
         if self.id.nil?
-          self.id = Utils::generate_random_id
+          self.id = WebUtils::generate_random_id
         end
         self
       end
@@ -34,7 +34,7 @@ module PopulateMe
       def ensure_delete_related
         self.class.relationships.each do |k,v|
           if v[:dependent]
-            klass = Utils.resolve_class_name v[:class_name]
+            klass = WebUtils.resolve_class_name v[:class_name]
             next if klass.nil?
             klass.admin_find(query: {v[:foreign_key]=>self.id}).each do |d|
               d.delete

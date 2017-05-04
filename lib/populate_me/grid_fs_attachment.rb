@@ -20,7 +20,7 @@ module PopulateMe
 
     # Attachee_prefix is moved on field_value for gridfs
     def url variation_name=:original
-      return nil if Utils.blank?(self.field_filename(variation_name))
+      return nil if WebUtils.blank?(self.field_filename(variation_name))
       "#{settings.url_prefix.sub(/\/$/,'')}/#{self.field_filename(variation_name)}"
     end
     # Attachee_prefix is moved on field_value for gridfs
@@ -32,7 +32,7 @@ module PopulateMe
     end
 
     def deletable? variation_name=:original
-      !Utils.blank? self.field_filename(variation_name)
+      !WebUtils.blank? self.field_filename(variation_name)
       # Fine since deleting a non-existent file does not raise an error in mongo
     end
 
@@ -64,7 +64,7 @@ module PopulateMe
         file = hash[:tempfile]
         type = hash[:type]
       else
-        fn = Utils.filename_variation hash[:future_field_value], hash[:variation].name, hash[:variation].ext
+        fn = WebUtils.filename_variation hash[:future_field_value], hash[:variation].name, hash[:variation].ext
         file = File.open(hash[:variation_path])
         type = Rack::Mime.mime_type ".#{hash[:variation].ext}"
       end

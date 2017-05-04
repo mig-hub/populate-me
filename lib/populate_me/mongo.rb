@@ -11,7 +11,7 @@ module PopulateMe
 
       def inherited sub 
         super
-        sub.set :collection_name, Utils.dasherize_class_name(sub.name)
+        sub.set :collection_name, WebUtils.dasherize_class_name(sub.name)
       end
 
       def collection

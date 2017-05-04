@@ -30,14 +30,15 @@ describe PopulateMe::Document, 'Typecasting' do
   describe "Field has type :string" do
     it "Returns it as-is" do
       assert_equal 'Bob', subject.typecast(:name,'Bob')
+      assert_equal 'true', subject.typecast(:name,'true')
       assert_equal '5', subject.typecast(:name,'5')
     end
   end
 
   describe "Field has type :boolean" do
     it "Casts as a boolean" do
-      assert subject.typecast(:shared,'true')
-      refute subject.typecast(:shared,'false')
+      assert_equal true, subject.typecast(:shared,'true')
+      assert_equal false, subject.typecast(:shared,'false')
     end
   end
 
