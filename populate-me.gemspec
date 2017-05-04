@@ -17,9 +17,9 @@ Gem::Specification.new do |s|
   s.test_files = s.files.grep(/^test\//)
   s.require_paths = ['lib']
 
-  s.add_dependency 'web-utils'
-  s.add_dependency 'sinatra'
-  s.add_dependency 'json'
+  s.add_dependency 'web-utils', '~> 0'
+  s.add_dependency 'sinatra', '~> 1.0'
+  s.add_dependency 'json', '~> 2.1'
 
   s.add_development_dependency 'bundler', '~> 1.13'
   s.add_development_dependency 'minitest', '~> 5.8'
