@@ -245,6 +245,8 @@ is not `self.valid?`.
 
 ### Mongo Documents
 
+Note: the current version works with the mongo driver version 2
+
 Now let's declare a real document class which can persist on a database,
 the `MongoDB` kind of document. The first thing we need to clarify is the
 setup. Here is a classic setup:
