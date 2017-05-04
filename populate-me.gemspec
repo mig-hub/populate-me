@@ -9,8 +9,8 @@ Gem::Specification.new do |s|
 
   s.name = 'populate-me'
   s.version = PopulateMe::VERSION
-  s.summary = "ALPHA !!! PopulateMe is an admin system for web applications."
-  s.description = "ALPHA !!! PopulateMe is an admin system for web applications. It is built on top of the Sinatra framework, but can be used with any framework using Rack."
+  s.summary = "PopulateMe is an admin system for web applications."
+  s.description = "PopulateMe is an admin system for managing structured content of web applications. It is built on top of the Sinatra framework, but can be used along any framework using Rack."
 
   s.platform = Gem::Platform::RUBY
   s.files = `git ls-files`.split("\n").sort
