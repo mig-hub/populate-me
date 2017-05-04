@@ -4,10 +4,9 @@ Populate Me
 Overview
 --------
 
-Warning: This is a work in process so this is why no gem is currently released with this code. If you install the Gem, you would have the version of the branch called `ground-zero`.
-
-`PopulateMe` is a modular system which provides an admin backend for any Ruby/Rack web application.
-It is made with Sinatra but you can code your frontend with any other Framework like Rails.
+`PopulateMe` is a modular system which provides an admin backend for any 
+Ruby/Rack web application. It is made with Sinatra but you can code your 
+frontend with any other Framework like Rails.
 
 Table of contents
 ----------------
@@ -253,9 +252,9 @@ setup. Here is a classic setup:
 require 'mongo'
 require 'populate_me/mongo'
 
-connection = Mongo::Connection.new
+client = Mongo::Client.new([ '127.0.0.1:27017' ], :database => 'your-database-name')
 
-PopulateMe::Mongo.set :db, connection['your-database-name']
+PopulateMe::Mongo.set :db, client.database
 
 require 'person'
 ```
@@ -305,12 +304,12 @@ Whatever you choose, you will have access to the collection object with the
 `::collection` class method. Which allows you to do anything the driver does.
 
 ```ruby
-first_pedro = Person.collection.find_one({ 'firstname' => 'Pedro' })
+first_pedro = Person.collection.find({ 'firstname' => 'Pedro' }).first
 mcs = Person.collection.find({ 'lastname' => /^Mc/i })
 ```
 
 Although since these are methods from the driver, `first_pedro` returns a hash,
-and `mcs` returns a `Mongo::Cursor`. If you want document object, you can use
+and `mcs` returns a `Mongo::Collection::View`. If you want document object, you can use
 the `::cast` class method which takes a block in the class context/scope and
 casts either a single hash into a full featured document, or casts the items of
 an array (or anything which responds to `:map`).
