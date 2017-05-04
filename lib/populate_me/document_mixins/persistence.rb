@@ -13,7 +13,7 @@ module PopulateMe
       end
 
       def attachment f
-        attacher = Utils.resolve_class_name self.class.fields[f][:class_name]
+        attacher = WebUtils.resolve_class_name self.class.fields[f][:class_name]
         attacher.new self, f
       end
 
