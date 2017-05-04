@@ -19,7 +19,7 @@ describe 'PopulateMe::Mongo' do
   # It contains what is specific to a Mongo
   # database.
 
-  parallelize_me!
+  # parallelize_me!
 
   class CatFish < PopulateMe::Mongo
     field :name
@@ -74,61 +74,70 @@ describe 'PopulateMe::Mongo' do
 
   describe 'Low level CRUD' do 
 
+    class LowFish < PopulateMe::Mongo
+      field :name
+    end
+
     before do
-      CatFish.collection.drop
-      CatFish.collection.insert_one(id: 42, name: "H2G2")
+      LowFish.collection.drop
     end
 
     it 'Should create' do
-      CatFish.new(name: "Fred").perform_create
-      refute_nil CatFish.collection.find({'name'=>"Fred"}).first
+      fred = LowFish.new(name: "Fred")
+      id = fred.perform_create
+      assert_equal id, fred.id 
+      refute_nil LowFish.collection.find({'name'=>"Fred"}).first
+      LowFish.collection.delete_one({'name'=>'Fred'})
     end
 
     it 'Should create with custom id' do 
-      tom = CatFish.new(id: "dddd", name: "tom")
-      id = tom.perform_create
+      dddd = LowFish.new(id: "dddd", name: "tom")
+      id = dddd.perform_create
       assert_equal "dddd", id
     end
 
     it 'Should update' do 
-      jason = CatFish.new(name: "jason")
+      jason = LowFish.new(name: "jason")
       jason.perform_create
       jason.name = "billy"
       jason.perform_update
-      assert_equal  "billy", CatFish.collection.find({'_id'=> jason.id}).first['name']
+      assert_equal  "billy", LowFish.collection.find({'_id'=> jason.id}).first['name']
     end
 
     it "Should get correct item" do 
-      jackson_id = CatFish.new(name: "jackson").perform_create
-      assert_equal "jackson", CatFish.admin_get(jackson_id).name
-      assert_equal "jackson", CatFish.admin_get(jackson_id.to_s).name
-      assert_nil CatFish.admin_get("nonexistentid")
+      jackson_id = LowFish.new(name: "jackson").perform_create
+      assert_equal "jackson", LowFish.admin_get(jackson_id).name
+      assert_equal "jackson", LowFish.admin_get(jackson_id.to_s).name
+      assert_nil LowFish.admin_get("nonexistentid")
 
-      regular_fish_id = CatFish.new(id: 87, name: "regular").perform_create
+      regular_fish_id = LowFish.new(id: 87, name: "regular").perform_create
       # need to test with .to_s
-      assert_equal "regular", CatFish.admin_get(regular_fish_id).name
+      assert_equal "regular", LowFish.admin_get(regular_fish_id).name
     end
 
     it 'Should have the [] shortcut for admin_get' do
-      assert_equal CatFish[42], CatFish.admin_get(42)
+      LowFish.collection.insert_one(_id: 42, name: "H2G2")
+      assert_equal LowFish[42], LowFish.admin_get(42)
     end
 
     it 'Should admin_find correctly' do
-      assert CatFish.admin_find.is_a?(Array)
-      assert_equal CatFish.collection.find(name: 'H2G2').count, CatFish.admin_find(query: {name: 'H2G2'}).size
-      assert_equal 42, CatFish.admin_find(query: {name: 'H2G2'})[0].id
+      LowFish.collection.insert_one(_id: 42, name: "H2G2")
+      assert LowFish.admin_find.is_a?(Array)
+      assert_equal LowFish.collection.find(name: 'H2G2').count, LowFish.admin_find(query: {name: 'H2G2'}).size
+      assert_equal 42, LowFish.admin_find(query: {name: 'H2G2'})[0].id
     end
 
     it 'Should delete' do
-      herbert = CatFish.new(name: "herbert")
+      herbert = LowFish.new(name: "herbert")
       herbert.perform_create
-      refute_nil CatFish.collection.find({"_id"=> herbert.id}).first
+      refute_nil LowFish.collection.find({"_id"=> herbert.id}).first
       herbert.perform_delete
-      assert_nil CatFish.collection.find({"_id"=> herbert.id}).first
+      assert_nil LowFish.collection.find({"_id"=> herbert.id}).first
     end
 
     it 'Should not save to the @@documents class variable' do 
-      assert_equal [], CatFish.documents
+      LowFish.collection.insert_one(_id: 42, name: "H2G2")
+      assert_equal [], LowFish.documents
     end
 
   end
