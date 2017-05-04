@@ -66,7 +66,7 @@ module PopulateMe
       def admin_find o={}
         query = o.delete(:query) || {}
         o[:sort] ||= @current_sort
-        self.cast{ collection.find(query, o).to_a }
+        self.cast{ collection.find(query, o) }
       end
 
     end
