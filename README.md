@@ -75,8 +75,10 @@ Available types are:
 - `:string` Short text.
 - `:text` Multiline text.
 - `:boolean` Which is `true` or `false`.
-- `:list` List of nested documents.
 - `:select` Dropdown list of options (records a string).
+
+A `:list` type exists as well for nested documents, but it is not 
+fully working yet.
 
 ### Validations
 
