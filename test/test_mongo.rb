@@ -8,7 +8,7 @@ DB.drop
 OTHER_MONGO = Mongo::Client.new([ '127.0.0.1:27017' ], :database => 'populate-me-test-other')
 OTHER_DB = OTHER_MONGO.database
 OTHER_DB.drop
-class NoMongoDB < PopulateMe::Mongo; end
+class NoMongoDB < PopulateMe::Mongo; set :db, nil; end
 PopulateMe::Mongo.set :db, DB
 
 
