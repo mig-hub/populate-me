@@ -1,6 +1,6 @@
 require 'populate_me/attachment'
 require 'mongo'
-require 'rack/gridfs'
+require 'rack/grid_serve'
 
 module PopulateMe
 
@@ -9,14 +9,6 @@ module PopulateMe
   class GridFSAttachment < Attachment
 
     # set :url_prefix, '/attachment'
-
-    def grid
-      self.class.grid
-    end
-
-    def gridfs
-      self.class.gridfs
-    end
 
     # Attachee_prefix is moved on field_value for gridfs
     def url variation_name=:original
@@ -31,16 +23,6 @@ module PopulateMe
       )
     end
 
-    def deletable? variation_name=:original
-      !WebUtils.blank? self.field_filename(variation_name)
-      # Fine since deleting a non-existent file does not raise an error in mongo
-    end
-
-    def perform_delete variation_name=:original
-      # gridfs works with names instead of IDs
-      gridfs.delete self.field_filename(variation_name)
-    end
-
     def next_available_filename filename
       ext = File.extname(filename)
       base = "#{attachee_prefix}/#{File.basename(filename,ext)}"
@@ -48,7 +30,7 @@ module PopulateMe
       loop do
         suffix = i==0 ? '' : "-#{i}"
         potential_filename = [base,suffix,ext].join
-        if grid.exist?(filename: potential_filename)
+        if settings.db.fs.find(filename: potential_filename).count>0
           i += 1
         else
           filename = potential_filename
@@ -68,9 +50,9 @@ module PopulateMe
         file = File.open(hash[:variation_path])
         type = Rack::Mime.mime_type ".#{hash[:variation].ext}"
       end
-      attachment_id = grid.put(
+      settings.db.fs.upload_from_stream(
+        fn,
         file, {
-          filename: fn, 
           content_type: type,
           metadata: {
             parent_collection: (self.document.class.respond_to?(:collection) ? self.document.class.collection.name : self.attachee_prefix),
@@ -81,30 +63,24 @@ module PopulateMe
       fn
     end
 
+    def deletable? variation_name=:original
+      !WebUtils.blank? self.field_filename(variation_name)
+      # Fine since deleting a non-existent file does not raise an error in mongo
+    end
+
+    def perform_delete variation_name=:original
+      gridfile = settings.db.fs.find(filename: self.field_filename(variation_name)).first
+      settings.db.fs.delete(gridfile['_id']) unless gridfile.nil?
+    end
+
     class << self
 
       def ensure_db
         raise MissingMongoDBError, "Attachment class #{self.name} does not have a Mongo database." if settings.db.nil?
       end
 
-      def grid
-        ensure_db
-        unless settings.grid.is_a?(::Mongo::Grid)
-          set :grid, ::Mongo::Grid.new(settings.db) 
-        end
-        settings.grid
-      end
-
-      def gridfs
-        ensure_db
-        unless settings.gridfs.is_a?(::Mongo::GridFileSystem)
-          set :gridfs, ::Mongo::GridFileSystem.new(settings.db) 
-        end
-        settings.gridfs
-      end
-
       def middleware
-        Rack::GridFS
+        Rack::GridServe
       end
 
       def middleware_options
