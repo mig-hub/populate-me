@@ -3,7 +3,7 @@ module PopulateMe
     module AdminAdapter
 
       def to_admin_url
-        "#{Utils.dasherize_class_name(self.class.name)}/#{id}".sub(/\/$/,'')
+        "#{WebUtils.dasherize_class_name(self.class.name)}/#{id}".sub(/\/$/,'')
       end
 
       def admin_image_url
@@ -23,7 +23,7 @@ module PopulateMe
             unless v[:hidden]
               out << {
                 title: "#{v[:label]}",
-                href: "#{o[:request].script_name}/list/#{Utils.dasherize_class_name(v[:class_name])}?filter[#{v[:foreign_key]}]=#{self.id}"
+                href: "#{o[:request].script_name}/list/#{WebUtils.dasherize_class_name(v[:class_name])}?filter[#{v[:foreign_key]}]=#{self.id}"
               }
               out
             end
@@ -112,7 +112,7 @@ module PopulateMe
           {
             template: 'template_list',
             page_title: self.to_s_short_plural,
-            dasherized_class_name: PopulateMe::Utils.dasherize_class_name(self.name),
+            dasherized_class_name: WebUtils.dasherize_class_name(self.name),
             new_data: new_data,
             sort_field: self.sort_field_for(o),
             # 'command_plus'=> !self.populate_config[:no_plus],

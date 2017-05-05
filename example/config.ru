@@ -26,7 +26,7 @@ class BlogPost < PopulateMe::Document
   field :published, type: :boolean
   relationship :comments
   def validate
-    error_on(:content,'Cannot be blank') if PopulateMe::Utils.blank?(self.content)
+    error_on(:content,'Cannot be blank') if WebUtils.blank?(self.content)
   end
 end
 class BlogPost::Author < PopulateMe::Document
