@@ -1,0 +1,8 @@
+.DS_STORE
+*.swp
+.ruby-version
+pkg/
+*.gem
+Gemfile.lock
+.bundle/
+
