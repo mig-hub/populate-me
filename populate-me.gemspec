@@ -9,7 +9,19 @@ Gem::Specification.new do |s|
   s.author = "Mickael Riga"
   s.email = "mig@mypeplum.com"
   s.homepage = "https://github.com/mig-hub/populate-me"
-  s.add_dependency('rack-golem')
-  s.add_dependency('json')
+
+  s.add_dependency 'rack-golem', '~> 0'
+  s.add_dependency 'json', '~> 2.1'
+  s.add_dependency 'mongo', '~> 1.12'
+
+  s.add_development_dependency 'bundler', '~> 1.13'
+  # s.add_development_dependency 'minitest', '~> 5.8'
+  s.add_development_dependency 'bacon', '~> 1.2'
+  s.add_development_dependency 'rack-test', '~> 0.6'
+  # s.add_development_dependency 'rack-cerberus', '~> 1.0'
+  # s.add_development_dependency 'rack-grid-serve', '~> 0.0.5'
+  s.add_development_dependency 'racksh', '~> 1.0'
+  s.add_development_dependency 'rake', '~> 10.1'
+
 end
 
