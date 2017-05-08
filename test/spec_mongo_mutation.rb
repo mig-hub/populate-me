@@ -102,9 +102,14 @@ describe "PopulateMe::Mongo::Mutation" do
       BSON::ObjectId.legal?(string_id).should==true
       Address.ref(string_id).should=={'_id'=>BSON::ObjectId.from_string(string_id)}
     end
+    it 'Makes a selector for multiple docs if argument is an Array' do
+      Address.ref([]).should=={'_id'=>{'$in'=>[]}}
+      id = BSON::ObjectId.new
+      string_id = '000000000000000000000000'
+      Address.ref([id,string_id]).should=={'_id'=>{'$in'=>[id,BSON::ObjectId.from_string(string_id)]}}
+    end
     it 'Just put an empty string in selector for any invalid argument' do
       Address.ref('abc').should=={'_id'=>''}
-      Address.ref([]).should=={'_id'=>''}
     end
   end
   
