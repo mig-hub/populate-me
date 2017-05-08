@@ -9,8 +9,8 @@ module PopulateMe
       def self.included(weak)
         weak.extend(MutateClass)
         weak.db = DB if defined?(DB)
-        weak.schema = BSON::OrderedHash.new
-        weak.relationships = BSON::OrderedHash.new
+        weak.schema = {}
+        weak.relationships = {}
       end
 
       module MutateClass
@@ -45,30 +45,36 @@ module PopulateMe
         def find_one(spec_or_object_id=nil,opts={})
           spec_or_object_id.nil? ? spec_or_object_id = opts.delete(:selector) : spec_or_object_id.update(opts.delete(:selector)||{})
           opts = {:sort=>self.sorting_order}.update(opts)
-          item = collection.find_one(spec_or_object_id,opts)
+          item = collection.find(spec_or_object_id,opts).first
           item.nil? ? nil : self.new(item)
         end
         def count(opts={}); collection.count(opts); end
 
         def sorting_order
           @sorting_order ||= if @schema.key?('position')&&!@schema['position'][:scope].nil?
-            [[@schema['position'][:scope], :asc], ['position', :asc]]
+            {@schema['position'][:scope] => 1, 'position' => 1}
           elsif @schema.key?('position')
-            [['position', :asc],['_id', :asc]]
+            {'position' => 1, '_id' => 1}
           else
-            ['_id', :asc]
+            {'_id' => 1}
           end
         end
 
-        def sort(id_list)
-          id_list.each_with_index do |id, position|
-            collection.update(ref(id), {'$set' => {'position'=>position}})
+        def sort(ids)
+          requests = ids.each_with_index.inject([]) do |list, (id, i)|
+            list << {update_one: 
+              {
+                filter: ref(id), 
+                update: {'$set'=>{'position'=>i}}
+              }
+            }
           end
+          collection.bulk_write requests
         end
 
         # CRUD
-        def get(id, opts={}); doc = collection.find_one(ref(id), opts); doc.nil? ? nil : self.new(doc); end
-        def delete(id); collection.remove(ref(id)); end
+        def get(id, opts={}); doc = collection.find(ref(id), opts).first; doc.nil? ? nil : self.new(doc); end
+        def delete(id); collection.delete_one({'_id' => ref(id)}); end
 
         def get_multiple(ids, opts={})
           corrected_ids = ids.map{|id| correct_id_class(id) }
@@ -256,12 +262,12 @@ module PopulateMe
         before_save
         if new?
           before_create
-          id = model.collection.insert(@doc)
+          id = model.collection.insert_one(@doc)
           @doc['_id'] = id
           after_create
         else
           before_update
-          id = model.collection.update({'_id'=>@doc['_id']}, @doc)
+          id = model.collection.update_one({'_id'=>@doc['_id']}, @doc)
           after_update
         end
         after_save
@@ -283,9 +289,16 @@ module PopulateMe
         # so we should extend on demand.
         # Meaning the cursor object should be extended, not the cursor class.
         # @mutant_class should be defined before extending
-        def next
-          n = super
-          n.nil? ? nil : @mutant_class.new(n)
+        #
+        # def next
+        #   n = super
+        #   n.nil? ? nil : @mutant_class.new(n)
+        # end
+        #
+        def each
+          super do |doc|
+            yield @mutant_class.new(doc)
+          end if block_given?
         end
         # legacy
         def each_mutant(&b); each(&b); end

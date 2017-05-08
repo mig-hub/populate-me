@@ -8,12 +8,12 @@ require 'rack/utils'
 $:.unshift './lib'
 require 'populate_me/mongo'
 
-MONGO = ::Mongo::MongoClient.new
+MONGO = Mongo::Client.new([ '127.0.0.1:27017' ], :database => 'test-mongo-mutation')
 class NoDB
   include PopulateMe::Mongo::Plug
   def self.human_name; 'No DB'; end
 end
-DB  = MONGO['test-mongo-mutation']
+DB  = MONGO.database
 
 class Naked; include PopulateMe::Mongo::Plug; end
 
@@ -54,21 +54,21 @@ describe "PopulateMe::Mongo::Mutation" do
     end
   end
   
-  shared "Empty BSON" do
-    it "Should be set to an empty BSON ordered hash by default" do
-      @bson.class.should==::BSON::OrderedHash
+  shared "Empty Hash" do
+    it "Should be set to an empty hash by default" do
+      @bson.class.should==Hash
       @bson.empty?.should==true
     end
   end
   
   describe ".schema" do
     before { @bson = Naked.schema }
-    behaves_like "Empty BSON"
+    behaves_like "Empty Hash"
   end
   
   describe ".relationships" do
     before { @bson = Naked.relationships }
-    behaves_like "Empty BSON"
+    behaves_like "Empty Hash"
   end
 
   describe ".human_name" do
@@ -267,11 +267,13 @@ describe "PopulateMe::Mongo::Mutation" do
   describe 'CursorMutation' do
     it 'Should give the correct class of object on iterations' do
       Address.new('body'=>'42').save
-      Address.find.to_a[0].model.name.should=='Address'
+      Address.find.each do |a|
+        a.model.name.should=='Address'
+      end
     end
   end
 
 end
 
-MONGO.drop_database('test-mongo-mutation')
+DB.drop
 

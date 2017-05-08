@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'rack-golem', '~> 0'
   s.add_dependency 'json', '~> 2.1'
-  s.add_dependency 'mongo', '~> 1.12'
+  s.add_dependency 'mongo', '~> 2.0'
 
   s.add_development_dependency 'bundler', '~> 1.13'
   # s.add_development_dependency 'minitest', '~> 5.8'
