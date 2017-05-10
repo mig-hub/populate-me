@@ -45,7 +45,11 @@ module PopulateMe
           delete_files_for(k) unless new?
           @temp_attachments ||= {}
           @temp_attachments[k] = v
-          attachment_id = model.gridfs.put(v[:tempfile], {:filename=>v[:filename], :content_type=>v[:type]})
+          attachment_id = model.gridfs.upload_from_stream(
+            v[:filename],
+            v[:tempfile], {
+              :content_type=>v[:type]
+            })
           @doc[k] = {'original'=>attachment_id}
         end
       end
@@ -80,17 +84,17 @@ module PopulateMe
       def convert(col, convert_steps, style)
         return if @doc[col].nil?
         if @temp_attachments.nil? || @temp_attachments[col].nil?
-          f = model.gridfs.get(@doc[col]['original']) rescue nil
+          f = model.gridfs.find({'_id'=>@doc[col]['original']}).first
           return if f.nil?
-          return unless f.content_type[/^image\//]
           src = Tempfile.new('MongoStash_src')
           src.binmode
-          src.write(f.read(4096)) until f.eof?
+          model.gridfs.download_to_stream(@doc[col]['original'], src)
+          return unless f['contentType'].to_s[/^image\//]
           src.close
           @temp_attachments ||= {}
           @temp_attachments[col] ||= {}
           @temp_attachments[col][:tempfile] = src
-          @temp_attachments[col][:type] = f.content_type
+          @temp_attachments[col][:type] = f['contentType']
         else
           return unless @temp_attachments[col][:type][/^image\//]
           src = @temp_attachments[col][:tempfile]
@@ -107,9 +111,13 @@ module PopulateMe
         dest.close
         system "convert \"#{src.path}\" #{convert_steps} \"#{dest.path}\""
         filename = "#{model.name}/#{self.id}/#{style}"
-        attachment_id = model.gridfs.put(dest.open, {:filename=>filename, :content_type=>content_type})
+        attachment_id = model.gridfs.upload_from_stream(
+          filename,
+          dest.open, 
+          {:content_type=>content_type}
+        )
         @doc[col] = @doc[col].update({style=>attachment_id})
-        model.collection.update({'_id'=>@doc['_id']}, @doc)
+        model.collection.update_one({'_id'=>@doc['_id']}, @doc)
         #src.close!
         dest.close!
       end
@@ -138,7 +146,7 @@ module PopulateMe
             next if old_hash==fixed_hash
 
             if for_real
-              c.collection.update({'_id'=>e.id}, {'$set'=>fixed_hash})
+              c.collection.update_one({'_id'=>e.id}, {'$set'=>fixed_hash})
             else
               puts old_hash.inspect
               puts fixed_hash.inspect
