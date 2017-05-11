@@ -9,6 +9,7 @@ Gem::Specification.new do |s|
   s.author = "Mickael Riga"
   s.email = "mig@mypeplum.com"
   s.homepage = "https://github.com/mig-hub/populate-me"
+  s.licenses = ['MIT']
 
   s.add_dependency 'rack-golem', '~> 0'
   s.add_dependency 'json', '~> 2.1'
