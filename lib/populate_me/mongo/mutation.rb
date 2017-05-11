@@ -74,7 +74,7 @@ module PopulateMe
 
         # CRUD
         def get(id, opts={}); doc = collection.find(ref(id), opts).first; doc.nil? ? nil : self.new(doc); end
-        def delete(id); collection.delete_one({'_id' => ref(id)}); end
+        def delete(id); collection.delete_one(ref(id)); end
 
         def get_multiple(ids, opts={})
           corrected_ids = ids.map{|id| correct_id_class(id) }
