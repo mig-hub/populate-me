@@ -262,16 +262,18 @@ module PopulateMe
         before_save
         if new?
           before_create
-          id = model.collection.insert_one(@doc)
-          @doc['_id'] = id
+          result = model.collection.insert_one(@doc)
+          if result.ok? and @doc['_id'].nil?
+            @doc['_id'] = result.inserted_id
+          end
           after_create
         else
           before_update
-          id = model.collection.update_one({'_id'=>@doc['_id']}, @doc)
+          result = model.collection.update_one({'_id'=>@doc['_id']}, @doc)
           after_update
         end
         after_save
-        id.nil? ? nil : self
+        result.ok? ? self : nil
       end
       def before_save; end
       def before_create; end
