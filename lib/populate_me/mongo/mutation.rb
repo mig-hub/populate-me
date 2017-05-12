@@ -175,7 +175,7 @@ module PopulateMe
       def children_count(k,sel={})
         k = resolve_class(k)
         slot_name = sel.delete(:slot_name) || model.foreign_key_name
-        k.collection.count(:query => {slot_name=>@doc['_id'].to_s}.update(sel))
+        k.collection.count({slot_name=>@doc['_id'].to_s}.update(sel))
       end
 
       # CRUD
