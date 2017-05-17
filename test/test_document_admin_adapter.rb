@@ -40,4 +40,28 @@ describe PopulateMe::Document, 'AdminAdapter' do
     end
   end
 
+  describe '#to_admin_list_item' do
+    class ContentTitle < PopulateMe::Document
+      field :content
+    end
+    describe 'When title is long' do
+      it 'Is truncated' do
+        doc = ContentTitle.new
+        doc.content = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        title = doc.to_admin_list_item[:title]
+        refute_equal doc.content, title
+        assert_match title.sub(/\.\.\.$/, ''), doc.content 
+        assert_operator title.length, :<=, doc.content.length 
+      end
+    end
+    describe 'When title is short enough' do
+      it 'Does not truncate' do
+        doc = ContentTitle.new
+        doc.content = 'Hello'
+        title = doc.to_admin_list_item[:title]
+        assert_equal doc.content, title
+      end
+    end
+  end
+
 end

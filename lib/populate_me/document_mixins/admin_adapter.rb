@@ -17,7 +17,7 @@ module PopulateMe
           class_name: self.class.name,
           id: self.id,
           admin_url: to_admin_url,
-          title: to_s,
+          title: WebUtils.truncate(to_s, 60),
           image_url: admin_image_url,
           local_menu: self.class.relationships.inject([]) do |out,(k,v)|
             unless v[:hidden]
