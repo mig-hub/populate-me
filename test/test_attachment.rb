@@ -17,6 +17,7 @@ describe PopulateMe::Attachment do
       PopulateMe::Variation.new_image_magick_job(:negated, :jpg, '-negate'),
       PopulateMe::Variation.new_image_magick_job(:negated_gif, :gif, '-negate')
     ]
+    field :pdf, type: :attachment
   end
 
   subject { NiceAttachment.new(document, field) }
@@ -47,6 +48,11 @@ describe PopulateMe::Attachment do
       variations = subject.variations
       assert_equal 2, variations.size
       assert_equal :negated, variations[0].name
+    end
+    it "Returns an empty array when there is none (as opposed to nil)" do
+      variations = NiceAttachment.new(document, :pdf).variations
+      assert_instance_of Array, variations
+      assert_equal 0, variations.size
     end
   end
 

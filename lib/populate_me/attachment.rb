@@ -53,7 +53,7 @@ module PopulateMe
     end
 
     def variations
-      self.document.class.fields[self.field][:variations]
+      self.document.class.fields[self.field][:variations] || []
     end
 
     def field_filename variation_name=:original
