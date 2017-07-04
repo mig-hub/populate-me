@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rack-test', '~> 0.6'
   s.add_development_dependency 'rack-cerberus', '~> 1.0'
   s.add_development_dependency 'mongo', '~> 2.0'
-  s.add_development_dependency 'rack-grid-serve', '~> 0.0.5'
+  s.add_development_dependency 'rack-grid-serve', '~> 0.0.8'
   s.add_development_dependency 'racksh', '~> 1.0'
   s.add_development_dependency 'rake', '~> 10.1'
 end
