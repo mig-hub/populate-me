@@ -2,21 +2,22 @@ $:.unshift File.expand_path('../../lib', __FILE__)
 
 # Models ##########
 
-require 'populate_me/document'
+require 'populate_me/mongo'
 require 'mongo'
 
-MONGO = Mongo::Connection.new
-DB    = MONGO['blog-populate-me-test']
+MONGO = Mongo::Client.new([ '127.0.0.1:27017' ], :database => 'blog-populate-me-test')
+DB    = MONGO.database
+PopulateMe::Mongo.set :db, DB
 
 # require 'populate_me/attachment'
 # PopulateMe::Document.set :default_attachment_class, PopulateMe::Attachment
 # require 'populate_me/file_system_attachment'
 # PopulateMe::Document.set :default_attachment_class, PopulateMe::FileSystemAttachment
 require 'populate_me/grid_fs_attachment'
-PopulateMe::Document.set :default_attachment_class, PopulateMe::GridFS
+PopulateMe::Mongo.set :default_attachment_class, PopulateMe::GridFS
 PopulateMe::GridFS.set :db, DB
 
-class BlogPost < PopulateMe::Document
+class BlogPost < PopulateMe::Mongo
   field :title, required: true
   field :thumbnail, type: :attachment, variations: [
     PopulateMe::Variation.new_image_magick_job(:populate_me_thumb, :jpg, "-resize '400x225^' -gravity center -extent 400x225")
@@ -29,14 +30,14 @@ class BlogPost < PopulateMe::Document
     error_on(:content,'Cannot be blank') if WebUtils.blank?(self.content)
   end
 end
-class BlogPost::Author < PopulateMe::Document
+class BlogPost::Author < PopulateMe::Mongo
   # nested
   field :name
   def validate
     error_on(:name, 'Cannot be shit') if self.name=='shit'
   end
 end
-class BlogPost::Comment < PopulateMe::Document
+class BlogPost::Comment < PopulateMe::Mongo
   # not nested
   field :author, default: 'Anonymous'
   field :content, type: :text
@@ -44,7 +45,7 @@ class BlogPost::Comment < PopulateMe::Document
   position_field scope: :blog_post_id
 end
 
-class Article < PopulateMe::Document
+class Article < PopulateMe::Mongo
   field :title
   field :content, type: :text
   position_field

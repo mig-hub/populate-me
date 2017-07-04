@@ -86,9 +86,9 @@ module PopulateMe
       def middleware_options
         [
           {
-            prefix: settings.url_prefix.dup, 
+            prefix: settings.url_prefix.dup.gsub(/^\/|\/$/,''), 
             db: settings.db,
-            lookup: :path
+            # lookup: :path
           }
         ]
       end
