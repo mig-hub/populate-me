@@ -31,6 +31,24 @@ module PopulateMe
 
       def ensure_not_new; self._is_new = false; end
 
+      def ensure_position
+        self.class.fields.each do |k,v|
+          if v[:type]==:position
+            return unless self.__send__(k).nil?
+            values = if v[:scope].nil?
+              self.class.admin_distinct k
+            else
+              self.class.admin_distinct(k, query: {
+                v[:scope] => self.__send__(v[:scope])
+              })
+            end
+            val = values.empty? ? 0 : (values.max + 1)
+            self.set k => val
+          end
+        end
+        self
+      end
+
       def ensure_delete_related
         self.class.relationships.each do |k,v|
           if v[:dependent]
@@ -61,6 +79,7 @@ module PopulateMe
             after cb, :recurse_callback
           end
           before :create, :ensure_id
+          before :create, :ensure_position
           after :create, :ensure_not_new
           after :save, :snapshot
           before :delete, :ensure_delete_related

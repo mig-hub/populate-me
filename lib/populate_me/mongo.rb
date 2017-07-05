@@ -69,6 +69,11 @@ module PopulateMe
         self.cast{ collection.find(query, o) }
       end
 
+      def admin_distinct field, o={}
+        query = o.delete(:query) || {}
+        self.collection.distinct field, query, o
+      end
+
     end
 
     attr_accessor :_id

@@ -1,5 +1,6 @@
 require 'helper'
 require 'populate_me/document'
+require 'populate_me/attachment'
 
 describe PopulateMe::Document, 'AdminAdapter' do
 
@@ -62,6 +63,45 @@ describe PopulateMe::Document, 'AdminAdapter' do
         assert_equal doc.content, title
       end
     end
+  end
+
+  describe '::admin_distinct' do
+
+    class Distinction < PopulateMe::Document
+      attr_accessor :title, :age
+    end
+
+    before do
+      Distinction.documents = []
+    end
+
+    it 'Can list all distinct values' do
+      Distinction.new(title: 'Lord').save
+      Distinction.new(title: 'Lord').save
+      Distinction.new.save
+      Distinction.new(title: 'Chevalier').save
+      Distinction.new(title: 'Baron').save
+      Distinction.new(title: 'Baron').save
+      result = Distinction.admin_distinct :title
+      assert_instance_of Array, result
+      assert_equal 3, result.size
+      assert_includes result, 'Lord'
+      assert_includes result, 'Chevalier'
+      assert_includes result, 'Baron'
+    end
+
+    it 'Can list all distinct values for a specific selector' do
+      Distinction.new(title: 'Chevalier', age: 33).save
+      Distinction.new(title: 'Chevalier', age: 34).save
+      Distinction.new(title: 'Baron', age: 35).save
+      Distinction.new(title: 'Baron', age: 36).save
+      result = Distinction.admin_distinct :age, query: {title: 'Baron'}
+      assert_instance_of Array, result
+      assert_equal 2, result.size
+      assert_includes result, 35
+      assert_includes result, 36
+    end
+
   end
 
 end

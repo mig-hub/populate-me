@@ -103,5 +103,49 @@ describe PopulateMe::Document, 'Callbacks' do
     assert_equal 'good before_argument after_argument', subject.taste
   end
 
+  describe '#ensure_position' do
+
+    class RaceCar < PopulateMe::Document
+      field :name
+      field :team
+      field :position_by_team, type: :position, scope: :team 
+      position_field
+    end
+
+    before do
+      RaceCar.documents = []
+    end
+
+    it 'Does not change position if already set' do
+      RaceCar.new(name: 'racer3', position: 3, team: 'A', position_by_team: 14).save
+      car = RaceCar.new(name: 'racer1', position: 12, team: 'A', position_by_team: 41)
+      car.ensure_position
+      assert_equal 12, car.position
+      assert_equal 41, car.position_by_team
+    end
+
+    it 'Sets position fields to last position' do
+      RaceCar.new(name: 'racer1', position: 1, team: 'A', position_by_team: 41).save
+      RaceCar.new(name: 'racer2', position: 2, team: 'B', position_by_team: 12).save
+      RaceCar.new(name: 'racer3', position: 3, team: 'B', position_by_team: 14).save
+      car = RaceCar.new(team: 'B').ensure_position
+      assert_equal 4, car.position
+      assert_equal 15, car.position_by_team
+    end
+
+    it 'Returns 0 when first document in scope' do
+      assert_equal 0, RaceCar.new.ensure_position.position
+      RaceCar.new(name: 'racer1', position: 1, team: 'A', position_by_team: 41).save
+      assert_equal 0, RaceCar.new(team: 'B').ensure_position.position_by_team
+    end
+
+    it "Ensures position before creating new document" do
+      car = RaceCar.new
+      car.save
+      assert_equal 0, car.position
+    end
+
+  end
+
 end
 

@@ -90,6 +90,10 @@ module PopulateMe
           docs
         end
 
+        def admin_distinct field, o={}
+          self.admin_find(o).map{|d| d.__send__ field}.compact.uniq
+        end
+
         def sort_field_for o={}
           filter = o[:params][:filter]
           return nil if !filter.nil?&&filter.size>1

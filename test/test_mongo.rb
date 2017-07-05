@@ -211,6 +211,45 @@ describe 'PopulateMe::Mongo' do
 
   end
 
+  describe '::admin_distinct' do
+
+    class MongoDistinction < PopulateMe::Mongo
+      attr_accessor :title, :age
+    end
+
+    before do
+      MongoDistinction.collection.drop
+    end
+
+    it 'Can list all distinct values' do
+      MongoDistinction.new(title: 'Lord').save
+      MongoDistinction.new(title: 'Lord').save
+      MongoDistinction.new.save
+      MongoDistinction.new(title: 'Chevalier').save
+      MongoDistinction.new(title: 'Baron').save
+      MongoDistinction.new(title: 'Baron').save
+      result = MongoDistinction.admin_distinct :title
+      assert_instance_of Array, result
+      assert_equal 3, result.size
+      assert_includes result, 'Lord'
+      assert_includes result, 'Chevalier'
+      assert_includes result, 'Baron'
+    end
+
+    it 'Can list all distinct values for a specific selector' do
+      MongoDistinction.new(title: 'Chevalier', age: 33).save
+      MongoDistinction.new(title: 'Chevalier', age: 34).save
+      MongoDistinction.new(title: 'Baron', age: 35).save
+      MongoDistinction.new(title: 'Baron', age: 36).save
+      result = MongoDistinction.admin_distinct :age, query: {title: 'Baron'}
+      assert_instance_of Array, result
+      assert_equal 2, result.size
+      assert_includes result, 35
+      assert_includes result, 36
+    end
+
+  end
+
 end
 
 DB.drop
