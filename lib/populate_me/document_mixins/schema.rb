@@ -84,7 +84,7 @@ module PopulateMe
 
         def relationship name, o={}
           o[:class_name] = WebUtils.guess_related_class_name(self.name,o[:class_name]||name)
-          WebUtils.ensure_key! o, :label, name.to_s.capitalize
+          WebUtils.ensure_key! o, :label, name.to_s.gsub('_',' ').capitalize
           WebUtils.ensure_key! o, :foreign_key, "#{WebUtils.dasherize_class_name(self.name).gsub('-','_')}_id"
           o[:foreign_key] = o[:foreign_key].to_sym
           WebUtils.ensure_key! o, :dependent, true
