@@ -38,6 +38,13 @@ module PopulateMe
         def find(selector={},opts={})
           selector.update(opts.delete(:selector)||{})
           opts = {:sort=>self.sorting_order}.update(opts)
+          if opts.key?(:fields)
+            opts[:projection] = opts[:fields].inject({}) do |h, f|
+              h[f.to_sym] = 1
+              h
+            end
+            opts.delete(:fields)
+          end
           cur = collection.find(selector,opts)
           cur.instance_variable_set('@mutant_class', self)
           cur.extend(CursorMutation)
