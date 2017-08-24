@@ -66,6 +66,13 @@ module PopulateMe
       def admin_find o={}
         query = o.delete(:query) || {}
         o[:sort] ||= @current_sort
+        if o.key?(:fields)
+          o[:projection] = o[:fields].inject({}) do |h, f|
+            h[f.to_sym] = 1
+            h
+          end
+          o.delete(:fields)
+        end
         self.cast{ collection.find(query, o) }
       end
 

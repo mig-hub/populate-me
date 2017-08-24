@@ -77,6 +77,7 @@ describe 'PopulateMe::Mongo' do
 
     class LowFish < PopulateMe::Mongo
       field :name
+      field :lastname
     end
 
     before do
@@ -126,6 +127,13 @@ describe 'PopulateMe::Mongo' do
       assert LowFish.admin_find.is_a?(Array)
       assert_equal LowFish.collection.find(name: 'H2G2').count, LowFish.admin_find(query: {name: 'H2G2'}).size
       assert_equal 42, LowFish.admin_find(query: {name: 'H2G2'})[0].id
+    end
+
+    it 'Should admin_find while turning fields option into a projection option' do
+      LowFish.collection.insert_one(_id: 42, name: "John", lastname: "Doe")
+      found = LowFish.admin_find(query: {lastname: "Doe"}, fields: ['_id', 'lastname'])[0]
+      assert_equal 42, found.id
+      assert_nil found.name
     end
 
     it 'Should delete' do
