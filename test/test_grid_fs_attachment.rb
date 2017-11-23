@@ -2,6 +2,8 @@ require 'helper'
 require 'populate_me/mongo'
 require 'populate_me/grid_fs_attachment'
 
+Mongo::Logger.logger.level = Logger::ERROR
+
 GRIDMONGO = Mongo::Client.new([ '127.0.0.1:27017' ], :database => 'populate-me-grid-test')
 GRIDDB = GRIDMONGO.database
 GRIDDB.drop

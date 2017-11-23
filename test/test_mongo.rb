@@ -2,6 +2,8 @@ require 'helper'
 require 'populate_me/mongo'
 # require 'mongo'
 
+Mongo::Logger.logger.level = Logger::ERROR
+
 MONGO = Mongo::Client.new([ '127.0.0.1:27017' ], :database => 'populate-me-test')
 DB = MONGO.database
 DB.drop
