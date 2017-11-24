@@ -31,7 +31,7 @@ describe 'PopulateMe::GridFS' do
 
   # Utils
 
-  it 'Returns URL with attachee_prefix' do
+  it 'Returns URL with url_prefix' do
     book = GridBook.new cover: "candy.jpg"
     assert_equal '/attachment/candy.jpg', book.attachment(:cover).url
     assert_equal '/attachment/candy.thumb.gif', book.attachment(:cover).url(:thumb)
