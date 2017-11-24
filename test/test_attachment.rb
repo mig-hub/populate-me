@@ -43,6 +43,12 @@ describe PopulateMe::Attachment do
     end
   end
 
+  describe "#field_options" do
+    it "Get options of the field" do
+      assert_equal :attachment, subject.field_options[:type]
+    end
+  end
+
   describe "#variations" do
     it "Gets variations for the field" do
       variations = subject.variations

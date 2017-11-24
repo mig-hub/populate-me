@@ -52,8 +52,12 @@ module PopulateMe
       self.document.__send__(field)
     end
 
+    def field_options
+      self.document.class.fields[self.field]
+    end
+
     def variations
-      self.document.class.fields[self.field][:variations] || []
+      self.field_options[:variations] || []
     end
 
     def field_filename variation_name=:original
