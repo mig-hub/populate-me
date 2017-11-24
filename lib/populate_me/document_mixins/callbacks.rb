@@ -1,3 +1,5 @@
+require 'securerandom'
+
 module PopulateMe
   module DocumentMixins
     module Callbacks
@@ -24,7 +26,7 @@ module PopulateMe
 
       def ensure_id
         if self.id.nil?
-          self.id = WebUtils::generate_random_id
+          self.id = SecureRandom.hex
         end
         self
       end
