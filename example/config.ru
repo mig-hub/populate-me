@@ -1,23 +1,34 @@
+# We use this example for running real tests on top of unit tests.
+# This is not meant to be an example to learn how PopulateMe would work.
+# Real examples will come later and this file will be removed.
+
 $:.unshift File.expand_path('../../lib', __FILE__)
 
 # Models ##########
 
-require 'populate_me/mongo'
-require 'mongo'
+require 'populate_me/document'
 
-MONGO = Mongo::Client.new([ '127.0.0.1:27017' ], :database => 'blog-populate-me-test')
-DB    = MONGO.database
-PopulateMe::Mongo.set :db, DB
+# MONGO = Mongo::Client.new([ '127.0.0.1:27017' ], :database => 'blog-populate-me-test')
+# DB    = MONGO.database
+# PopulateMe::Mongo.set :db, DB
 
 # require 'populate_me/attachment'
 # PopulateMe::Document.set :default_attachment_class, PopulateMe::Attachment
 # require 'populate_me/file_system_attachment'
 # PopulateMe::Document.set :default_attachment_class, PopulateMe::FileSystemAttachment
-require 'populate_me/grid_fs_attachment'
-PopulateMe::Mongo.set :default_attachment_class, PopulateMe::GridFS
-PopulateMe::GridFS.set :db, DB
+#
+# require 'populate_me/grid_fs_attachment'
+# PopulateMe::Mongo.set :default_attachment_class, PopulateMe::GridFS
+# PopulateMe::GridFS.set :db, DB
 
-class BlogPost < PopulateMe::Mongo
+require 'populate_me/s3_attachment'
+s3_resource = Aws::S3::Resource.new
+s3_bucket = s3_resource.bucket(ENV['BUCKET'])
+PopulateMe::Document.set :default_attachment_class, PopulateMe::S3Attachment
+PopulateMe::S3Attachment.set :bucket, s3_bucket
+
+
+class BlogPost < PopulateMe::Document
   field :title, required: true
   field :thumbnail, type: :attachment, variations: [
     PopulateMe::Variation.new_image_magick_job(:populate_me_thumb, :jpg, "-resize '400x225^' -gravity center -extent 400x225")
@@ -30,14 +41,14 @@ class BlogPost < PopulateMe::Mongo
     error_on(:content,'Cannot be blank') if WebUtils.blank?(self.content)
   end
 end
-class BlogPost::Author < PopulateMe::Mongo
+class BlogPost::Author < PopulateMe::Document
   # nested
   field :name
   def validate
     error_on(:name, 'Cannot be shit') if self.name=='shit'
   end
 end
-class BlogPost::Comment < PopulateMe::Mongo
+class BlogPost::Comment < PopulateMe::Document
   # not nested
   field :author, default: 'Anonymous'
   field :content, type: :text
@@ -45,7 +56,7 @@ class BlogPost::Comment < PopulateMe::Mongo
   position_field scope: :blog_post_id
 end
 
-class Article < PopulateMe::Mongo
+class Article < PopulateMe::Document
   field :title
   field :content, type: :text
   position_field
@@ -63,6 +74,6 @@ end
 
 # use PopulateMe::Attachment::Middleware
 # use PopulateMe::FileSystemAttachment::Middleware
-use PopulateMe::GridFS::Middleware
+# use PopulateMe::GridFS::Middleware
 run Admin
 
