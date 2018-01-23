@@ -89,6 +89,16 @@ module PopulateMe
           o[:foreign_key] = o[:foreign_key].to_sym
           WebUtils.ensure_key! o, :dependent, true
           self.relationships[name] = o
+
+          define_method(name) do
+            var = "@cached_#{name}"
+            instance_variable_set(var, instance_variable_get(var)||WebUtils.resolve_class_name(o[:class_name]).admin_find(query: {o[:foreign_key]=>self.id}))
+          end
+
+          define_method("#{name}_first".to_sym) do
+            var = "@cached_#{name}_first"
+            instance_variable_set(var, instance_variable_get(var)||WebUtils.resolve_class_name(o[:class_name]).admin_find_first(query: {o[:foreign_key]=>self.id}))
+          end
         end
 
       end
