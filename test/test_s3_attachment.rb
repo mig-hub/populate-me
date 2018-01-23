@@ -10,6 +10,14 @@ PopulateMe::S3Attachment.set :bucket, s3_bucket
 describe 'PopulateMe::S3Attachment' do
   # parallelize_me!
 
+  def check_if_public_read(object)
+    grant = object.acl.grants.find do |g|
+      g.grantee.uri=="http://acs.amazonaws.com/groups/global/AllUsers"
+    end
+    raise "grant not found" if grant.nil?
+    ['READ','FULL_CONTROL'].include? grant.permission
+  end
+
   class S3Book < PopulateMe::Document
     field :cover, type: :attachment, variations: [
       PopulateMe::Variation.new_image_magick_job(:thumb, :gif, "-resize '300x'")
@@ -83,7 +91,7 @@ describe 'PopulateMe::S3Attachment' do
 
     vars3file = s3_bucket.object('public/s-3-book/story.upcase.txt')
     assert_equal 'text/plain', vars3file.content_type
-    # assert_equal 'public-read', vars3file.acl
+    assert check_if_public_read(vars3file)
     assert_equal 's-3-book', vars3file.metadata['parent_collection']
     assert_equal 'HELLO', vars3file.get.body.read
 
