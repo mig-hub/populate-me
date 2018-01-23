@@ -125,10 +125,29 @@ describe 'PopulateMe::Mongo' do
     end
 
     it 'Should admin_find correctly' do
-      LowFish.collection.insert_one(_id: 42, name: "H2G2")
-      assert LowFish.admin_find.is_a?(Array)
-      assert_equal LowFish.collection.find(name: 'H2G2').count, LowFish.admin_find(query: {name: 'H2G2'}).size
-      assert_equal 42, LowFish.admin_find(query: {name: 'H2G2'})[0].id
+      LowFish.collection.insert_one(_id: 10, name: "Arya")
+      LowFish.collection.insert_one(_id: 20, name: "Bran")
+      LowFish.collection.insert_one(_id: 30, name: "Arya")
+      LowFish.collection.insert_one(_id: 40, name: "Bran")
+      items = LowFish.admin_find
+      assert items.is_a?(Array)
+      assert 4, items.count
+      assert_equal 10, items[0].id
+      items = LowFish.admin_find query: {name: 'Bran'}
+      assert items.is_a?(Array)
+      assert 2, items.count
+      assert_equal 20, items[0].id
+    end
+
+    it 'Should admin_find_first correctly' do
+      LowFish.collection.insert_one(_id: 10, name: "Arya")
+      LowFish.collection.insert_one(_id: 20, name: "Bran")
+      LowFish.collection.insert_one(_id: 30, name: "Arya")
+      LowFish.collection.insert_one(_id: 40, name: "Bran")
+      item = LowFish.admin_find_first
+      assert_equal 10, item.id
+      item = LowFish.admin_find_first query: {name: "Bran"}
+      assert_equal 20, item.id
     end
 
     it 'Should admin_find while turning fields option into a projection option' do

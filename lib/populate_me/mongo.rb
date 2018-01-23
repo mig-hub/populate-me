@@ -76,6 +76,10 @@ module PopulateMe
         self.cast{ collection.find(query, o) }
       end
 
+      def admin_find_first o={}
+        self.admin_find(o.merge({limit: 1}))[0]
+      end
+
       def admin_distinct field, o={}
         query = o.delete(:query) || {}
         self.collection.distinct field, query, o

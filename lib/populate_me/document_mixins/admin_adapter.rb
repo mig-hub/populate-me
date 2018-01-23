@@ -90,6 +90,10 @@ module PopulateMe
           docs
         end
 
+        def admin_find_first o={}
+          self.admin_find(o)[0]
+        end
+
         def admin_distinct field, o={}
           self.admin_find(o).map{|d| d.__send__ field}.compact.uniq
         end

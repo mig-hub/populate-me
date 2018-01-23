@@ -65,6 +65,46 @@ describe PopulateMe::Document, 'AdminAdapter' do
     end
   end
 
+  describe '::admin_find ::admin_find_first' do
+    
+    class FindablePerson < PopulateMe::Document
+      field :first_name
+      field :last_name
+    end
+    
+    before do
+      FindablePerson.documents = []
+      FindablePerson.new(first_name: 'Bobby', last_name: 'Peru').save
+      FindablePerson.new(first_name: 'John', last_name: 'Doe').save
+      FindablePerson.new(first_name: 'John', last_name: 'Turturo').save
+    end
+
+    it 'Finds everything' do
+      people = FindablePerson.admin_find
+      assert_equal Array, people.class
+      assert_equal 3, people.size
+      assert_equal FindablePerson.documents, people
+    end
+
+    it 'Finds with query' do
+      people = FindablePerson.admin_find query: {first_name: 'John'}
+      assert_equal Array, people.class
+      assert_equal 2, people.size
+      assert_equal 'Doe', people[0].last_name
+    end
+
+    it 'Finds first' do
+      person = FindablePerson.admin_find_first
+      assert_equal 'Bobby', person.first_name
+    end
+
+    it 'Finds first with query' do
+      person = FindablePerson.admin_find_first query: {first_name: 'John'}
+      assert_equal 'Doe', person.last_name
+    end
+
+  end
+
   describe '::admin_distinct' do
 
     class Distinction < PopulateMe::Document
