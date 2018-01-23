@@ -80,6 +80,13 @@ Available types are:
 A `:list` type exists as well for nested documents, but it is not 
 fully working yet.
 
+The `field` method creates a getter and a setter for this particular field.
+
+```ruby
+blog_article.published # Returns true or false
+blog_article.published = true
+```
+
 ### Validations
 
 In its simplest form, validations are done by overriding the `#validate` method and declaring errors with the `#error_on` method.
@@ -129,6 +136,19 @@ class BlogArticle::Comment < PopulateMe::Document
 
 end
 ```
+
+The `relationship` method creates 2 getters for this particular field,
+one with the same name and one with `_first` at the end. Both are cached
+so that the database is queried only once.
+
+```ruby
+blog_article.comments # Returns all the comments for this article
+blog_article.comments_first # Returns the first comment for this article
+```
+
+It uses the `PopulateMe::Document::admin_find` and  
+`PopulateMe::Document::admin_find_first` methods in the background, 
+so default sorting order is respected.
 
 ### Callbacks
 
