@@ -12,8 +12,8 @@ require 'populate_me/document'
 # DB    = MONGO.database
 # PopulateMe::Mongo.set :db, DB
 
-# require 'populate_me/attachment'
-# PopulateMe::Document.set :default_attachment_class, PopulateMe::Attachment
+require 'populate_me/attachment'
+PopulateMe::Document.set :default_attachment_class, PopulateMe::Attachment
 # require 'populate_me/file_system_attachment'
 # PopulateMe::Document.set :default_attachment_class, PopulateMe::FileSystemAttachment
 #
@@ -21,16 +21,16 @@ require 'populate_me/document'
 # PopulateMe::Mongo.set :default_attachment_class, PopulateMe::GridFS
 # PopulateMe::GridFS.set :db, DB
 
-require 'populate_me/s3_attachment'
-s3_resource = Aws::S3::Resource.new
-s3_bucket = s3_resource.bucket(ENV['BUCKET'])
-PopulateMe::Document.set :default_attachment_class, PopulateMe::S3Attachment
-PopulateMe::S3Attachment.set :bucket, s3_bucket
+# require 'populate_me/s3_attachment'
+# s3_resource = Aws::S3::Resource.new
+# s3_bucket = s3_resource.bucket(ENV['BUCKET'])
+# PopulateMe::Document.set :default_attachment_class, PopulateMe::S3Attachment
+# PopulateMe::S3Attachment.set :bucket, s3_bucket
 
 
 class BlogPost < PopulateMe::Document
   field :title, required: true
-  field :thumbnail, type: :attachment, variations: [
+  field :thumbnail, type: :attachment, max_size: 600000, variations: [
     PopulateMe::Variation.new_image_magick_job(:populate_me_thumb, :jpg, "-resize '400x225^' -gravity center -extent 400x225")
   ]
   field :content, type: :text
@@ -72,7 +72,7 @@ class Admin < PopulateMe::Admin
   ]
 end
 
-# use PopulateMe::Attachment::Middleware
+use PopulateMe::Attachment::Middleware
 # use PopulateMe::FileSystemAttachment::Middleware
 # use PopulateMe::GridFS::Middleware
 run Admin

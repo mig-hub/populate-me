@@ -129,7 +129,7 @@
         <button class='attachment-deleter'>x</button>
         <br />
       {{/url}}
-      <input type='file' name='{{input_name}}' {{{build_input_atrributes}}} />
+      <input type='file' name='{{input_name}}' {{#max_size}}data-max-size='{{max_size}}'{{/max_size}} {{{build_input_atrributes}}} />
     </script>
 
     <script id="template-list-field" type="x-tmpl-mustache">
