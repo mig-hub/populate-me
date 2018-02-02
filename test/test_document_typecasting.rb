@@ -6,6 +6,8 @@ class Person < PopulateMe::Document
   field :shared, type: :boolean
   field :age, type: :integer
   field :salary, type: :price
+  field :size, type: :select, select_option: ['S','M','L'] 
+  field :categories, type: :select, select_option: ['A','B','C'], multiple: true 
   field :dob, type: :date
   field :when, type: :datetime
 end
@@ -82,6 +84,14 @@ describe PopulateMe::Document, 'Typecasting' do
         assert_equal 4250, subject.typecast(:salary,'$42.5')
         assert_equal 4250, subject.typecast(:salary,'42.5 Dollars')
       end
+    end
+  end
+
+  describe "Field has type :select" do
+    it "Removes 'nil' string if multiple/array" do
+      assert_equal 'M', subject.typecast(:size, 'M')
+      assert_equal ['A','B'], subject.typecast(:categories, ['A','B'])
+      assert_equal ['A','B'], subject.typecast(:categories, ['nil','A','B'])
     end
   end
 

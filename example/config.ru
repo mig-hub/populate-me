@@ -59,7 +59,13 @@ end
 class Article < PopulateMe::Document
   field :title
   field :content, type: :text
+  field :yes_or_no, type: :select, select_options: [:yes,:no]
+  field :tags, type: :select, multiple: true, select_options: ['art','sport','science']
   position_field
+
+  after :save do
+    puts self.inspect
+  end
 end
 
 # Admin ##########

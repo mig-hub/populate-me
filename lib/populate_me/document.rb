@@ -99,7 +99,7 @@ module PopulateMe
       persistent_instance_variables.inject({'_class'=>self.class.name}) do |h,var|
         k = var.to_s[1..-1]
         v = instance_variable_get var
-        if v.is_a? Array
+        if is_nested_docs?(v)
           h[k] = v.map(&:to_h)
         else
           h[k] = v
@@ -118,7 +118,7 @@ module PopulateMe
       persistent_instance_variables.map do |var|
         instance_variable_get var
       end.find_all do |val|
-        val.is_a? Array
+        is_nested_docs?(val)
       end.flatten
     end
 
@@ -152,7 +152,7 @@ module PopulateMe
       hash.delete('_class')
       hash.each do |k,v|
         getter = k.to_sym
-        if v.is_a? Array
+        if is_nested_hash_docs?(v)
           break unless respond_to?(getter)
           __send__(getter).clear
           v.each do |d|
@@ -172,6 +172,19 @@ module PopulateMe
       self.class.settings
     end
     self.settings = OpenStruct.new
+
+    private
+
+    def is_nested_docs? val
+      # Differenciate nested docs array from other king of array
+      val.is_a?(Array) and !val.empty? and val[0].is_a?(PopulateMe::Document)
+    end
+
+    def is_nested_hash_docs? val
+      # Differenciate nested docs array from other king of array 
+      # when from a hash
+      val.is_a?(Array) and !val.empty? and val[0].is_a?(Hash) and val[0].has_key?('_class')
+    end
 
   end
 end

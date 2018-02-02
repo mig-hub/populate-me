@@ -116,6 +116,9 @@
     </script>
 
     <script id="template-select-field" type="x-tmpl-mustache">
+      {{#multiple}}
+        <input type='hidden' name='{{input_name}}' value='nil' />
+      {{/multiple}}
       <select name='{{input_name}}' {{#multiple}}multiple{{/multiple}}{{{build_input_attributes}}}>
         {{#select_options}}
           <option value='{{value}}' {{#selected}}selected{{/selected}}>{{description}}</option>

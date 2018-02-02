@@ -27,6 +27,14 @@ module PopulateMe
         WebUtils.parse_price(v)
       end
 
+      def typecast_select k, v
+        if v.is_a?(Array)
+          v.reject{|str| str=='nil' }
+        else
+          v
+        end
+      end
+
       def typecast_date k, v
         if v[/\d\d(\/|-)\d\d(\/|-)\d\d\d\d/]
           Date.parse v

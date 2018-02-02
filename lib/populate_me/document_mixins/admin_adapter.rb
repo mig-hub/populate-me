@@ -40,10 +40,8 @@ module PopulateMe
         }
         self.class.complete_field_options :_class, class_item
         items = self.class.fields.inject([class_item]) do |out,(k,item)|
-          item = item.dup
           if item[:form_field]
-            outcast k, item, o
-            out << item
+            out << outcast(k, item, o)
           end
           out
         end

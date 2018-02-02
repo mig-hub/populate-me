@@ -27,7 +27,7 @@ module PopulateMe
         report = self._errors.dup || {}
         persistent_instance_variables.each do |var|
           value = instance_variable_get var
-          if value.is_a? Array
+          if is_nested_docs?(value)
             k = var[1..-1].to_sym
             report[k] = []
             value.each do |d|

@@ -8,23 +8,34 @@ module PopulateMe
       # Therefore, it is a complement to the AdminAdapter module.
 
       def outcast field, item, o={}
+        item = item.dup
         item[:input_name] = "#{o[:input_name_prefix]}[#{item[:field_name]}]"
         unless item[:type]==:list
           WebUtils.ensure_key! item, :input_value, self.__send__(field)
         end
         meth = "outcast_#{item[:type]}".to_sym
-        __send__(meth, field, item, o) if respond_to?(meth)
-      end
-
-      def outcast_list field, item, o={}
-        item[:items] = self.__send__(field).map do |nested|
-         nested.to_admin_form(o.merge(input_name_prefix: item[:input_name]+'[]'))
+        if respond_to?(meth)
+          __send__(meth, field, item, o) 
+        else
+          item
         end
       end
 
+      def outcast_list field, item, o={}
+        item = item.dup
+        item[:items] = self.__send__(field).map do |nested|
+         nested.to_admin_form(o.merge(input_name_prefix: item[:input_name]+'[]'))
+        end
+        item
+      end
+
       def outcast_select field, item, o={}
+        item = item.dup
         unless item[:select_options].nil?
-          opts = WebUtils.get_value(item[:select_options],self).dup
+          if item[:multiple]==true
+            item[:input_name] = item[:input_name]+'[]'
+          end
+          opts = WebUtils.deep_copy(WebUtils.get_value(item[:select_options],self))
           opts.map! do |opt|
             if opt.is_a?(String)||opt.is_a?(Symbol)
               opt = [opt.to_s.capitalize,opt]
@@ -32,15 +43,24 @@ module PopulateMe
             if opt.is_a?(Array)
               opt = {description: opt[0].to_s, value: opt[1].to_s}
             end
-            opt[:selected] = true if item[:input_value]==opt[:value]
+            if item[:input_value].respond_to?(:include?)
+              opt[:selected] = true if item[:input_value].include?(opt[:value])
+            else
+              opt[:selected] = true if item[:input_value]==opt[:value]
+            end
             opt
           end
           item[:select_options] = opts
+          item
+        else
+          item
         end
       end
 
       def outcast_attachment field, item, o={}
+        item = item.dup
         item[:url] = self.attachment(field).url
+        item
       end
 
     end
