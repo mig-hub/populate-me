@@ -101,6 +101,20 @@ module PopulateMe
           end
         end
 
+        def to_select_options o={}
+          proc do
+            items = self.admin_find(query: {}, fields: [self.id_string_key, self.label_field])
+            puts items.inspect
+            output = items.sort_by do |i|
+              i.to_s.downcase
+            end.map do |i|
+              [i.to_s, i.id]
+            end
+            output.unshift(['?','']) if o[:allow_empty]
+            output
+          end
+        end
+
       end
 
     end

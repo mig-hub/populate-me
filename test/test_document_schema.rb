@@ -77,5 +77,47 @@ describe PopulateMe::Document, 'Schema' do
 
   end
 
+  describe '::to_select_options' do
+
+    class Selectoptionable < PopulateMe::Document
+      field :name
+      field :slug
+      label :slug
+    end
+
+    before do
+      Selectoptionable.documents = []
+      Selectoptionable.new(id: '1', name: 'Joe', slug: 'joe').save
+      Selectoptionable.new(id: '2', name: 'William', slug: 'william').save
+      Selectoptionable.new(id: '3', name: 'Jack', slug: 'jack').save
+      Selectoptionable.new(id: '4', name: 'Averell', slug: 'averell').save
+    end
+
+    after do
+      Selectoptionable.documents = []
+    end
+
+    it 'Formats all items for a select_options' do
+      output_proc = Selectoptionable.to_select_options
+      assert output_proc.is_a?(Proc)
+      output = output_proc.call
+      assert_equal 4, output.size
+      assert output.all?{|o| o.is_a?(Array) and o.size==2}
+      assert_equal '1', output.find{|o|o[0]=='joe'}[1]
+    end
+
+    it 'Puts items in alphabetical order of their label' do
+      output= Selectoptionable.to_select_options.call
+      assert_equal ['averell', '4'], output[0]
+    end
+
+    it 'Has an option for prepending empty choice' do
+      output= Selectoptionable.to_select_options(allow_empty: true).call
+      assert_equal ['?', ''], output[0]
+      assert_equal ['averell', '4'], output[1]
+    end
+
+  end
+
 end
 
