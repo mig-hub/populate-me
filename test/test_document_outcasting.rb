@@ -12,6 +12,7 @@ class Outcasted < PopulateMe::Document
     {description: 'large', value: 'l'}
   ]
   field :tags, type: :select, select_options: ['art','sport','science'], multiple: true
+  field :related_properties, type: :select, select_options: ['prop1','prop2','prop3'], multiple: true, ordered: true
   field :pdf, type: :attachment
   field :authors, type: :list
   field :weirdo, type: :strange
@@ -153,6 +154,40 @@ describe PopulateMe::Document, 'Outcasting' do
       assert output[:select_options].find{|o|o[:value]=='art'}[:selected]
       assert output[:select_options].find{|o|o[:value]=='science'}[:selected]
       refute output[:select_options].find{|o|o[:value]=='sport'}[:selected]
+    end
+
+    it 'Orders input values at the begining when multiple options are also ordered' do
+      original = Outcasted.fields[:related_properties]
+
+      # Normal
+      outcasted = Outcasted.new related_properties: ['prop3','prop1']
+      output = outcasted.outcast(:related_properties, original, {input_name_prefix: 'data'})
+      assert_equal 'prop3', output[:select_options][0][:value]
+      assert output[:select_options][0][:selected]
+      assert_equal 'prop1', output[:select_options][1][:value]
+      assert output[:select_options][1][:selected]
+      assert_equal 'prop2', output[:select_options][2][:value]
+      refute output[:select_options][2][:selected]
+
+      # When input_value is nil
+      outcasted = Outcasted.new
+      output = outcasted.outcast(:related_properties, original, {input_name_prefix: 'data'})
+      assert_equal 'prop1', output[:select_options][0][:value]
+      refute output[:select_options][0][:selected]
+      assert_equal 'prop2', output[:select_options][1][:value]
+      refute output[:select_options][1][:selected]
+      assert_equal 'prop3', output[:select_options][2][:value]
+      refute output[:select_options][2][:selected]
+
+      # When input_value has a non existing value
+      outcasted = Outcasted.new related_properties: ['stale','prop2']
+      output = outcasted.outcast(:related_properties, original, {input_name_prefix: 'data'})
+      assert_equal 'prop2', output[:select_options][0][:value]
+      assert output[:select_options][0][:selected]
+      assert_equal 'prop1', output[:select_options][1][:value]
+      refute output[:select_options][1][:selected]
+      assert_equal 'prop3', output[:select_options][2][:value]
+      refute output[:select_options][2][:selected]
     end
 
   end
