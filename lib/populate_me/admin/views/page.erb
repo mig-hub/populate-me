@@ -4,6 +4,8 @@
   <head>
     <meta charset="utf-8" />
     <title><%= settings.meta_title %></title>
+    <link rel="stylesheet" href="<%= request.script_name %>/__assets__/css/jquery-ui.min.css" type="text/css" media='screen' />
+    <link rel="stylesheet" href="<%= request.script_name %>/__assets__/css/asmselect.css" type="text/css" media='screen' />
     <link rel="stylesheet" href="<%= request.script_name %>/__assets__/css/main.css" type="text/css" media='screen' />
   </head>
   <body>
@@ -119,7 +121,7 @@
       {{#multiple}}
         <input type='hidden' name='{{input_name}}' value='nil' />
       {{/multiple}}
-      <select name='{{input_name}}' {{#multiple}}multiple{{/multiple}}{{{build_input_attributes}}}>
+      <select name='{{input_name}}' {{#multiple}}multiple title='?'{{/multiple}}{{{build_input_attributes}}}>
         {{#select_options}}
           <option value='{{value}}' {{#selected}}selected{{/selected}}>{{description}}</option>
         {{/select_options}}
@@ -153,9 +155,11 @@
 
     <!-- JS -->
     <script src="//code.jquery.com/jquery-1.10.2.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="<%= request.script_name %>/__assets__/js/jquery-ui.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="<%= request.script_name %>/__assets__/js/mustache.js" type="text/javascript" charset="utf-8"></script>
     <script src="<%= request.script_name %>/__assets__/js/columnav.js" type="text/javascript" charset="utf-8"></script>
-    <script src="<%= request.script_name %>/__assets__/js/sortable.js" type="text/javascript" charset="utf-8"></script>
+    <%# <script src="<%= request.script_name %1>/__assets__/js/sortable.js" type="text/javascript" charset="utf-8"></script> %>
+    <script src="<%= request.script_name %>/__assets__/js/asmselect.js" type="text/javascript" charset="utf-8"></script>
     <script type="text/javascript">
       window.admin_path = "<%= request.script_name %>";
       window.index_path = "<%= settings.index_path %>";

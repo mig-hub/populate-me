@@ -161,6 +161,16 @@ fieldset {
   color: #dc322f;
 }
 
+/* asmSelect */
+
+.asmListItem {
+  background-color: #ffffff;
+  border: 1px solid #fdf6e3;
+}
+.asmListItem:hover { background-color: #eee8d5; }
+.asmListItemLabel { padding-right: 2em; }
+.asmListItemRemove { color: #dc322f; }
+
 
          /\
         / *\
