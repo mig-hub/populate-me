@@ -12,7 +12,7 @@ class Outcasted < PopulateMe::Document
     {description: 'large', value: 'l'}
   ]
   field :tags, type: :select, select_options: ['art','sport','science'], multiple: true
-  field :related_properties, type: :select, select_options: ['prop1','prop2','prop3'], multiple: true, ordered: true
+  field :related_properties, type: :select, select_options: ['prop1','prop2','prop3'], multiple: true
   field :pdf, type: :attachment
   field :authors, type: :list
   field :weirdo, type: :strange
@@ -156,7 +156,7 @@ describe PopulateMe::Document, 'Outcasting' do
       refute output[:select_options].find{|o|o[:value]=='sport'}[:selected]
     end
 
-    it 'Orders input values at the begining when multiple options are also ordered' do
+    it 'Orders input values at the begining when multiple options' do
       original = Outcasted.fields[:related_properties]
 
       # Normal

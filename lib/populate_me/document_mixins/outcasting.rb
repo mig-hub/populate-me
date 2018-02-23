@@ -50,7 +50,7 @@ module PopulateMe
             end
             opt
           end
-          if item[:multiple] and item[:ordered]
+          if item[:multiple]
             (item[:input_value]||[]).reverse.each do |iv|
               opt = opts.find{|opt| opt[:value]==iv }
               opts.unshift(opts.delete(opt)) unless opt.nil?
