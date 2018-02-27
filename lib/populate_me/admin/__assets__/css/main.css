@@ -66,7 +66,7 @@ button { cursor: pointer; }
   margin-bottom: 1em;
 }
 
-button.admin-delete, button.admin-delete-nested, .handle {
+button.admin-delete, button.admin-delete-nested, .handle-button {
   display: inline-block; vertical-align: middle;
   font-size: 1em; line-height: 1em;
   width: auto; height: auto;
@@ -78,14 +78,19 @@ button.admin-delete, button.admin-delete-nested {
   color: #dc322f;
   background-color: transparent;
 }
-button.admin-delete:focus, button.admin-delete-nested:focus, .handle:focus {
+button.admin-delete:focus, button.admin-delete-nested:focus, .handle-button:focus {
   outline: 0;
 }
 .handle {
   cursor: move;
-  color: #b58900;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
+  cursor: grab;
 }
-.handle:hover { 
+.handle:active { 
+  cursor: -moz-grabbing;
+  cursor: -webkit-grabbing;
+  cursor: grabbing;
 }
 
 [type=submit] {
@@ -169,7 +174,18 @@ fieldset {
 }
 .asmListItem:hover { background-color: #eee8d5; }
 .asmListItemLabel { padding-right: 2em; }
-.asmListItemRemove { color: #dc322f; }
+.asmListSortable .asmListItemLabel {
+  cursor: move;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
+  cursor: grab;
+}
+.asmListSortable .asmListItemLabel:active {
+  cursor: -moz-grabbing;
+  cursor: -webkit-grabbing;
+  cursor: grabbing;
+}
+.asmListItemRemove, .asmListItemRemove:hover { color: #dc322f; }
 
 
          /\

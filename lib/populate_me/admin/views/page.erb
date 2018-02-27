@@ -42,10 +42,7 @@
 
     <script id="template-document" type="x-tmpl-mustache">
       <li class='admin-list-item' data-id='{{id}}'>
-        <header>
-          {{#sort_field}}
-            <span class='handle' title='Drag and drop'>&#8597;</span>
-          {{/sort_field}}
+        <header class='{{#sort_field}}handle{{/sort_field}}' title='{{#sort_field}}Drag and drop{{/sort_field}}'>
           <button type='button' class='admin-delete' title='Delete' value='<%= request.script_name %>/api/{{admin_url}}'>&times;</button>
         </header>
         <a href="<%= request.script_name %>/form/{{admin_url}}" class='column-push' title='Edit'>
@@ -77,7 +74,7 @@
     <script id="template-nested-form" type="x-tmpl-mustache">
       <li>
         <header>
-          <span class='handle' title='Drag and drop'>&#8597;</span><button type='button' class='admin-delete-nested' title='Delete'>&times;</button>
+          <span class='handle handle-button' title='Drag and drop'>&#8597;</span><button type='button' class='admin-delete-nested' title='Delete'>&times;</button>
         </header>
         {{#custom_partial_or_default}}template_form_fields{{/custom_partial_or_default}}
       </li>
