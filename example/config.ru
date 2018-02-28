@@ -61,6 +61,7 @@ class Article < PopulateMe::Document
   field :content, type: :text
   field :yes_or_no, type: :select, select_options: [:yes,:no]
   field :tags, type: :select, multiple: true, select_options: ['art','sport','science']
+  field :price, type: :price
   position_field
 
   after :save do

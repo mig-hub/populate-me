@@ -16,6 +16,7 @@ class Outcasted < PopulateMe::Document
   field :pdf, type: :attachment
   field :authors, type: :list
   field :weirdo, type: :strange
+  field :price, type: :price
 
   def get_size_options
     [
@@ -188,6 +189,25 @@ describe PopulateMe::Document, 'Outcasting' do
       refute output[:select_options][1][:selected]
       assert_equal 'prop3', output[:select_options][2][:value]
       refute output[:select_options][2][:selected]
+    end
+
+  end
+
+  describe '#outcast_price' do
+
+    it 'Displays the price in dollars/pounds' do
+      original = Outcasted.fields[:price]
+      outcasted = Outcasted.new price: 2999
+      output = outcasted.outcast(:price, original, {input_name_prefix: 'data'})
+      assert_equal '29.99', output[:input_value]
+    end
+
+    it 'Leaves the field alone when value not an integer' do
+      original = Outcasted.fields[:price]
+      outcasted = Outcasted.new
+      output = outcasted.outcast(:price, original, {input_name_prefix: 'data'})
+      assert_nil outcasted.price
+      assert_nil output[:input_value]
     end
 
   end

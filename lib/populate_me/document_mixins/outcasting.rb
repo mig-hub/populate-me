@@ -69,6 +69,14 @@ module PopulateMe
         item
       end
 
+      def outcast_price field, item, o={}
+        item = item.dup
+        if item[:input_value].is_a?(Integer)
+          item[:input_value] = WebUtils.display_price item[:input_value]
+        end
+        item
+      end
+
     end
   end
 end
