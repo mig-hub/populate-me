@@ -103,7 +103,7 @@ module PopulateMe
 
         def to_select_options o={}
           proc do
-            items = self.admin_find(query: {}, fields: [self.id_string_key, self.label_field])
+            items = self.admin_find(query: (o[:query]||{}), fields: [self.id_string_key, self.label_field])
             output = items.sort_by do |i|
               i.to_s.downcase
             end.map do |i|
