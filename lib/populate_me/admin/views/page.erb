@@ -54,7 +54,7 @@
         </a>
         <ol class='local-menu'>
           {{#local_menu}}
-            <li>&rarr; <a href="{{href}}" class='column-push' title='Open'>{{title}}</a></li>
+            <li>&rarr; <a href="{{href}}" {{#new_page}}target='_blank'{{/new_page}}{{^new_page}}class='column-push'{{/new_page}} title='Open'>{{title}}</a></li>
           {{/local_menu}}
         </ol>
       </li>

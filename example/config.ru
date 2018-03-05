@@ -40,6 +40,17 @@ class BlogPost < PopulateMe::Document
   def validate
     error_on(:content,'Cannot be blank') if WebUtils.blank?(self.content)
   end
+
+  def to_admin_list_item o={}
+    list_item = super(o)
+    list_item[:local_menu].push({
+      href: 'http://www.github.com',
+      title: 'Github',
+      new_page: true
+    })
+    list_item
+  end
+
 end
 class BlogPost::Author < PopulateMe::Document
   # nested

@@ -23,7 +23,8 @@ module PopulateMe
             unless v[:hidden]
               out << {
                 title: "#{v[:label]}",
-                href: "#{o[:request].script_name}/list/#{WebUtils.dasherize_class_name(v[:class_name])}?filter[#{v[:foreign_key]}]=#{self.id}"
+                href: "#{o[:request].script_name}/list/#{WebUtils.dasherize_class_name(v[:class_name])}?filter[#{v[:foreign_key]}]=#{self.id}",
+                new_page: false 
               }
               out
             end
