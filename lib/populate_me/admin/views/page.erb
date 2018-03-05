@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="<%= request.script_name %>/__assets__/css/jquery-ui.min.css" type="text/css" media='screen' />
     <link rel="stylesheet" href="<%= request.script_name %>/__assets__/css/asmselect.css" type="text/css" media='screen' />
     <link rel="stylesheet" href="<%= request.script_name %>/__assets__/css/main.css" type="text/css" media='screen' />
+    <% if settings.respond_to? :custom_css_url %>
+      <link rel="stylesheet" href="<%= settings.custom_css_url %>" type="text/css" media='screen' />
+    <% end %>
   </head>
   <body>
 
@@ -150,6 +153,10 @@
       </fieldset>
     </script>
 
+    <% if settings.respond_to? :custom_templates_view %>
+      <%= erb settings.custom_templates_view, layout: false %>
+    <% end %>
+
     <!-- JS -->
     <script src="//code.jquery.com/jquery-1.10.2.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="<%= request.script_name %>/__assets__/js/jquery-ui.min.js" type="text/javascript" charset="utf-8"></script>
@@ -162,6 +169,9 @@
       window.index_path = "<%= settings.index_path %>";
     </script>
     <script src="<%= request.script_name %>/__assets__/js/main.js" type="text/javascript" charset="utf-8"></script>
+    <% if settings.respond_to? :custom_js_url %>
+      <script src="<%= settings.custom_js_url %>" type="text/javascript" charset="utf-8"></script>
+    <% end %>
   </body>
 </html>
 
