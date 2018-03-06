@@ -46,6 +46,9 @@ module PopulateMe
       end
 
       def set_indexes f, ids=[]
+        if self.fields[f.to_sym][:direction]==:desc
+          ids = ids.dup.reverse
+        end
         requests = ids.each_with_index.inject([]) do |list, (id, i)|
           list << {update_one: 
             {

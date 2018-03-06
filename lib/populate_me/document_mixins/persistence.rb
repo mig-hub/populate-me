@@ -70,6 +70,9 @@ module PopulateMe
         end
 
         def set_indexes f, ids=[]
+          if self.fields[f.to_sym][:direction]==:desc
+            ids = ids.dup.reverse
+          end
           ids.each_with_index do |id,i|
             self.documents.each do |d|
               d[f.to_s] = i if d[self.id_string_key]==id

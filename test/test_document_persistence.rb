@@ -3,6 +3,8 @@ require 'populate_me/document'
 
 class Stuborn < PopulateMe::Document
   attr_accessor :age
+  field :position
+  field :reversed, direction: :desc
 end
 
 describe PopulateMe::Document, 'Persistence' do
@@ -50,6 +52,31 @@ describe PopulateMe::Document, 'Persistence' do
         assert_equal doc.to_h, Stuborn.documents[0]
       end
     end
+  end
+
+  describe '::set_indexes' do
+
+    before do
+      Stuborn.documents = []
+      Stuborn.new('id' => 'a').save
+      Stuborn.new('id' => 'b').save
+      Stuborn.new('id' => 'c').save
+    end
+
+    it 'Sets the indexes on the provided field' do
+      Stuborn.set_indexes(:position,['b','a','c'])
+      assert_equal 1, Stuborn.admin_get('a').position
+      assert_equal 0, Stuborn.admin_get('b').position
+      assert_equal 2, Stuborn.admin_get('c').position
+    end
+
+    it 'Sets the indexes taking direction into account' do
+      Stuborn.set_indexes(:reversed,['b','a','c'])
+      assert_equal 1, Stuborn.admin_get('a').reversed
+      assert_equal 2, Stuborn.admin_get('b').reversed
+      assert_equal 0, Stuborn.admin_get('c').reversed
+    end
+
   end
 
 end

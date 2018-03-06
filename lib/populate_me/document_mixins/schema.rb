@@ -59,7 +59,7 @@ module PopulateMe
           name = o[:name]||:position
           o[:type] = :position
           field name, o
-          sort_by name
+          sort_by name, direction: (o[:direction]||:asc)
         end
 
         def label sym # sets the label_field

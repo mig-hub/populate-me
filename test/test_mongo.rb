@@ -222,6 +222,7 @@ describe 'PopulateMe::Mongo' do
 
     class MongoChampion < PopulateMe::Mongo
       field :position
+      field :reversed, direction: :desc
     end
 
     before do
@@ -238,6 +239,12 @@ describe 'PopulateMe::Mongo' do
       assert_equal 2, MongoChampion.admin_get('c').position
     end
 
+    it 'Sets the indexes taking direction into account' do
+      MongoChampion.set_indexes(:reversed,['b','a','c'])
+      assert_equal 1, MongoChampion.admin_get('a').reversed
+      assert_equal 2, MongoChampion.admin_get('b').reversed
+      assert_equal 0, MongoChampion.admin_get('c').reversed
+    end
   end
 
   describe '::admin_distinct' do
