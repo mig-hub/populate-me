@@ -21,6 +21,7 @@ Table of contents
   - [Single Documents](#single-documents)
   - [Mongo documents](#mongo-documents)
 - [Admin](#admin)
+  - [Customize Admin](#customize-admin)
 - [API](#api)
 
 Documents
@@ -402,6 +403,109 @@ generally accessed from the list page. It doesn't need to be coded. The only is
 probably for [single documents](#single-documents) because they are not part of
 a list. The ID would then be litterally `unique`, or whatever ID you declared
 instead.
+
+### Customize Admin
+
+You can customize the admin with a few settings. 
+The main ones are for adding CSS and javascript. 
+There are 2 settings for this: `:custom_css_url` and `:custom_js_url`.
+
+```ruby
+# lib/admin.rb
+require "populate_me/admin"
+
+class Admin < PopulateMe::Admin
+
+  set :custom_css_url, '/css/admin.css'
+  set :custom_js_url, '/js/admin.js'
+
+  set :root, ::File.expand_path('../..', __FILE__)
+
+  set :menu, [ 
+    ['Settings', '/admin/form/settings/unique'],
+    ['Articles', '/admin/list/article'],
+    ['Staff', [
+      ['Designers', '/admin/list/staff-member?filter[job]=Designer'],
+      ['Developers', '/admin/list/staff-member?filter[job]=Developer'],
+    ]]
+  ]
+
+end
+```
+
+Inside the javascript file, you can use many functions and variables that
+are under the `PopulateMe` namespace. See source code to know more about it.
+Some are callbacks like `PopulateMe.custom_init_column` which allows you to 
+bind events when a column was created.
+
+```javascript
+# /js/admin.js
+
+$(function() {
+  
+  $('body').bind('change', 'select.special', function(event) {
+    alert('Changed!');  
+  });
+
+  PopulateMe.custom_init_column = function(column) {
+    $('select.special', column).css({color: 'orange'});
+  }
+
+});
+```
+
+The other thing you might want to do is adding mustache templates.
+You can do this with the setting `:custom_templates_view`.
+
+```ruby
+# lib/admin.rb
+require "populate_me/admin"
+
+class Admin < PopulateMe::Admin
+  
+  set :custom_templates_view, :custom_templates
+
+  # ...
+
+end
+```
+
+Let's say we want to be able to set the size of the preview for attachments,
+as opposed to the default value of 150. We would put this in the view:
+
+```eruby
+<script id="template-attachment-field-custom" type="x-tmpl-mustache">
+  {{#url}}
+    <img src='{{url}}{{cache_buster}}' alt='Preview' width='{{attachment_preview_width}}' />
+    <button class='attachment-deleter'>x</button>
+    <br />
+  {{/url}}
+  <input type='file' name='{{input_name}}' {{#max_size}}data-max-size='{{max_size}}'{{/max_size}} {{{build_input_atrributes}}} />
+</script>
+```
+
+This is the default template except we've replace `150` with the mustache
+variable `attachment_preview_width`. Everything that you set on the schema 
+is available in the template, so you can set both the custom template name 
+and the width variable in the hash passed to `field` when doing your schema.
+The template name is the ID of the script tag.
+
+```ruby
+# /lib/blog_post.rb
+require 'populate_me/document'
+
+class BlogPost < PopulateMe::Document
+
+  field :title
+  field :image, type: :attachment, custom_template: 'template-attachment-field-custom', attachment_preview_width: 200, variations: [
+    PopulateMe::Variation.new_image_magick_job(:thumb, :gif, "-resize '300x'")
+  ]
+
+  # ...
+
+end
+```
+
 
 API
 ---
