@@ -70,7 +70,7 @@ module PopulateMe
         end
 
         def set_indexes f, ids=[]
-          if self.fields[f.to_sym][:direction]==:desc
+          if self.fields and self.fields[f.to_sym] and self.fields[f.to_sym][:direction]==:desc
             ids = ids.dup.reverse
           end
           ids.each_with_index do |id,i|
