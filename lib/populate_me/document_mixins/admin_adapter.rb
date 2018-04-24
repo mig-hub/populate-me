@@ -15,7 +15,7 @@ module PopulateMe
       def to_admin_list_item o={}
         {
           class_name: self.class.name,
-          id: self.id,
+          id: self.id.to_s,
           admin_url: to_admin_url,
           title: WebUtils.truncate(to_s, 60),
           image_url: admin_image_url,

@@ -45,6 +45,10 @@ describe PopulateMe::Document, 'AdminAdapter' do
     class ContentTitle < PopulateMe::Document
       field :content
     end
+    it 'Sets ID as a string version' do
+      doc = ContentTitle.new id: 3
+      assert_equal '3', doc.to_admin_list_item[:id]
+    end
     describe 'When title is long' do
       it 'Is truncated' do
         doc = ContentTitle.new
