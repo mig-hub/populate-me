@@ -245,6 +245,17 @@ describe 'PopulateMe::Mongo' do
       assert_equal 2, MongoChampion.admin_get('b').reversed
       assert_equal 0, MongoChampion.admin_get('c').reversed
     end
+
+    it 'Sets the indexes correctly even if some ids are not string' do
+      MongoChampion.collection.drop
+      MongoChampion.new(id: 'a').perform_create
+      MongoChampion.new(id: BSON::ObjectId.from_string("507f1f77bcf86cd799439011")).perform_create
+      MongoChampion.new(id: BSON::ObjectId.from_string("507f191e810c19729de860ea")).perform_create
+      MongoChampion.set_indexes(:position,["507f1f77bcf86cd799439011",'a',"507f191e810c19729de860ea"])
+      assert_equal 0, MongoChampion.admin_get("507f1f77bcf86cd799439011").position
+      assert_equal 1, MongoChampion.admin_get('a').position
+      assert_equal 2, MongoChampion.admin_get("507f191e810c19729de860ea").position
+    end
   end
 
   describe '::admin_distinct' do

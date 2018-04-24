@@ -49,10 +49,11 @@ module PopulateMe
         if self.fields[f.to_sym][:direction]==:desc
           ids = ids.dup.reverse
         end
-        requests = ids.each_with_index.inject([]) do |list, (id, i)|
+        requests = ids.each_with_index.inject([]) do |list, (theid, i)|
+          theid = string_or_object_id theid
           list << {update_one: 
             {
-              filter: {self.id_string_key=>id}, 
+              filter: {self.id_string_key=>theid}, 
               update: {'$set'=>{f=>i}}
             }
           }
@@ -61,7 +62,7 @@ module PopulateMe
       end
 
       def admin_get theid
-        theid = BSON::ObjectId.from_string(theid) if BSON::ObjectId.legal?(theid)
+        theid = string_or_object_id theid
         self.cast{ collection.find({id_string_key => theid}).first }
       end
       alias_method :[], :admin_get
@@ -86,6 +87,14 @@ module PopulateMe
       def admin_distinct field, o={}
         query = o.delete(:query) || {}
         self.collection.distinct field, query, o
+      end
+
+      def string_or_object_id theid
+        if BSON::ObjectId.legal?(theid)
+          BSON::ObjectId.from_string(theid)
+        else
+          theid
+        end
       end
 
     end
