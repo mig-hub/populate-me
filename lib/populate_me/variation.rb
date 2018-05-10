@@ -26,6 +26,10 @@ module PopulateMe
         self.new name, ext, job
       end
 
+      def default
+        self.new_image_magick_job(:populate_me_thumb, :jpg, "-flatten -resize '400x225^' -gravity center -extent 400x225")
+      end
+
     end
 
   end
