@@ -1,5 +1,5 @@
 require 'populate_me/attachment'
-require 'aws-sdk'
+require 'aws-sdk-s3'
 
 module PopulateMe
 
