@@ -74,9 +74,8 @@ describe PopulateMe::Document, 'Typecasting' do
       end
     end
     describe "Value is a float with irregular decimals for a price" do
-      it "Rounds it" do
+      it "Assumes 2 digits after comma" do
         assert_equal 4250, subject.typecast(:salary,'42.5')
-        assert_equal 4257, subject.typecast(:salary,'42.567')
       end
     end
     describe "Value is prefixed or suffixed" do
