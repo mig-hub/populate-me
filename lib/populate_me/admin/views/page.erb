@@ -36,6 +36,14 @@
         {{page_title}}
       </h1>
       <p class='new-document-btn-wrap'>
+        {{#is_polymorphic}}
+          <select class='polymorphic_type_values'>
+            {{#polymorphic_type_values}}
+              <option value='{{.}}'>{{.}}</option>
+            {{/polymorphic_type_values}}
+          </select>
+          &nbsp;
+        {{/is_polymorphic}}
         <a href="<%= request.script_name %>/form/{{dasherized_class_name}}{{#new_data}}?{{new_data}}{{/new_data}}" class='column-push new-document-btn' title='Create'>+</a>
       </p>
       <ol class='documents' data-sort-field='{{sort_field}}' data-sort-url='<%= request.script_name %>/api/{{dasherized_class_name}}'>

@@ -34,6 +34,14 @@ module PopulateMe
           o[:wrap] = false unless o[:form_field]
           WebUtils.ensure_key! o, :wrap, ![:hidden,:list].include?(o[:type])
           WebUtils.ensure_key! o, :label, WebUtils.label_for_field(name)
+          if o[:only_for].is_a?(String)
+            o[:only_for] = [o[:only_for]]
+          end
+          if o.key?(:only_for)
+            self.polymorphic unless self.polymorphic?
+            self.fields[:polymorphic_type][:values] += o[:only_for]
+            self.fields[:polymorphic_type][:values].uniq!
+          end
           if o[:type]==:attachment
             WebUtils.ensure_key! o, :class_name, settings.default_attachment_class
             raise MissingAttachmentClassError, "No attachment class was provided for the #{self.name} field: #{name}" if o[:class_name].nil?
@@ -62,12 +70,41 @@ module PopulateMe
           sort_by name, (o[:direction]||:asc)
         end
 
+        def polymorphic o={}
+          WebUtils.ensure_key! o, :type, :hidden
+          WebUtils.ensure_key! o, :values, []
+          field :polymorphic_type, o
+        end
+
+        def polymorphic?
+          self.fields.key? :polymorphic_type
+        end
+
+        def field_applicable? f, p_type=nil
+          return false unless self.fields.key?(f)
+          return true unless self.polymorphic?
+          return true unless self.fields[f].key?(:only_for)
+          return true if p_type.nil?
+          self.fields[f][:only_for].include? p_type
+        end
+
+        def relationship_applicable? f, p_type=nil
+          return false unless self.relationships.key?(f)
+          return true unless self.polymorphic?
+          return true unless self.relationships[f].key?(:only_for)
+          return true if p_type.nil?
+          self.relationships[f][:only_for].include? p_type
+        end
+
         def label sym # sets the label_field
           @label_field = sym.to_sym
         end
-
+        
         def label_field
-          @label_field || self.fields.keys[1]
+          return @label_field if self.fields.empty?
+          @label_field || self.fields.find do |k,v| 
+            v[:type]!=:id and k!=:polymorphic_type
+          end[0]
         end
 
         def sort_by f, direction=:asc
@@ -88,6 +125,14 @@ module PopulateMe
           WebUtils.ensure_key! o, :foreign_key, "#{WebUtils.dasherize_class_name(self.name).gsub('-','_')}_id"
           o[:foreign_key] = o[:foreign_key].to_sym
           WebUtils.ensure_key! o, :dependent, true
+          if o[:only_for].is_a?(String)
+            o[:only_for] = [o[:only_for]]
+          end
+          if o.key?(:only_for)
+            self.polymorphic unless self.polymorphic?
+            self.fields[:polymorphic_type][:values] += o[:only_for]
+            self.fields[:polymorphic_type][:values].uniq!
+          end
           self.relationships[name] = o
 
           define_method(name) do
@@ -114,6 +159,18 @@ module PopulateMe
           end
         end
 
+      end
+
+      # Instance methods
+
+      def field_applicable? f
+        p_type = self.class.polymorphic? ? self.polymorphic_type : nil
+        self.class.field_applicable? f, p_type
+      end
+
+      def relationship_applicable? f
+        p_type = self.class.polymorphic? ? self.polymorphic_type : nil
+        self.class.relationship_applicable? f, p_type
       end
 
     end

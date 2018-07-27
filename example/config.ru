@@ -65,9 +65,20 @@ class Article < PopulateMe::Document
   field :price, type: :price
   position_field
 
+  relationship :sections
+
   after :save do
     puts self.inspect
   end
+end
+
+class Article::Section < PopulateMe::Document
+
+  field :short, only_for: 'Nice Short'
+  field :long, only_for: 'Nice Long'
+  field :article_id, type: :hidden
+  position_field scope: :article_id
+
 end
 
 # Admin ##########

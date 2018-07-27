@@ -60,6 +60,10 @@ button { cursor: pointer; }
 
 /* Lists */
 
+.new-document-btn-wrap > * {
+  vertical-align: middle;
+}
+
 .new-document-btn, .new-nested-document-btn {
   border: 0;
   font-size: 1.615em;

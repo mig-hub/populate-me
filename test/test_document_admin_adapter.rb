@@ -41,9 +41,28 @@ describe PopulateMe::Document, 'AdminAdapter' do
     end
   end
 
+  describe '::to_admin_list' do
+    class PolyAdapted < PopulateMe::Document
+      polymorphic values: ['Shape 1', 'Shape 2']
+    end
+    class NotPolyAdapted < PopulateMe::Document
+    end
+    it 'Contains polymorphic_type values and predicate if polymorphic' do
+      assert PolyAdapted.to_admin_list[:is_polymorphic]
+      assert_equal ['Shape 1', 'Shape 2'], PolyAdapted.to_admin_list[:polymorphic_type_values]
+      refute NotPolyAdapted.to_admin_list[:is_polymorphic]
+      assert_nil NotPolyAdapted.to_admin_list[:polymorphic_type_values]
+    end
+  end
+
   describe '#to_admin_list_item' do
     class ContentTitle < PopulateMe::Document
       field :content
+    end
+    class PolyListItem < PopulateMe::Document
+      field :name
+      relationship :images, only_for: 'Slider'
+      relationship :paragraphs, only_for: 'Chapter'
     end
     it 'Sets ID as a string version' do
       doc = ContentTitle.new id: 3
@@ -65,6 +84,14 @@ describe PopulateMe::Document, 'AdminAdapter' do
         doc.content = 'Hello'
         title = doc.to_admin_list_item[:title]
         assert_equal doc.content, title
+      end
+    end
+    describe 'Polymorphism' do
+      it 'Only keeps in the local menu applicable relationships' do
+        doc = PolyListItem.new(polymorphic_type: 'Slider')
+        list_item = doc.to_admin_list_item request: Struct.new(:script_name).new('/admin')
+        assert_equal 1, list_item[:local_menu].size
+        assert_equal 'Images', list_item[:local_menu][0][:title]
       end
     end
   end
@@ -148,4 +175,30 @@ describe PopulateMe::Document, 'AdminAdapter' do
 
   end
 
+  describe '#to_admin_form' do
+    class PolyForm < PopulateMe::Document
+      field :name
+      field :image, only_for: 'Image'
+      field :title, only_for: 'Article'
+      field :content, only_for: 'Article'
+      field :position
+    end
+    class NotPolyForm < PopulateMe::Document
+      field :name
+    end
+    it 'Only has fields for the current polymorphic type' do
+      obj = PolyForm.new polymorphic_type: 'Article'
+      form = obj.to_admin_form
+      assert_nil form[:fields].find{|f| f[:field_name]==:image}
+      refute_nil form[:fields].find{|f| f[:field_name]==:title}
+      refute_nil form[:fields].find{|f| f[:field_name]==:content}
+    end
+    it 'Works when not polymorphic' do
+      obj = NotPolyForm.new
+      form = obj.to_admin_form
+      refute_nil form[:fields].find{|f| f[:field_name]==:name}
+    end
+  end
+
 end
+

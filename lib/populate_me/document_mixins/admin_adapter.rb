@@ -20,14 +20,14 @@ module PopulateMe
           title: WebUtils.truncate(to_s, 60),
           image_url: admin_image_url,
           local_menu: self.class.relationships.inject([]) do |out,(k,v)|
-            unless v[:hidden]
+            if not v[:hidden] and self.relationship_applicable?(k)
               out << {
                 title: "#{v[:label]}",
                 href: "#{o[:request].script_name}/list/#{WebUtils.dasherize_class_name(v[:class_name])}?filter[#{v[:foreign_key]}]=#{self.id}",
                 new_page: false 
               }
-              out
             end
+            out
           end
         }
       end
@@ -41,7 +41,7 @@ module PopulateMe
         }
         self.class.complete_field_options :_class, class_item
         items = self.class.fields.inject([class_item]) do |out,(k,item)|
-          if item[:form_field]
+          if item[:form_field] and self.field_applicable?(k)
             out << outcast(k, item, o)
           end
           out
@@ -121,6 +121,8 @@ module PopulateMe
             page_title: self.to_s_short_plural,
             dasherized_class_name: WebUtils.dasherize_class_name(self.name),
             new_data: new_data,
+            is_polymorphic: self.polymorphic?,
+            polymorphic_type_values: self.polymorphic? ? self.fields[:polymorphic_type][:values] : nil,
             sort_field: self.sort_field_for(o),
             # 'command_plus'=> !self.populate_config[:no_plus],
             # 'command_search'=> !self.populate_config[:no_search],
