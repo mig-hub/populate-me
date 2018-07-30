@@ -160,10 +160,22 @@ describe PopulateMe::Document, 'Schema' do
       relationship :paragraphs, only_for: 'Chapter'
     end
 
+    class PolyGroup < PopulateMe::Document
+      only_for 'Slider' do
+        field :name
+        relationship :images
+      end
+      field :no_only_for
+      only_for ['Try','This'] do
+        field :crazy
+      end
+      field :position
+    end
+
     it 'Creates a field for polymorphic type if it does not exist yet' do
-      assert_equal :hidden, PolyBox.fields[:polymorphic_type][:type]
-      assert_equal :hidden, JustPoly.fields[:polymorphic_type][:type]
-      assert_equal :hidden, PolyRelationship.fields[:polymorphic_type][:type]
+      assert_equal :polymorphic_type, PolyBox.fields[:polymorphic_type][:type]
+      assert_equal :polymorphic_type, JustPoly.fields[:polymorphic_type][:type]
+      assert_equal :polymorphic_type, PolyRelationship.fields[:polymorphic_type][:type]
     end
 
     it 'Does not create polymorphic type field if not required' do
@@ -219,6 +231,24 @@ describe PopulateMe::Document, 'Schema' do
 
     it 'Ignores polymorphic_type when picking the default label_field' do
       assert_equal :name, PolyLabel.label_field
+    end
+
+    it 'Uses groups to define only_for option for all included fields and relationships' do
+      assert_equal :polymorphic_type, PolyGroup.fields[:polymorphic_type][:type]
+      assert_equal ['Slider', 'Try', 'This'], PolyGroup.fields[:polymorphic_type][:values]
+      assert_equal ['Slider'], PolyGroup.fields[:name][:only_for]
+      assert_equal ['Slider'], PolyGroup.relationships[:images][:only_for]
+      assert_equal ['Try','This'], PolyGroup.fields[:crazy][:only_for]
+    end
+
+    it 'Group only_for option does not leak on special fields' do
+      refute PolyGroup.fields[:id].key?(:only_for)
+      refute PolyGroup.fields[:polymorphic_type].key?(:only_for)
+    end
+
+    it 'Group only_for option does not leak outside of their scope' do
+      refute PolyGroup.fields[:no_only_for].key?(:only_for)
+      refute PolyGroup.fields[:position].key?(:only_for)
     end
 
   end

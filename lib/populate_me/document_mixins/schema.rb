@@ -14,7 +14,7 @@ module PopulateMe
         def fields; @fields ||= {}; end
 
         def field name, o={}
-          set_id_field if self.fields.empty?&&o[:type]!=:id
+          set_id_field if self.fields.empty? and o[:type]!=:id
           complete_field_options name, o
           if o[:type]==:list
             define_method(name) do
@@ -34,13 +34,8 @@ module PopulateMe
           o[:wrap] = false unless o[:form_field]
           WebUtils.ensure_key! o, :wrap, ![:hidden,:list].include?(o[:type])
           WebUtils.ensure_key! o, :label, WebUtils.label_for_field(name)
-          if o[:only_for].is_a?(String)
-            o[:only_for] = [o[:only_for]]
-          end
-          if o.key?(:only_for)
-            self.polymorphic unless self.polymorphic?
-            self.fields[:polymorphic_type][:values] += o[:only_for]
-            self.fields[:polymorphic_type][:values].uniq!
+          unless [:id, :polymorphic_type].include?(o[:type])
+            complete_only_for_field_option o
           end
           if o[:type]==:attachment
             WebUtils.ensure_key! o, :class_name, settings.default_attachment_class
@@ -59,6 +54,20 @@ module PopulateMe
           end
         end
 
+        def complete_only_for_field_option o={}
+          if @currently_only_for
+            o[:only_for] = @currently_only_for
+          end
+          if o[:only_for].is_a?(String)
+            o[:only_for] = [o[:only_for]]
+          end
+          if o.key?(:only_for)
+            self.polymorphic unless self.polymorphic?
+            self.fields[:polymorphic_type][:values] += o[:only_for]
+            self.fields[:polymorphic_type][:values].uniq!
+          end
+        end
+
         def set_id_field
           field :id, {type: :id}
         end
@@ -71,9 +80,15 @@ module PopulateMe
         end
 
         def polymorphic o={}
-          WebUtils.ensure_key! o, :type, :hidden
+          WebUtils.ensure_key! o, :type, :polymorphic_type
           WebUtils.ensure_key! o, :values, []
-          field :polymorphic_type, o
+          field(:polymorphic_type, o) unless self.polymorphic?
+        end
+
+        def only_for polymorphic_type_values, &bloc
+          @currently_only_for = polymorphic_type_values
+          yield if block_given?
+          remove_instance_variable(:@currently_only_for)
         end
 
         def polymorphic?
@@ -104,7 +119,7 @@ module PopulateMe
         def label_field
           return @label_field if self.fields.empty?
           @label_field || self.fields.find do |k,v| 
-            v[:type]!=:id and k!=:polymorphic_type
+            not [:id,:polymorphic_type].include?(v[:type])
           end[0]
         end
 
@@ -126,14 +141,7 @@ module PopulateMe
           WebUtils.ensure_key! o, :foreign_key, "#{WebUtils.dasherize_class_name(self.name).gsub('-','_')}_id"
           o[:foreign_key] = o[:foreign_key].to_sym
           WebUtils.ensure_key! o, :dependent, true
-          if o[:only_for].is_a?(String)
-            o[:only_for] = [o[:only_for]]
-          end
-          if o.key?(:only_for)
-            self.polymorphic unless self.polymorphic?
-            self.fields[:polymorphic_type][:values] += o[:only_for]
-            self.fields[:polymorphic_type][:values].uniq!
-          end
+          complete_only_for_field_option o
           self.relationships[name] = o
 
           define_method(name) do
