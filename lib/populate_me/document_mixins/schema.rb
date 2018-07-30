@@ -81,20 +81,21 @@ module PopulateMe
         end
 
         def field_applicable? f, p_type=nil
-          return false unless self.fields.key?(f)
-          return true unless self.polymorphic?
-          return true unless self.fields[f].key?(:only_for)
-          return true if p_type.nil?
-          self.fields[f][:only_for].include? p_type
+          applicable? :fields, f, p_type
         end
 
         def relationship_applicable? f, p_type=nil
-          return false unless self.relationships.key?(f)
-          return true unless self.polymorphic?
-          return true unless self.relationships[f].key?(:only_for)
-          return true if p_type.nil?
-          self.relationships[f][:only_for].include? p_type
+          applicable? :relationships, f, p_type
         end
+
+        def applicable? target, f, p_type=nil
+          return false unless self.__send__(target).key?(f)
+          return true unless self.polymorphic?
+          return true unless self.__send__(target)[f].key?(:only_for)
+          return true if p_type.nil?
+          self.__send__(target)[f][:only_for].include? p_type
+        end
+        private :applicable?
 
         def label sym # sets the label_field
           @label_field = sym.to_sym
