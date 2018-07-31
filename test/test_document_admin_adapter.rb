@@ -207,14 +207,13 @@ describe PopulateMe::Document, 'AdminAdapter' do
       form = obj.to_admin_form
       refute_nil form[:fields].find{|f| f[:field_name]==:name}
     end
-    it 'Includes the polymorphic_type in page_title' do
+    it 'Includes the polymorphic_type at top level' do
       obj = PolyForm.new polymorphic_type: 'Article'
       form = obj.to_admin_form
-      assert_equal 'New Poly Form (Article)', form[:page_title]
-      obj = PolyForm.new polymorphic_type: 'Article', name: "Poly"
-      obj._is_new = false
+      assert_equal 'Article', form[:polymorphic_type]
+      obj = PolyForm.new
       form = obj.to_admin_form
-      assert_equal 'Poly (Article)', form[:page_title]
+      assert_nil form[:polymorphic_type]
     end
   end
 

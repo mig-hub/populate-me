@@ -73,6 +73,9 @@
 
     <script id="template-form" type="x-tmpl-mustache">
       <h1>{{page_title}}</h1>
+      {{#polymorphic_type}}
+        <p>({{polymorphic_type}})</p>
+      {{/polymorphic_type}}
       <form action="<%= request.script_name %>/api/{{admin_url}}" method="POST" accept-charset="utf-8" class='admin-{{#is_new}}post{{/is_new}}{{^is_new}}put{{/is_new}}'>
         {{#custom_partial_or_default}}template_form_fields{{/custom_partial_or_default}}
         {{^is_new}}
