@@ -15,12 +15,13 @@ Table of contents
 - [Table of contents](#table-of-contents)
 - [Documents](#documents)
   - [Schema](#schema)
-  - [Validations](#validations)
   - [Relationships](#relationships)
+  - [Validations](#validations)
   - [Callbacks](#callbacks)
   - [Single Documents](#single-documents)
   - [Mongo documents](#mongo-documents)
 - [Admin](#admin)
+  - [Polymorphism](#polymorphism)
   - [Customize Admin](#customize-admin)
 - [API](#api)
 
@@ -67,6 +68,7 @@ itself, but here are the keys used by `PopulateMe`:
 - `:wrap` Set it to false if you do not want the form field to be wrapped in a `div` with a label.
 - `:default` Either a default value or a `proc` to run to get the default value.
 - `:required` Set to true if you want the field to be marked as required in the form.
+- `:only_for` List of polymorphic type values
 
 As you can see, most of the options are made for you to tailor the form
 which `PopulateMe` will generate for you in the admin.
@@ -86,33 +88,6 @@ The `field` method creates a getter and a setter for this particular field.
 ```ruby
 blog_article.published # Returns true or false
 blog_article.published = true
-```
-
-### Validations
-
-In its simplest form, validations are done by overriding the `#validate` method and declaring errors with the `#error_on` method.
-
-```ruby
-class Person < PopulateMe::Document
-  
-  field :name
-
-  def validate
-    error_on(:name, 'Cannot be fake') if self.name=='John Doe'
-  end
-
-end
-```
-
-If you don't use the `PopulateMe` interface and create a document
-programmatically, here is what it could look like:
-
-```ruby
-person = Person.new(name: 'John Doe')
-person.new? # returns true
-person.save # fails
-person.valid? # returns false
-person.errors # returns { name: ['Cannot be fake'] }
 ```
 
 ### Relationships
@@ -150,6 +125,33 @@ blog_article.comments_first # Returns the first comment for this article
 It uses the `PopulateMe::Document::admin_find` and  
 `PopulateMe::Document::admin_find_first` methods in the background, 
 so default sorting order is respected.
+
+### Validations
+
+In its simplest form, validations are done by overriding the `#validate` method and declaring errors with the `#error_on` method.
+
+```ruby
+class Person < PopulateMe::Document
+  
+  field :name
+
+  def validate
+    error_on(:name, 'Cannot be fake') if self.name=='John Doe'
+  end
+
+end
+```
+
+If you don't use the `PopulateMe` interface and create a document
+programmatically, here is what it could look like:
+
+```ruby
+person = Person.new(name: 'John Doe')
+person.new? # returns true
+person.save # fails
+person.valid? # returns false
+person.errors # returns { name: ['Cannot be fake'] }
+```
 
 ### Callbacks
 
@@ -403,6 +405,131 @@ generally accessed from the list page. It doesn't need to be coded. The only is
 probably for [single documents](#single-documents) because they are not part of
 a list. The ID would then be litterally `unique`, or whatever ID you declared
 instead.
+
+### Polymorphism
+
+You can use the schema to set a Document class as polymorphic. The consequence 
+is that the admin will make you choose a type before creating a new document. 
+And then the form will only display the fields applicable to this polymorphic 
+type. And once created, it will only have relationships applicable to its 
+polymorphic type. You can do this with the `:only_for` option.
+
+Here is an example of a document that can be either a title with a paragraph, or
+a title with a set of images:
+
+```ruby
+# lib/models/box.rb
+
+require 'populate_me/document'
+
+class Box < PopulateMe::Document
+
+  field :title
+  field :paragraph, type: :text, only_for: 'Paragraph'
+  relationship :images, only_for: 'Image slider'
+  position_field
+
+end
+```
+
+In this case, when you create a `Box` with the polymorphic type `Paragraph`, the
+form will have a field for `:paragraph` but no relationship for images. And if 
+you create a `Box` with the polymorphic type `Image slider`, it will be the 
+opposite.
+
+The option `:only_for` can also be an `Array`. Actually, when inspecting the 
+`fields`, you'll see that even when you pass a `String`, it will be put inside 
+an `Array`.
+
+```ruby
+Box.fields[:paragraph][:only_for] # => ['Paragraph']
+```
+
+A hidden field is automatically created called `:polymorphic_type`, therefore 
+it is a method you can call to get or set the `:polymorphic_type`.
+
+```ruby
+box = Box.new polymorphic_type: 'Paragraph'
+box.polymorphic_type # => 'Paragraph'
+```
+
+One of the information that the field contains is all the `:values` the field 
+can have.
+
+```ruby
+Box.fields[:polymorphic_type][:values] # => ['Paragraph', 'Image slider']
+```
+
+They are in the order they are declared in the fields. If you want to just set 
+this list yourself or any other option attached to the `:polimorphic_type` field 
+you can do so with the `Document::polymorphic` class method.
+
+```ruby
+# lib/models/box.rb
+
+require 'populate_me/document'
+
+class Box < PopulateMe::Document
+
+  polymorphic values: ['Image slider', 'Paragraph']
+  field :title
+  field :paragraph, type: :text, only_for: 'Paragraph'
+  relationship :images, only_for: 'Image slider'
+  position_field
+
+end
+```
+
+If each polymorphic type has a lot of fields or relationships, you can use the 
+`Document::only_for` class method which sets the `:only_for` option for 
+everything inside the block.
+
+```ruby
+# lib/models/media.rb
+
+require 'populate_me/document'
+
+class Media < PopulateMe::Document
+  
+  field :title
+  only_for 'Book' do
+    field :author
+    field :publisher
+    relationship :chapters
+  end
+  only_for 'Movie' do
+    field :script_writer
+    field :director
+    relationship :scenes
+    relationship :actors
+  end
+  position_field
+
+end
+```
+
+It is worth noting that this implementation of polymorphism is supposed to work 
+with table-like database, and therefore all fields and relationship exist for 
+each document. In our case, books would still have a director method. The 
+difference is only cosmetic and mainly allows you to have forms that are less 
+crowded in the database.
+
+To mitigate this, a few methods are there to help you. There is a predicate for 
+knowing if a class is polymorphic.
+
+```ruby
+Media.polymorphic? # => true
+```
+
+For each document, you can inspect its polymorphic type or check if a field or 
+relationship is applicable.
+
+```ruby
+book = Media.new polymorphic_type: 'Book', title: 'Hot Water Music', author: 'Charles Bukowski'
+book.polymorphic_type # => 'Book'
+book.field_applicable? :author # => true
+book.relationship_applicable? :actors # => false
+```
 
 ### Customize Admin
 
