@@ -24,10 +24,9 @@ describe PopulateMe::Document do
   end
 
   describe '#to_s' do
-    it 'Delegates to #inspect' do
-      subject.stub :inspect, "inspection" do
-        assert_equal "inspection", subject.to_s
-      end
+    it 'Defaults to class name and ID' do
+      obj = subject_class.new id: '42'
+      assert_equal "#{subject_class} 42", obj.to_s
     end
     describe "Has a label field" do
       describe "And the field is not blank" do
@@ -50,15 +49,14 @@ describe PopulateMe::Document do
         end
       end
       describe "And the field is blank" do
-        it "Delegates to the #inspect" do
+        it 'Defaults to class name and ID' do
           subject_class.stub :label_field, :my_label_field do
-            subject.stub :inspect, "inspection" do
-              subject.stub :my_label_field, '' do
-                assert_equal 'inspection', subject.to_s
-              end
-              subject.stub :my_label_field, nil do
-                assert_equal 'inspection', subject.to_s
-              end
+            obj = subject_class.new id: '42'
+            subject.stub :my_label_field, '' do
+              assert_equal "#{subject_class} 42", obj.to_s
+            end
+            subject.stub :my_label_field, nil do
+              assert_equal "#{subject_class} 42", obj.to_s
             end
           end
         end
