@@ -186,6 +186,15 @@ describe PopulateMe::Document, 'AdminAdapter' do
     class NotPolyForm < PopulateMe::Document
       field :name
     end
+    it 'Sets page_title according to label_field or class name when new' do
+      obj = NotPolyForm.new
+      form = obj.to_admin_form
+      assert_equal 'New Not Poly Form', form[:page_title]
+      obj = NotPolyForm.new name: "No Poly"
+      obj._is_new = false
+      form = obj.to_admin_form
+      assert_equal 'No Poly', form[:page_title]
+    end
     it 'Only has fields for the current polymorphic type' do
       obj = PolyForm.new polymorphic_type: 'Article'
       form = obj.to_admin_form
@@ -197,6 +206,15 @@ describe PopulateMe::Document, 'AdminAdapter' do
       obj = NotPolyForm.new
       form = obj.to_admin_form
       refute_nil form[:fields].find{|f| f[:field_name]==:name}
+    end
+    it 'Includes the polymorphic_type in page_title' do
+      obj = PolyForm.new polymorphic_type: 'Article'
+      form = obj.to_admin_form
+      assert_equal 'New Poly Form (Article)', form[:page_title]
+      obj = PolyForm.new polymorphic_type: 'Article', name: "Poly"
+      obj._is_new = false
+      form = obj.to_admin_form
+      assert_equal 'Poly (Article)', form[:page_title]
     end
   end
 

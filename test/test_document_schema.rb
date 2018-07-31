@@ -178,6 +178,11 @@ describe PopulateMe::Document, 'Schema' do
       assert_equal :polymorphic_type, PolyRelationship.fields[:polymorphic_type][:type]
     end
 
+    it 'By default polymorphic_type is hidden and not wrapped' do
+      assert_equal :hidden, PolyBox.fields[:polymorphic_type][:input_attributes][:type]
+      refute PolyBox.fields[:polymorphic_type][:wrap]
+    end
+
     it 'Does not create polymorphic type field if not required' do
       assert_nil NotPoly.fields[:polymorphic_type]
     end

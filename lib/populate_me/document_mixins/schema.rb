@@ -82,6 +82,9 @@ module PopulateMe
         def polymorphic o={}
           WebUtils.ensure_key! o, :type, :polymorphic_type
           WebUtils.ensure_key! o, :values, []
+          WebUtils.ensure_key! o, :wrap, false
+          WebUtils.ensure_key! o, :input_attributes, {}
+          WebUtils.ensure_key! o[:input_attributes], :type, :hidden
           field(:polymorphic_type, o) unless self.polymorphic?
         end
 
