@@ -38,6 +38,16 @@ describe PopulateMe::Document do
             end
           end
         end
+        it 'Does not pass a reference that can be modified' do
+          subject_class.stub :label_field, :my_label_field do
+            subject.stub :my_label_field, 'my label' do
+              assert_equal 'my label', subject.to_s
+              var = subject.to_s
+              var << 'BOOM'
+              assert_equal 'my label', subject.to_s
+            end
+          end
+        end
       end
       describe "And the field is blank" do
         it "Delegates to the #inspect" do

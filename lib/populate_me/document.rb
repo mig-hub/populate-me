@@ -89,7 +89,7 @@ module PopulateMe
 
     def to_s
       return inspect if self.class.label_field.nil?
-      me = self.__send__(self.class.label_field)
+      me = self.__send__(self.class.label_field).dup
       WebUtils.blank?(me) ? inspect : me
     end
 
