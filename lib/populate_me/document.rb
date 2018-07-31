@@ -88,7 +88,7 @@ module PopulateMe
     end
 
     def to_s
-      default = "#{self.class}#{' '+self.id unless WebUtils.blank?(self.id)}"
+      default = "#{self.class}#{' ' unless WebUtils.blank?(self.id)}#{self.id}"
       return default if self.class.label_field.nil?
       me = self.__send__(self.class.label_field).dup
       WebUtils.blank?(me) ? default : me
