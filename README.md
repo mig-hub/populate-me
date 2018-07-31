@@ -411,10 +411,10 @@ instead.
 You can use the schema to set a Document class as polymorphic. The consequence 
 is that the admin will make you choose a type before creating a new document. 
 And then the form will only display the fields applicable to this polymorphic 
-type. And once created, it will only have relationships applicable to its 
+type. And once created, it will only show relationships applicable to its 
 polymorphic type. You can do this with the `:only_for` option.
 
-Here is an example of a document that can be either a title with a paragraph, or
+Here is an example of a document that can either be a title with a paragraph, or
 a title with a set of images:
 
 ```ruby
@@ -480,7 +480,7 @@ class Box < PopulateMe::Document
 end
 ```
 
-If each polymorphic type has a lot of fields or relationships, you can use the 
+If each polymorphic type has a lot of fields and/or relationships, you can use the 
 `Document::only_for` class method which sets the `:only_for` option for 
 everything inside the block.
 
@@ -509,10 +509,10 @@ end
 ```
 
 It is worth noting that this implementation of polymorphism is supposed to work 
-with table-like database, and therefore all fields and relationship exist for 
-each document. In our case, books would still have a director method. The 
+with fixed schema databases, and therefore all fields and relationship exist for 
+each document. In our case, books would still have a `#director` method. The 
 difference is only cosmetic and mainly allows you to have forms that are less 
-crowded in the database.
+crowded in the admin.
 
 To mitigate this, a few methods are there to help you. There is a predicate for 
 knowing if a class is polymorphic.
