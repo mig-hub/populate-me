@@ -190,8 +190,8 @@ a method instead of a block.
 
 The list of hooks is quite common but here it is as a reminder:
 
-- `before :validation`
-- `after :validation`
+- `before :validate`
+- `after :validate`
 - `before :create`
 - `after :create`
 - `before :update`
