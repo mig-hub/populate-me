@@ -38,6 +38,8 @@ module PopulateMe
       def typecast_date k, v
         if v[/\d\d(\/|-)\d\d(\/|-)\d\d\d\d/]
           Date.parse v
+        elsif v[/\d\d\d\d(\/|-)\d\d(\/|-)\d\d/]
+          Date.parse v
         else
           nil
         end

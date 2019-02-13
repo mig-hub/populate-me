@@ -98,10 +98,8 @@ describe PopulateMe::Document, 'Typecasting' do
     it "Parses the date with Date.parse" do
       assert_equal Date.parse('10/11/1979'), subject.typecast(:dob,'10/11/1979')
     end
-    describe "Delimiter is a dash" do
-      it "Replaces them with forward slash before parsing" do
-        assert_equal Date.parse('10/11/1979'), subject.typecast(:dob,'10-11-1979')
-      end
+    it "Works with yyyy-mm-dd date html input format" do
+      assert_equal Date.parse('10/11/1979'), subject.typecast(:dob,'1979-11-10')
     end
     describe "Value is malformed" do
       it "Returns nil" do
