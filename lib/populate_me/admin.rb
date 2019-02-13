@@ -64,7 +64,7 @@ class PopulateMe::Admin < Sinatra::Base
       href = l[1].is_a?(String) ? l[1] : "#{request.script_name}/menu#{levels.map{|level|'/'+level}.join}/#{slugify(l[0])}" 
       { title: l[0], href: href }
     end
-    if request.path=='/menu'
+    if request.path_info=='/menu'
       items.push({title: '?', href: "#{request.script_name}/help"})
     end
     {
