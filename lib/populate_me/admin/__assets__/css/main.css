@@ -31,11 +31,36 @@ body {
   margin-right: 20px;
 }
 
-.column > h1 {
+.column > h1,
+.column > .text-page h1 {
   font-size: 1.5em;
   font-weight: normal;
   margin-top: 1em;
   margin-bottom: 1.5em;
+}
+
+.column > .text-page {
+  padding: 0 20px 20px 20px;
+  overflow: hidden;
+  width: 50%; width: 50vw;
+  max-width: 600px;
+  background-color: #ffffff;
+}
+.column > .text-page h2 {
+  font-size: 1.5em;
+}
+.column > .text-page img {
+  width: 100%;
+}
+.column > .text-page a {
+  color: #268bd2;
+}
+.column > .text-page a:hover {
+  text-decoration: underline;
+}
+.column > .text-page .frame {
+  padding: 1em;
+  border: 1px solid #002b36;
 }
 
 ol {

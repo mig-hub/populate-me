@@ -36,6 +36,8 @@ class BlogPost < PopulateMe::Document
   field :content, type: :text
   field :authors, type: :list
   field :published, type: :boolean
+  field :date_now, type: :date, input_attributes: {type: :date}
+  field :datetime_now, type: :datetime, input_attributes: {type: :datetime}
   relationship :comments
   def validate
     error_on(:content,'Cannot be blank') if WebUtils.blank?(self.content)

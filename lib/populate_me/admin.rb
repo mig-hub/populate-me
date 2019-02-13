@@ -25,10 +25,16 @@ class PopulateMe::Admin < Sinatra::Base
   # Load API helpers
   helpers PopulateMe::API::Helpers
   helpers do
+
     def user_name
       return 'Anonymous' if session.nil?||session[:populate_me_user].nil?
       session[:populate_me_user]
     end
+
+    def help_img desc, filename
+      "<img src='#{request.script_name}/__assets__/img/help/#{filename}' alt='#{desc}' />"
+    end
+
   end
 
   # Make all templates in admin/views accessible with their basename
@@ -58,6 +64,9 @@ class PopulateMe::Admin < Sinatra::Base
       href = l[1].is_a?(String) ? l[1] : "#{request.script_name}/menu#{levels.map{|level|'/'+level}.join}/#{slugify(l[0])}" 
       { title: l[0], href: href }
     end
+    if request.path=='/menu'
+      items.push({title: '?', href: "#{request.script_name}/help"})
+    end
     {
       template: 'template_menu',
       page_title: page_title,
@@ -84,6 +93,11 @@ class PopulateMe::Admin < Sinatra::Base
       nested: params[:nested]=='true', 
       input_name_prefix: params[:input_name_prefix]
     ).to_json
+  end
+
+  get '/help' do
+    content_type :html
+    erb :help, layout: false
   end
 
   not_found do

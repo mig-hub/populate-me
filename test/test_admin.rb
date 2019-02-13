@@ -132,11 +132,19 @@ describe PopulateMe::Admin do
           assert_predicate last_response, :ok?
           assert_json last_response
           assert_for_view json, 'template_menu', 'Menu'
-          assert_equal 2, json['items'].size
           expected_h = {
             'title'=> 'Home Details', 'href'=> '/admin/form/home-details/0'
           }
           assert_equal expected_h, json['items'][0]
+          expected_h = {
+            'title'=> 'Project Page', 'href'=> '/menu/project-page'
+          }
+          assert_equal expected_h, json['items'][1]
+        end
+        it 'Adds help link' do
+          get '/menu'
+          assert_equal 3, json['items'].size
+          assert_equal({'title'=>'?', 'href'=>'/help'}, json['items'].last)
         end
       end
       describe 'when url is nested' do
@@ -150,6 +158,10 @@ describe PopulateMe::Admin do
             'title'=> 'Check 1', 'href'=> '/check/1'
           }
           assert_equal expected_h, json['items'][0]
+        end
+        it 'Does not add help link' do
+          get '/menu/project-page/checks'
+          refute_equal({'title'=>'?', 'href'=>'/help'}, json['items'].last)
         end
       end
 
