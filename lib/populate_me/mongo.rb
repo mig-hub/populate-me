@@ -6,17 +6,43 @@ module PopulateMe
   class MissingMongoDBError < StandardError; end
 
   class Mongo < Document
+    
+    self.settings.instance_eval do
+      def collection_name
+        puts 'yo'
+        if self[:collection_name].respond_to? :call
+          self[:collection_name].call
+        else
+          self[:collection_name]
+        end
+      end
+    end
 
     class << self
 
       def inherited sub 
         super
-        sub.set :collection_name, WebUtils.dasherize_class_name(sub.name)
+        # self.inherited is not useful anymore because we use ::collection_name 
+        # so that the class name exist when this is run.
+        # Which is not the case with dynamically created classes.
+        #
+        # But we'll keep it for legacy code in the meantime.
+        # Decide if we want to keep it.
+        #
+        # If statment is here for dynamically created classes,
+        # because Class.new.name==nil and then it breaks (see tests).
+        unless sub.name.nil?
+          sub.set :collection_name, WebUtils.dasherize_class_name(sub.name)
+        end
+      end
+
+      def collection_name
+        self.settings.collection_name || WebUtils.dasherize_class_name(self.name) 
       end
 
       def collection
         raise MissingMongoDBError, "Document class #{self.name} does not have a Mongo database." if settings.db.nil?
-        settings.db[settings.collection_name]
+        settings.db[self.collection_name]
       end
 
       def set_id_field

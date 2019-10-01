@@ -65,12 +65,19 @@ describe 'PopulateMe::Mongo' do
     end
 
     it 'Should set DB collection to dasherized full class name by default' do 
-      assert_equal "cat-fish", CatFish.settings.collection_name
-      assert_equal "paradise--cat-fish", Paradise::CatFish.settings.collection_name
+      assert_equal "cat-fish", CatFish.collection_name
+      assert_equal "paradise--cat-fish", Paradise::CatFish.collection_name
     end
 
     it 'Finds collection in DB' do 
       assert_equal DB['cat-fish'].name, CatFish.collection.name
+    end
+
+    it 'Should set DB and collection name even for dynamically created classes' do
+      # Happens when an included module automatically happens a class.
+      # e.g. Slides for a Slideshow
+      CatFish.const_set("Item", Class.new(CatFish.superclass))
+      assert_equal "cat-fish--item", CatFish::Item.collection.name
     end
 
   end
