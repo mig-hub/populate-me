@@ -100,13 +100,13 @@ module PopulateMe
                 select_options.each do |op|
                   key,val = op.kind_of?(Array) ? [op[0],op[1]] : [op,op]
                   if key==:optgroup
-                    out << "<optgroup label='%s'>\n" % [val]
+                    out << "<optgroup label=\"%s\">\n" % [val]
                   elsif key==:closegroup
                     out << "</optgroup>\n"
                   else
                     # Array case is for multiple select
                     selected = 'selected' if (val==o[:input_value] || (o[:input_value].kind_of?(Array)&&o[:input_value].include?(val)))
-                    out << "<option value='%s' %s>%s</option>\n" % [val,selected,key]
+                    out << "<option value=\"%s\" %s>%s</option>\n" % [val,selected,key]
                   end
                 end
               end
@@ -188,7 +188,7 @@ module PopulateMe
         end
         def dropdown_cache
           @dropdown_cache ||= self.find({},:fields=>['_id',label_column]).inject([]) do |out,row|
-            out.push([row.to_label, row.id.to_s, "<option value='#{row.id}' ", ">#{row.to_label}</option>\n"])
+            out.push([row.to_label, row.id.to_s, "<option value=\"#{row.id}\" ", ">#{row.to_label}</option>\n"])
           end
         end
         def reset_dropdown_cache; @dropdown_cache = nil; end
