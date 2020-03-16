@@ -29,6 +29,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rack-grid-serve', '~> 0.0.8'
   s.add_development_dependency 'aws-sdk-s3', '~> 1'
   s.add_development_dependency 'racksh', '~> 1.0'
-  s.add_development_dependency 'rake', '~> 10.1'
+  s.add_development_dependency 'rake', '>= 12.3.3'
 end
 
