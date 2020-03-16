@@ -140,9 +140,24 @@ button.admin-delete:focus, button.admin-delete-nested:focus, .handle-button:focu
   -ms-user-select: none;
   user-select: none;
 }
+.documents.grid {
+  width: 90%; width: 90vw;
+}
 .documents > li, .nested-documents > li {
   display: block;
   margin-bottom: 1em;
+}
+.documents.grid > li {
+  display: inline-block;
+  vertical-align: top;
+  width: 200px;
+  margin-right: 1em;
+}
+.documents.grid > li > a {
+  word-break: break-word;
+}
+.documents.grid > li img {
+  width: 200px;
 }
 .documents > li:hover, .nested-documents > li:hover {
   background-color: #eee8d5;

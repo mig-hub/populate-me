@@ -46,7 +46,7 @@
         {{/is_polymorphic}}
         <a href="<%= request.script_name %>/form/{{dasherized_class_name}}{{#new_data}}?{{new_data}}{{/new_data}}" class='column-push new-document-btn' title='Create'>+</a>
       </p>
-      <ol class='documents' data-sort-field='{{sort_field}}' data-sort-url='<%= request.script_name %>/api/{{dasherized_class_name}}'>
+      <ol class='documents {{#grid_view}}grid{{/grid_view}}' data-sort-field='{{sort_field}}' data-sort-url='<%= request.script_name %>/api/{{dasherized_class_name}}'>
         {{#items}}{{#custom_partial_or_default}}template_document{{/custom_partial_or_default}}{{/items}}
       </ol>
     </script>

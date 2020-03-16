@@ -121,6 +121,7 @@ module PopulateMe
           end
           {
             template: 'template_list',
+            grid_view: self.settings[:grid_view]==true,
             page_title: self.to_s_short_plural,
             dasherized_class_name: WebUtils.dasherize_class_name(self.name),
             new_data: new_data,
