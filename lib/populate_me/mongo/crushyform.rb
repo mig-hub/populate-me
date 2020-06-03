@@ -76,7 +76,7 @@ module PopulateMe
             end,
             :attachment => proc do |m,c,o|
               deleter = "<input type='checkbox' name='#{o[:input_name]}' class='deleter' value='nil' /> Delete this file<br />" unless m.doc[c].nil?
-              "%s%s<input type='file' name='%s' id='%s' class='%s' />%s\n" % [m.to_thumb(c), deleter, o[:input_name], m.field_id_for(c), o[:input_class], o[:required]]
+              "%s<input type='file' name='%s' id='%s' class='%s' />%s %s\n" % [m.to_thumb(c), o[:input_name], m.field_id_for(c), o[:input_class], o[:required], deleter]
             end,
             :select => proc do |m,c,o|
               # starter ensures it sends something when multiple is empty

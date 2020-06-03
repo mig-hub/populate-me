@@ -194,7 +194,12 @@ module PopulateMe
 
       # saving and hooks
       def new?; @is_new ||= !@doc.key?('_id'); end
-      def update_doc(fields); @old_doc = @doc.dup; @doc.update(fields); @is_new = false; self; end
+      def update_doc(fields)
+        @old_doc = @doc.dup
+        @doc.update(fields)
+        @is_new = false
+        self
+      end
       # Getter and setter in one
       def errors_on(col,message=nil)
         message.nil? ? @errors[col] : @errors[col] = (@errors[col]||[]) << message
@@ -219,7 +224,7 @@ module PopulateMe
           next unless model.schema.key?(k)
           type = k=='_id' ? :primary_key : model.schema[k][:type]
           fix_method = "fix_type_#{type}"
-          if v==''
+          if v=='' and type!=:attachment
             default = model.schema[k][:default]
             @doc[k] = default.is_a?(Proc) ? default.call : default
           else

@@ -51,6 +51,8 @@ module PopulateMe
               :content_type=>v[:type]
             })
           @doc[k] = {'original'=>attachment_id}
+        else # Untouched
+          @doc[k] = @old_doc[k]
         end
       end
 
