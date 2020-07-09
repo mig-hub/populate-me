@@ -11,6 +11,11 @@ class Outcasted < PopulateMe::Document
     {description: 'medium', value: 'm'},
     {description: 'large', value: 'l'}
   ]
+  field :availability, type: :select, select_options: [
+    {description: 'Available', value: 'yes', preview_uri: 'http://www.example.org/yes.jpg' },
+    {description: 'On offer', value: 'almost', preview_uri: 'http://www.example.org/almost.jpg' },
+    {description: 'Sold', value: 'no', preview_uri: 'http://www.example.org/no.jpg' }
+  ]
   field :tags, type: :select, select_options: ['art','sport','science'], multiple: true
   field :related_properties, type: :select, select_options: ['prop1','prop2','prop3'], multiple: true
   field :pdf, type: :attachment
@@ -96,6 +101,17 @@ describe PopulateMe::Document, 'Outcasting' do
       original = Outcasted.fields[:size]
       output = Outcasted.new.outcast(:size, original, {input_name_prefix: 'data'})
       formated_options?(original, output)
+    end
+
+    it 'Can have more fields when they are already formated' do
+      # Mainly for adding a preview_uri but also future tweaks
+      original = Outcasted.fields[:availability]
+      output = Outcasted.new.outcast(:availability, original, {input_name_prefix: 'data'})
+      assert(output[:select_options].all?{|o| o.key?(:preview_uri)})
+      last = output[:select_options].last
+      assert_equal 'Sold', last[:description]
+      assert_equal 'no', last[:value]
+      assert_equal 'http://www.example.org/no.jpg', last[:preview_uri]
     end
 
     it 'Formats the options when it is a 2 strings array' do

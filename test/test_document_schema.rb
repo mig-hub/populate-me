@@ -85,12 +85,22 @@ describe PopulateMe::Document, 'Schema' do
       label :slug
     end
 
+    class Selectpreviewable < PopulateMe::Document
+      set :default_attachment_class, PopulateMe::Attachment
+      field :name
+      field :img, type: :attachment, variations: [
+        PopulateMe::Variation.default
+      ]
+    end
+
     before do
       Selectoptionable.documents = []
       Selectoptionable.new(id: '1', name: 'Joe', slug: 'joe').save
       Selectoptionable.new(id: '2', name: 'William', slug: 'william').save
       Selectoptionable.new(id: '3', name: 'Jack', slug: 'jack').save
       Selectoptionable.new(id: '4', name: 'Averell', slug: 'averell').save
+      Selectpreviewable.documents = []
+      Selectpreviewable.new(id: '1', name: 'Project', img: 'project.jpg').save
     end
 
     after do
@@ -102,19 +112,27 @@ describe PopulateMe::Document, 'Schema' do
       assert output_proc.is_a?(Proc)
       output = output_proc.call
       assert_equal 4, output.size
-      assert output.all?{|o| o.is_a?(Array) and o.size==2}
-      assert_equal '1', output.find{|o|o[0]=='joe'}[1]
+      assert output.all?{|o| o.is_a?(Hash) and o.size==2}
+      assert_equal '1', output.find{|o|o.fetch(:description)=='joe'}.fetch(:value)
     end
 
     it 'Puts items in alphabetical order of their label' do
       output= Selectoptionable.to_select_options.call
-      assert_equal ['averell', '4'], output[0]
+      assert_equal({description: 'averell', value: '4'}, output[0])
     end
 
     it 'Has an option for prepending empty choice' do
       output= Selectoptionable.to_select_options(allow_empty: true).call
-      assert_equal ['?', ''], output[0]
-      assert_equal ['averell', '4'], output[1]
+      assert_equal({description: '?', value: ''}, output[0])
+      assert_equal({description: 'averell', value: '4'}, output[1])
+    end
+
+    it 'Adds a :preview_uri when there is a thumbnail' do
+      output= Selectpreviewable.to_select_options.call
+      assert output[0].key?(:preview_uri)
+      assert_equal 'Project', output[0][:description]
+      assert_equal '1', output[0][:value]
+      assert_equal '/attachment/selectpreviewable/project.populate_me_thumb.jpg', output[0][:preview_uri]
     end
 
   end

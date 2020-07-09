@@ -160,13 +160,20 @@ module PopulateMe
 
         def to_select_options o={}
           proc do
-            items = self.admin_find(query: (o[:query]||{}), fields: [self.id_string_key, self.label_field])
+            items = self.admin_find({
+              query: (o[:query]||{}), 
+              fields: [self.id_string_key, self.label_field, self.admin_image_field].compact.uniq
+            })
             output = items.sort_by do |i|
               i.to_s.downcase
             end.map do |i|
-              [i.to_s, i.id]
+              item = { description: i.to_s, value: i.id }
+              unless self.admin_image_field.nil?
+                item.merge! preview_uri: i.admin_image_url
+              end
+              item
             end
-            output.unshift(['?','']) if o[:allow_empty]
+            output.unshift(description: '?', value: '') if o[:allow_empty]
             output
           end
         end

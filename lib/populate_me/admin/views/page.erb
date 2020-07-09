@@ -134,9 +134,10 @@
       {{/multiple}}
       <select name='{{input_name}}' {{#multiple}}multiple title='?'{{/multiple}}{{{build_input_attributes}}}>
         {{#select_options}}
-          <option value='{{value}}' {{#selected}}selected{{/selected}}>{{description}}</option>
+          <option value='{{value}}' {{#selected}}selected{{/selected}} {{#preview_uri}}data-preview='{{preview_uri}}'{{/preview_uri}}>{{description}}</option>
         {{/select_options}}
       </select>
+      <div class='preview-container'></div>
     </script>
 
     <script id="template-attachment-field" type="x-tmpl-mustache">
