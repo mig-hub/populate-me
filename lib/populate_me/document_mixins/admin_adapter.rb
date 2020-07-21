@@ -76,9 +76,14 @@ module PopulateMe
         end
 
         def admin_get id
+          return self.admin_get_multiple(id) if id.is_a?(Array)
           self.cast do
-            documents.find{|doc| doc[id_string_key]==id }
+            documents.find{|doc| doc[id_string_key] == id }
           end
+        end
+
+        def admin_get_multiple ids, o={sort: nil}
+          self.admin_find(o.merge(query: {id_string_key => {'$in' => ids.uniq.compact}}))
         end
 
         def admin_find o={}

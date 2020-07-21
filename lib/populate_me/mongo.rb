@@ -88,10 +88,18 @@ module PopulateMe
       end
 
       def admin_get theid
+        return self.admin_get_multiple(theid) if theid.is_a?(Array)
         theid = string_or_object_id theid
         self.cast{ collection.find({id_string_key => theid}).first }
       end
       alias_method :[], :admin_get
+
+      def admin_get_multiple theids, o={sort: nil}
+        theids = theids.uniq.compact.map{|theid| string_or_object_id(theid) }
+        self.admin_find(o.merge({
+          query: {id_string_key => {'$in' => theids} }
+        }))
+      end
 
       def admin_find o={}
         query = o.delete(:query) || {}

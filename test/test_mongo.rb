@@ -126,6 +126,19 @@ describe 'PopulateMe::Mongo' do
       assert_equal "regular", LowFish.admin_get(regular_fish_id).name
     end
 
+    it "Should get multiple items" do
+      # Order is not respected
+      alpha_id = LowFish.new(name: "alpha").perform_create
+      beta_id = LowFish.new(name: "beta").perform_create
+      gamma_id = LowFish.new(name: "gamma").perform_create
+      items = LowFish.admin_get([alpha_id, beta_id, nil, alpha_id])
+      assert items.is_a?(Array)
+      assert_equal 2, items.count
+      refute_nil items.find{|i| i.id == alpha_id}
+      refute_nil items.find{|i| i.id == beta_id}
+      assert_nil items.find{|i| i.id == gamma_id}
+    end
+
     it 'Should have the [] shortcut for admin_get' do
       LowFish.collection.insert_one(_id: 42, name: "H2G2")
       assert_equal LowFish[42], LowFish.admin_get(42)
@@ -138,7 +151,7 @@ describe 'PopulateMe::Mongo' do
       LowFish.collection.insert_one(_id: 40, name: "Bran")
       items = LowFish.admin_find
       assert items.is_a?(Array)
-      assert 4, items.count
+      assert_equal 4, items.count
       assert_equal 10, items[0].id
       items = LowFish.admin_find query: {name: 'Bran'}
       assert items.is_a?(Array)
