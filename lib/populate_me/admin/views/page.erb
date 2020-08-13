@@ -46,6 +46,9 @@
         {{/is_polymorphic}}
         <a href="<%= request.script_name %>/form/{{dasherized_class_name}}{{#new_data}}?{{new_data}}{{/new_data}}" class='column-push new-document-btn' title='Create'>+</a>
       </p>
+      <form class='form-search-items'>
+        <input type='text' class='search-items' placeholder='Search'>
+      </form>
       <ol class='documents {{#grid_view}}grid{{/grid_view}}' data-sort-field='{{sort_field}}' data-sort-url='<%= request.script_name %>/api/{{dasherized_class_name}}'>
         {{#items}}{{#custom_partial_or_default}}template_document{{/custom_partial_or_default}}{{/items}}
       </ol>
@@ -57,7 +60,7 @@
           <button type='button' class='admin-delete' title='Delete' value='<%= request.script_name %>/api/{{admin_url}}'>&times;</button>
         </header>
         <a href="<%= request.script_name %>/form/{{admin_url}}" class='column-push' title='Edit'>
-          {{title}}
+          <span class='item-title'>{{title}}</span>
           {{#image_url}}
             <br />
             <img src='{{image_url}}{{cache_buster}}' alt='{{title}}' width='300' />
@@ -176,6 +179,7 @@
     <script src="<%= request.script_name %>/__assets__/js/columnav.js" type="text/javascript" charset="utf-8"></script>
     <%# <script src="<%= request.script_name %1>/__assets__/js/sortable.js" type="text/javascript" charset="utf-8"></script> %>
     <script src="<%= request.script_name %>/__assets__/js/asmselect.js" type="text/javascript" charset="utf-8"></script>
+    <script src="<%= request.script_name %>/__assets__/js/quicksearch.js" type="text/javascript" charset="utf-8"></script>
     <script type="text/javascript">
       window.admin_path = "<%= request.script_name %>";
       window.index_path = "<%= settings.index_path %>";

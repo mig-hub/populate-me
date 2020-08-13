@@ -124,6 +124,7 @@ module PopulateMe
             end
             new_data = Rack::Utils.build_nested_query(data: o[:params][:filter])
           end
+          items = self.admin_find(query: query)
           {
             template: 'template_list',
             grid_view: self.settings[:grid_view]==true,
@@ -135,7 +136,7 @@ module PopulateMe
             sort_field: self.sort_field_for(o),
             # 'command_plus'=> !self.populate_config[:no_plus],
             # 'command_search'=> !self.populate_config[:no_search],
-            items: self.admin_find(query: query).map do |d| 
+            items: items.map do |d| 
               d.to_admin_list_item(o) 
             end
           }

@@ -184,16 +184,20 @@ form {
   margin-bottom: 1em;
 }
 
-input[type=text], input[type=email],
+input[type=text], input[type=email], input[type=search],
 textarea {
   border: 0px;
   color: #839496;
-  background: #ffffff;
+  background-color: #ffffff;
   width: 400px;
   padding: 0.5em;
   font-size: 1em;
+  outline: 0;
 }
-input[type=text]:focus, input[type=email]:focus,
+input[type=text].search-items {
+  border-radius: 1em;
+}
+input[type=text]:focus, input[type=email]:focus, input[type=email]:focus,
 textarea:focus {
   /* color: #002b36; */
 }
