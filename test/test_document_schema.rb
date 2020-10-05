@@ -1,5 +1,6 @@
 require 'helper'
 require 'populate_me/document'
+require 'populate_me/attachment'
 
 describe PopulateMe::Document, 'Schema' do
 
