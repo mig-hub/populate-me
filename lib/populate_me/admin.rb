@@ -67,6 +67,7 @@ class PopulateMe::Admin < Sinatra::Base
     if request.path_info=='/menu'
       items.push({title: '?', href: "#{request.script_name}/help", new_page: false})
     end
+    content_type :json
     {
       template: 'template_menu',
       page_title: page_title,
@@ -76,6 +77,7 @@ class PopulateMe::Admin < Sinatra::Base
 
   get '/list/:class_name' do
     @model_class = resolve_model_class params[:class_name]
+    content_type :json
     @model_class.to_admin_list(request: request, params: params).to_json
   end
 
@@ -87,6 +89,7 @@ class PopulateMe::Admin < Sinatra::Base
     else
       @model_instance = resolve_model_instance @model_class, params[:id]
     end
+    content_type :json
     @model_instance.to_admin_form(
       request: request, 
       params: params,
@@ -102,6 +105,7 @@ class PopulateMe::Admin < Sinatra::Base
 
   not_found do
     response.headers['X-Cascade'] = 'pass'
+    content_type :json
     {'success'=>false,'message'=>'Not Found'}.to_json
   end
 
@@ -109,6 +113,7 @@ class PopulateMe::Admin < Sinatra::Base
     puts
     puts env['sinatra.error'].inspect
     puts
+    content_type :json
     {'success'=>false,'message'=>env['sinatra.error'].message}.to_json
   end
 
