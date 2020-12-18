@@ -60,7 +60,8 @@ module PopulateMe
         obj = (@old_doc||@doc)[col]
         if obj.respond_to?(:each)
           obj.each do |k,v|
-            model.gridfs.delete(v)
+            gridfile = model.gridfs.find(_id: v).first
+            model.gridfs.delete(v) unless gridfile.nil?
           end
         end
       end
