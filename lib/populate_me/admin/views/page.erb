@@ -145,7 +145,7 @@
 
     <script id="template-attachment-field" type="x-tmpl-mustache">
       {{#url}}
-        <img src='{{url}}{{cache_buster}}' alt='Preview' width='150' />
+        <img src='{{url}}{{cache_buster}}' alt='Preview' width='150' onerror="this.src='<%= request.script_name %>/__assets__/img/file.png'; this.onerror=null;" />
         <button class='attachment-deleter'>x</button>
         <br />
       {{/url}}
