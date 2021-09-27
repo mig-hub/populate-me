@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'sinatra', '~> 2'
   s.add_dependency 'json', '~> 2.1'
 
-  s.add_development_dependency 'bundler', '~> 1.13'
+  s.add_development_dependency 'bundler', '>= 2.2.10'
   s.add_development_dependency 'minitest', '~> 5.8'
   s.add_development_dependency 'rack-test', '~> 0.6'
   s.add_development_dependency 'rack-cerberus', '~> 1.0'
