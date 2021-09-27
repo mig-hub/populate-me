@@ -21,6 +21,14 @@ module PopulateMe
         end
       end
 
+      def outcast_string field, item, o={}
+        if item.key? :autocomplete
+          item = item.dup
+          item[:autocomplete] = WebUtils.deep_copy(WebUtils.get_value(item[:autocomplete],self))
+        end
+        item
+      end
+
       def outcast_list field, item, o={}
         item = item.dup
         item[:items] = self.__send__(field).map do |nested|

@@ -117,7 +117,14 @@
     </script>
     
     <script id="template-string-field" type="x-tmpl-mustache">
-      <input name='{{input_name}}' value='{{input_value}}' {{#required}}required{{/required}}{{{build_input_attributes}}} />
+      <input name='{{input_name}}' value='{{input_value}}' {{#required}}required{{/required}}{{{build_input_attributes}}} {{#autocomplete.length}}list='datalist-{{id}}'{{/autocomplete.length}} />
+      {{#autocomplete.length}}
+        <datalist id='datalist-{{id}}'>
+          {{#autocomplete}}
+            <option value='{{.}}' />
+          {{/autocomplete}}
+        </datalist>
+      {{/autocomplete.length}}
     </script>
 
     <script id="template-text-field" type="x-tmpl-mustache">

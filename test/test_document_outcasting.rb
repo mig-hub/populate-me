@@ -6,6 +6,7 @@ class Outcasted < PopulateMe::Document
   set :default_attachment_class, PopulateMe::Attachment
 
   field :name
+  field :category, autocomplete: ['Fish', 'Cat', 'Bunny']
   field :size, type: :select, select_options: [
     {description: 'small', value: 's'},
     {description: 'medium', value: 'm'},
@@ -22,6 +23,10 @@ class Outcasted < PopulateMe::Document
   field :authors, type: :list
   field :weirdo, type: :strange
   field :price, type: :price
+
+  def get_category_autocomplete_list
+    ['Horse', 'Bear']
+  end
 
   def get_size_options
     [
@@ -63,6 +68,36 @@ describe PopulateMe::Document, 'Outcasting' do
       assert_equal 'Thomas', output[:input_value]
     end
 
+  end
+
+  describe '#outcast_string' do
+
+    it 'Generates the autocomplete options when needed' do
+      original = Outcasted.fields[:category]
+      output = Outcasted.new.outcast(:category, original, {input_name_prefix: 'data'})
+      assert_equal ['Fish', 'Cat', 'Bunny'], output[:autocomplete]
+      refute original.equal?(output)
+
+      original = Outcasted.fields[:name]
+      output = Outcasted.new.outcast(:name, original, {input_name_prefix: 'data'})
+      refute output.key?(:autocomplete)
+    end
+
+    it 'Generates the autocomplete options from a proc' do
+      original = Outcasted.fields[:category].dup
+      original[:autocomplete] = proc{ ['Dog', 'Snake'] }
+      output = Outcasted.new.outcast(:category, original, {input_name_prefix: 'data'})
+      assert_equal ['Dog', 'Snake'], output[:autocomplete]
+      assert original[:autocomplete].is_a?(Proc)
+    end
+
+    it 'Generates the autocomplete options from a method name' do
+      original = Outcasted.fields[:category].dup
+      original[:autocomplete] = :get_category_autocomplete_list
+      output = Outcasted.new.outcast(:category, original, {input_name_prefix: 'data'})
+      assert_equal ['Horse', 'Bear'], output[:autocomplete]
+      assert original[:autocomplete].is_a?(Symbol)
+    end
   end
 
   describe '#outcast_list' do
