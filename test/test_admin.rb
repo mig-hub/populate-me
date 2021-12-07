@@ -22,6 +22,12 @@ class AdminWithCerberusPass < Admin
   end
 end
 
+class AdminWithCustomCerberusAuth < AdminWithCerberusPass
+  def self.cerberus_auth user, pass, req
+    [user, pass] == ['mario', '1234']
+  end
+end
+
 class AdminCerberusNotAvailable < AdminWithCerberusPass
   def self.cerberus_available?
     false
@@ -106,17 +112,52 @@ describe PopulateMe::Admin do
       assert_equal 'text/css', last_response.content_type
     end
 
-    describe 'when cerberus is active' do
+    describe 'When cerberus is active' do
       let(:app) { AdminWithCerberusPass.new }
       it 'Uses Cerberus for authentication' do
         get '/'
         assert_equal 401, last_response.status
       end
+      it 'Authenticates with right login details' do
+        get '/', {
+          cerberus_login: 'admin',
+          cerberus_pass: '123',
+          _method: 'get'
+        }
+        assert_equal 200, last_response.status
+      end
+      it 'Fails authentication when login details are wrong' do
+        get '/', {
+          cerberus_login: 'admin',
+          cerberus_pass: 'xxx',
+          _method: 'get'
+        }
+        assert_equal 401, last_response.status
+      end
     end
-    describe 'when cerberus is inactive' do
+    describe 'When cerberus is inactive' do
       it 'Does not use Cerberus' do
         get '/'
         assert_predicate last_response, :ok?
+      end
+    end
+    describe 'When cerberus_auth is overridden' do
+      let(:app) { AdminWithCustomCerberusAuth.new }
+      it 'Authenticates with right login details' do
+        get '/', {
+          cerberus_login: 'mario',
+          cerberus_pass: '1234',
+          _method: 'get'
+        }
+        assert_equal 200, last_response.status
+      end
+      it 'Fails authentication when login details are wrong' do
+        get '/', {
+          cerberus_login: 'admin',
+          cerberus_pass: '123',
+          _method: 'get'
+        }
+        assert_equal 401, last_response.status
       end
     end
 

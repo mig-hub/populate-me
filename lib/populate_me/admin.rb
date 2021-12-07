@@ -123,10 +123,16 @@ class PopulateMe::Admin < Sinatra::Base
       # Method = overridable = testable
       ENV['CERBERUS_PASS']
     end
+
     def cerberus_available?
       # Method = overridable = testable
       Rack.const_defined?(:Cerberus)
     end
+
+    def cerberus_auth user, pass, req
+      pass == cerberus_pass
+    end
+
 
     private
 
@@ -151,8 +157,8 @@ class PopulateMe::Admin < Sinatra::Base
       return unless settings.cerberus_active
       cerberus_settings = settings.cerberus==true ? {} : settings.cerberus
       cerberus_settings[:session_key] = 'populate_me_user'
-      builder.use Rack::Cerberus, cerberus_settings do |user,pass,req|
-        pass==cerberus_pass
+      builder.use Rack::Cerberus, cerberus_settings do |user, pass, req|
+        cerberus_auth user, pass, req
       end
     end
 
