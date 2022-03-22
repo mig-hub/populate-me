@@ -4,6 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <title><%= settings.meta_title %></title>
+    <link href="<%= request.script_name %>/__assets__/img/favicon.png" rel="icon" type="image/png">
     <link rel="stylesheet" href="<%= request.script_name %>/__assets__/css/jquery-ui.min.css" type="text/css" media='screen' />
     <link rel="stylesheet" href="<%= request.script_name %>/__assets__/css/asmselect.css" type="text/css" media='screen' />
     <link rel="stylesheet" href="<%= request.script_name %>/__assets__/css/main.css" type="text/css" media='screen' />
@@ -79,7 +80,7 @@
       {{#polymorphic_type}}
         <p>({{polymorphic_type}})</p>
       {{/polymorphic_type}}
-      <form action="<%= request.script_name %>/api/{{admin_url}}" method="POST" accept-charset="utf-8" class='admin-{{#is_new}}post{{/is_new}}{{^is_new}}put{{/is_new}}'>
+      <form action="<%= request.script_name %>/api/{{admin_url}}" method="POST" accept-charset="utf-8" class='admin-{{#is_new}}post{{/is_new}}{{^is_new}}put{{/is_new}}' {{#batch_field}}{{#is_new}}data-batch-field="{{batch_field}}"{{/is_new}}{{/batch_field}}>
         {{#custom_partial_or_default}}template_form_fields{{/custom_partial_or_default}}
         {{^is_new}}
           <input type="hidden" name="_method" value="PUT" />
@@ -156,7 +157,7 @@
         <button class='attachment-deleter'>x</button>
         <br />
       {{/url}}
-      <input type='file' name='{{input_name}}' {{#max_size}}data-max-size='{{max_size}}'{{/max_size}} {{{build_input_atrributes}}} />
+      <input type='file' name='{{input_name}}' {{#multiple}}multiple{{/multiple}} {{#max_size}}data-max-size='{{max_size}}'{{/max_size}} {{{build_input_atrributes}}} />
     </script>
 
     <script id="template-list-field" type="x-tmpl-mustache">

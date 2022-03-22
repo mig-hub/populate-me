@@ -74,6 +74,7 @@ module PopulateMe
       def outcast_attachment field, item, o={}
         item = item.dup
         item[:url] = self.attachment(field).url
+        item[:multiple] = (self.new? and self.class.batch_field == field)
         item
       end
 

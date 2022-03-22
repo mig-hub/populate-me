@@ -20,9 +20,12 @@ class Outcasted < PopulateMe::Document
   field :tags, type: :select, select_options: ['art','sport','science'], multiple: true
   field :related_properties, type: :select, select_options: ['prop1','prop2','prop3'], multiple: true
   field :pdf, type: :attachment
+  field :image, type: :attachment
   field :authors, type: :list
   field :weirdo, type: :strange
   field :price, type: :price
+
+  batch_on_field :image
 
   def get_category_autocomplete_list
     ['Horse', 'Bear']
@@ -40,6 +43,11 @@ end
 
 class Outcasted::Author < PopulateMe::Document
   field :name
+end
+
+class OutcastedNoBatchField < PopulateMe::Document
+  set :default_attachment_class, PopulateMe::Attachment
+  field :image, type: :attachment
 end
 
 describe PopulateMe::Document, 'Outcasting' do
@@ -274,6 +282,35 @@ describe PopulateMe::Document, 'Outcasting' do
       outcasted.pdf = 'guidelines.pdf'
       output = outcasted.outcast(:pdf, original, {input_name_prefix: 'data'})
       assert_equal outcasted.attachment(:pdf).url, output[:url]
+    end
+
+    it 'Sets multiple if field is the batch field and document is new' do
+      original = Outcasted.fields[:image]
+      outcasted = Outcasted.new
+      output = outcasted.outcast(:image, original, {input_name_prefix: 'data'})
+      assert output[:multiple]
+    end
+
+    it 'Does not set multiple if there is no batch field' do
+      original = OutcastedNoBatchField.fields[:image]
+      outcasted = OutcastedNoBatchField.new
+      output = outcasted.outcast(:image, original, {input_name_prefix: 'data'})
+      refute output[:multiple]
+    end
+
+    it 'Does not set multiple if document is not new' do
+      original = Outcasted.fields[:image]
+      outcasted = Outcasted.new
+      outcasted._is_new = false
+      output = outcasted.outcast(:image, original, {input_name_prefix: 'data'})
+      refute output[:multiple]
+    end
+
+    it 'Does not set multiple if field not the batch field' do
+      original = Outcasted.fields[:pdf]
+      outcasted = Outcasted.new
+      output = outcasted.outcast(:pdf, original, {input_name_prefix: 'data'})
+      refute output[:multiple]
     end
 
   end

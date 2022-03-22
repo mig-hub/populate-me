@@ -6,6 +6,26 @@ describe PopulateMe::Document, 'Schema' do
 
   parallelize_me!
 
+  describe "Batch field" do
+
+    class BatchFieldSet < PopulateMe::Document
+      field :name
+      field :image
+      batch_on_field :image
+    end
+
+    class NotBatchFieldSet < PopulateMe::Document
+      field :name
+      field :image
+    end
+
+    it 'Sets batch field correctly' do
+      assert_equal :image, BatchFieldSet.batch_field
+      assert_nil NotBatchFieldSet.batch_field
+    end
+
+  end
+
   describe "Relationships" do
 
     class Relative < PopulateMe::Document

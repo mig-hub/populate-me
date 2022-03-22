@@ -27,7 +27,7 @@ module PopulateMe
     # It can be used on its own but it keeps everything
     # in memory. Which means it is only for tests and conceptual
     # understanding.
-    
+
     include DocumentMixins::Typecasting
     include DocumentMixins::Outcasting
     include DocumentMixins::Schema

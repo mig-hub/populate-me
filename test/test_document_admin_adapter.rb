@@ -178,7 +178,7 @@ describe PopulateMe::Document, 'AdminAdapter' do
   describe '#to_admin_form' do
     class PolyForm < PopulateMe::Document
       field :name
-      field :image, only_for: 'Image'
+      field :image, only_for: 'Image', type: :attachment, class_name: PopulateMe::Attachment
       field :title, only_for: 'Article'
       field :content, only_for: 'Article'
       field :position
@@ -214,6 +214,29 @@ describe PopulateMe::Document, 'AdminAdapter' do
       obj = PolyForm.new
       form = obj.to_admin_form
       assert_nil form[:polymorphic_type]
+    end
+
+    class WithBatchField < PopulateMe::Document
+      field :name
+      field :thumbnail, type: :attachment, class_name: PopulateMe::Attachment
+      batch_on_field :thumbnail
+    end
+    it 'Sets :batch_field if there is one' do
+      obj = PolyForm.new
+      form = obj.to_admin_form
+      assert_nil form[:batch_field]
+      obj = NotPolyForm.new
+      form = obj.to_admin_form
+      assert_nil form[:batch_field]
+      obj = WithBatchField.new
+      form = obj.to_admin_form
+      assert_equal 'data[thumbnail]', form[:batch_field]
+    end
+    it 'Does not add a batch field when updating' do
+      obj = WithBatchField.new
+      obj._is_new = false
+      form = obj.to_admin_form
+      assert_nil form[:batch_field]
     end
   end
 

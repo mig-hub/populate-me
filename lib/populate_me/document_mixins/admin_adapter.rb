@@ -48,12 +48,16 @@ module PopulateMe
         end
         page_title = self.new? ? "New #{self.class.to_s_short}" : self.to_s
         # page_title << " (#{self.polymorphic_type})" if self.class.polymorphic?
+        batch_field_item = items.find do |item|
+          item[:field_name] == self.class.batch_field
+        end
         {
           template: "template#{'_nested' if o[:nested]}_form",
           page_title: page_title,
           admin_url: self.to_admin_url,
           is_new: self.new?,
           polymorphic_type: self.class.polymorphic? ? self.polymorphic_type : nil,
+          batch_field: (not self.new? or batch_field_item.nil?) ? nil : batch_field_item[:input_name],
           fields: items
         }
       end

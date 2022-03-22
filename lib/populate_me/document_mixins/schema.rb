@@ -118,12 +118,19 @@ module PopulateMe
         def label sym # sets the label_field
           @label_field = sym.to_sym
         end
-        
+
         def label_field
           return @label_field if self.fields.empty?
-          @label_field || self.fields.find do |k,v| 
+          @label_field || self.fields.find do |k,v|
             not [:id,:polymorphic_type].include?(v[:type])
           end[0]
+        end
+
+        def batch_on_field sym # sets the batch_field
+          @batch_field = sym.to_sym
+        end
+        def batch_field
+          @batch_field
         end
 
         def sort_by f, direction=:asc

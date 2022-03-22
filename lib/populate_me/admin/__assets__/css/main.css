@@ -214,6 +214,14 @@ fieldset {
   color: #dc322f;
 }
 
+.error {
+  color: #dc322f;
+}
+
+.batch-upload-report {
+  margin: 20px;
+}
+
 /* asmSelect */
 
 .asmListItem {
