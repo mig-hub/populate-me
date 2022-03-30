@@ -138,10 +138,10 @@ module PopulateMe
             is_polymorphic: self.polymorphic?,
             polymorphic_type_values: self.polymorphic? ? self.fields[:polymorphic_type][:values] : nil,
             sort_field: self.sort_field_for(o),
-            # 'command_plus'=> !self.populate_config[:no_plus],
-            # 'command_search'=> !self.populate_config[:no_search],
-            items: items.map do |d| 
-              d.to_admin_list_item(o) 
+            disable_plus: self.settings[:disable_plus]==true,
+            disable_search: self.settings[:disable_search]==true,
+            items: items.map do |d|
+              d.to_admin_list_item(o)
             end
           }
         end
