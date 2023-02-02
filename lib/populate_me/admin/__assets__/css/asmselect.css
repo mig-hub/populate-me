@@ -44,6 +44,12 @@
 	background-color: #e5e5e5;
 }
 
+.asmListItemPreview {
+	height: 3em;
+	display: inline-block;
+	margin-right: 1em;
+}
+
 .asmListItemLabel {
 	/* this is a span that surrounds the text in the item, except for the remove link */
 	padding: 5px; 
