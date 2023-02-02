@@ -116,7 +116,7 @@ button.admin-delete:focus, button.admin-delete-nested:focus, .handle-button:focu
   cursor: -webkit-grab;
   cursor: grab;
 }
-.handle:active { 
+.handle:active {
   cursor: -moz-grabbing;
   cursor: -webkit-grabbing;
   cursor: grabbing;

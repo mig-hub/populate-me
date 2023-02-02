@@ -61,21 +61,23 @@
 
     <script id="template-document" type="x-tmpl-mustache">
       <li class='admin-list-item' data-id='{{id}}'>
-        <header class='{{#sort_field}}handle{{/sort_field}}' title='{{#sort_field}}Drag and drop{{/sort_field}}'>
-          <button type='button' class='admin-delete' title='Delete' value='<%= request.script_name %>/api/{{admin_url}}'>&times;</button>
-        </header>
-        <a href="<%= request.script_name %>/form/{{admin_url}}" class='column-push' title='Edit'>
-          <span class='item-title'>{{title}}</span>
-          {{#image_url}}
-            <br />
-            <img src='{{image_url}}{{cache_buster}}' alt='{{title}}' width='300' />
-          {{/image_url}}
-        </a>
-        <ol class='local-menu'>
-          {{#local_menu}}
-            <li>&rarr; <a href="{{href}}" {{#new_page}}target='_blank'{{/new_page}}{{^new_page}}class='column-push'{{/new_page}} title='Open'>{{title}}</a></li>
-          {{/local_menu}}
-        </ol>
+        <div class="{{#sort_field}}handle{{/sort_field}}" title='{{#sort_field}}Drag and drop{{/sort_field}}'>
+          <header>
+            <button type='button' class='admin-delete' title='Delete' value='<%= request.script_name %>/api/{{admin_url}}'>&times;</button>
+          </header>
+          <a href="<%= request.script_name %>/form/{{admin_url}}" class='column-push' title='Edit'>
+            <span class='item-title'>{{title}}</span>
+            {{#image_url}}
+              <br />
+              <img src='{{image_url}}{{cache_buster}}' alt='{{title}}' width='300' />
+            {{/image_url}}
+          </a>
+          <ol class='local-menu'>
+            {{#local_menu}}
+              <li>&rarr; <a href="{{href}}" {{#new_page}}target='_blank'{{/new_page}}{{^new_page}}class='column-push'{{/new_page}} title='Open'>{{title}}</a></li>
+            {{/local_menu}}
+          </ol>
+        </div>
       </li>
     </script>
 
