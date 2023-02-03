@@ -4,13 +4,13 @@ html, body {
   margin: 0;
   padding: 0;
   color: #002b36;
-  background-color: #eee8d5;
+  background-color: #ffffff;
   height: 100%;
   font-family: 'Avenir', sans-serif;
 }
 
 body {
-  line-height: 1.5em;
+  line-height: 1.5;
 }
 
 #finder {
@@ -18,11 +18,12 @@ body {
 }
 
 .column {
-  background: #fdf6e3;
+  position: relative;
+  background: #eeeeee;
   height: 100%;
   min-width: 250px;
   overflow: auto;
-  box-shadow: 0px 0px 10px #586e75;
+  box-shadow: 0px 0px 10px #555555;
 }
 
 .column > h1, .column > ol,
@@ -63,6 +64,16 @@ body {
   border: 1px solid #002b36;
 }
 
+.column > footer.main-footer {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  font-size: 0.5em;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
 ol {
   list-style: none;
   margin: 0;
@@ -75,10 +86,7 @@ a {
   /* border-bottom: 1px solid #002b36; */
 }
 a:hover, a.selected {
-  /* Blue */
   color: #268bd2;
-  /* Green/Blue */
-  /* color: #2aa198; */
 }
 
 button { cursor: pointer; }
@@ -125,7 +133,7 @@ button.admin-delete:focus, button.admin-delete-nested:focus, .handle-button:focu
 [type=submit] {
   border: 0px;
   cursor: pointer;
-  color: #fdf6e3;
+  color: #ffffff;
   background-color: #859900;
 }
 [type=submit]:hover {
@@ -141,11 +149,12 @@ button.admin-delete:focus, button.admin-delete-nested:focus, .handle-button:focu
   user-select: none;
 }
 .documents.grid {
-  width: 90%; width: 90vw;
+  width: 80%; width: 80vw;
 }
 .documents > li, .nested-documents > li {
   display: block;
   margin-bottom: 1em;
+  border-top: 1px solid #dddddd;
 }
 .documents.grid > li {
   display: inline-block;
@@ -160,8 +169,8 @@ button.admin-delete:focus, button.admin-delete-nested:focus, .handle-button:focu
   width: 200px;
 }
 .documents > li:hover, .nested-documents > li:hover {
-  background-color: #eee8d5;
-  outline: 0.5em solid #eee8d5;
+  background-color: #dddddd;
+  outline: 0.5em solid #dddddd;
 }
 .nested-documents > li > header {
   background: #002b36;
@@ -172,7 +181,7 @@ button.admin-delete:focus, button.admin-delete-nested:focus, .handle-button:focu
   border: 1px dashed #839496;
   background-color: #eee8d5;
 }
-.local-menu { font-size: 0.7em; }
+.local-menu { font-size: 0.8em; margin-top: 0.5em; }
 
 /* Forms */
 
@@ -187,7 +196,7 @@ form {
 input[type=text], input[type=email], input[type=search],
 textarea {
   border: 0px;
-  color: #839496;
+  color: #555555;
   background-color: #ffffff;
   width: 400px;
   padding: 0.5em;
@@ -202,8 +211,9 @@ textarea:focus {
   /* color: #002b36; */
 }
 
-textarea { height: 6em; resize: vertical; }
+textarea { height: 4em; resize: vertical; transition: 0.2s; }
 textarea.oneline { height: 1em; resize: none; }
+textarea:focus { height: 50vh; }
 
 fieldset {
   border: 0;
@@ -226,9 +236,9 @@ fieldset {
 
 .asmListItem {
   background-color: #ffffff;
-  border: 1px solid #fdf6e3;
+  border: 1px solid #eeeeee;
 }
-.asmListItem:hover { background-color: #eee8d5; }
+.asmListItem:hover { background-color: #dddddd; }
 .asmListItemLabel { padding-right: 2em; }
 .asmListSortable .asmListItemLabel {
   cursor: move;
