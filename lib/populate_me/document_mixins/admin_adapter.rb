@@ -92,7 +92,17 @@ module PopulateMe
 
         def admin_find o={}
           o[:query] ||= {}
-          docs = self.cast{documents}.find_all do |d|
+          docs = self.cast do
+            if o.key?( :fields )
+              documents.map do |h|
+                h.select do |k,v|
+                  o[:fields].map(&:to_s).include?( k )
+                end
+              end
+            else
+              documents
+            end
+          end.find_all do |d|
             o[:query].inject(true) do |out,(k,v)|
               out && (d.__send__(k)==v)
             end

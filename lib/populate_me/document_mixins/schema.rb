@@ -165,11 +165,19 @@ module PopulateMe
           end
         end
 
+        def default_select_fields
+          [
+            self.id_string_key,
+            self.label_field,
+            self.admin_image_field,
+          ].compact.uniq
+        end
+
         def to_select_options o={}
           proc do
             items = self.admin_find({
-              query: (o[:query]||{}), 
-              fields: [self.id_string_key, self.label_field, self.admin_image_field].compact.uniq
+              query: ( o[:query] || {} ),
+              fields: ( o[:fields] || default_select_fields ),
             })
             output = items.sort_by do |i|
               i.to_s.downcase

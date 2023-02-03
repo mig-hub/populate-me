@@ -1,4 +1,5 @@
 require 'helper'
+require 'web_utils'
 require 'populate_me/document'
 require 'populate_me/attachment'
 
@@ -114,6 +115,14 @@ describe PopulateMe::Document, 'Schema' do
       ]
     end
 
+    class SelectWithMoreFields < PopulateMe::Document
+      field :name
+      field :parent_name
+      def to_s
+        WebUtils.blank?(self.parent_name) ? self.name : "#{ self.parent_name } / #{ self.name }"
+      end
+    end
+
     before do
       Selectoptionable.documents = []
       Selectoptionable.new(id: '1', name: 'Joe', slug: 'joe').save
@@ -122,10 +131,14 @@ describe PopulateMe::Document, 'Schema' do
       Selectoptionable.new(id: '4', name: 'Averell', slug: 'averell').save
       Selectpreviewable.documents = []
       Selectpreviewable.new(id: '1', name: 'Project', img: 'project.jpg').save
+      SelectWithMoreFields.documents = []
+      SelectWithMoreFields.new(id: '1', name: 'Product', parent_name: 'Collection').save
     end
 
     after do
       Selectoptionable.documents = []
+      Selectpreviewable.documents = []
+      SelectWithMoreFields.documents = []
     end
 
     it 'Formats all items for a select_options' do
@@ -154,6 +167,15 @@ describe PopulateMe::Document, 'Schema' do
       assert_equal 'Project', output[0][:description]
       assert_equal '1', output[0][:value]
       assert_equal '/attachment/selectpreviewable/project.populate_me_thumb.jpg', output[0][:preview_uri]
+    end
+
+    it 'Adds fields to query if option is passed' do
+      output = SelectWithMoreFields.to_select_options.call
+      assert_equal 'Product', output[0][:description]
+      output = SelectWithMoreFields.to_select_options({
+        fields: SelectWithMoreFields.default_select_fields + [:parent_name],
+      }).call
+      assert_equal 'Collection / Product', output[0][:description]
     end
 
   end
