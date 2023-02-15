@@ -18,14 +18,14 @@ Gem::Specification.new do |s|
   s.require_paths = ['lib']
 
   s.add_dependency 'web-utils', '~> 0'
-  s.add_dependency 'sinatra', '~> 2'
+  s.add_dependency 'sinatra', '~> 3'
   s.add_dependency 'json', '~> 2.1'
 
   s.add_development_dependency 'bundler', '>= 2.2.10'
   s.add_development_dependency 'minitest', '~> 5.8'
-  s.add_development_dependency 'rack-test', '~> 0.6'
+  s.add_development_dependency 'rack-test', '~> 2'
   s.add_development_dependency 'rack-cerberus', '~> 1.0'
-  s.add_development_dependency 'mongo', '~> 2.17'
+  s.add_development_dependency 'mongo', '~> 2.18'
   s.add_development_dependency 'rack-grid-serve', '~> 0.0.8'
   s.add_development_dependency 'aws-sdk-s3', '~> 1'
   s.add_development_dependency 'racksh', '~> 1.0'
