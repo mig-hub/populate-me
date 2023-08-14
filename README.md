@@ -79,6 +79,7 @@ Available types are:
 - `:text` Multiline text.
 - `:boolean` Which is `true` or `false`.
 - `:select` Dropdown list of options (records a string).
+- `:lnglat` Coordinates field of the form "Longitude, Latitude" with a Mapbox interface.
 
 A `:list` type exists as well for nested documents, but it is not 
 fully working yet.

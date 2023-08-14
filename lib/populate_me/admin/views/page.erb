@@ -7,6 +7,7 @@
     <link href="<%= request.script_name %>/__assets__/img/favicon.png" rel="icon" type="image/png">
     <link rel="stylesheet" href="<%= request.script_name %>/__assets__/css/jquery-ui.min.css" type="text/css" media='screen' />
     <link rel="stylesheet" href="<%= request.script_name %>/__assets__/css/asmselect.css" type="text/css" media='screen' />
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
     <link rel="stylesheet" href="<%= request.script_name %>/__assets__/css/main.css" type="text/css" media='screen' />
     <% if settings.respond_to? :custom_css_url %>
       <link rel="stylesheet" href="<%= settings.custom_css_url %>" type="text/css" media='screen' />
@@ -125,7 +126,7 @@
         {{#adapted_field}}{{/adapted_field}}
       {{/wrap}}
     </script>
-    
+
     <script id="template-string-field" type="x-tmpl-mustache">
       <input name='{{input_name}}' value='{{input_value}}' {{#required}}required{{/required}}{{{build_input_attributes}}} {{#autocomplete.length}}list='datalist-{{id}}'{{/autocomplete.length}} />
       {{#autocomplete.length}}
@@ -135,6 +136,10 @@
           {{/autocomplete}}
         </datalist>
       {{/autocomplete.length}}
+    </script>
+
+    <script id="template-lnglat-field" type="x-tmpl-mustache">
+      <input class='lnglat-input' name='{{input_name}}' value='{{input_value}}' {{#required}}required{{/required}}{{{build_input_attributes}}} pattern="^[-+]?([0-9]*[.])?[0-9]+\s*,\s*[-+]?([0-9]*[.])?[0-9]+$" placeholder="Longitude, Latitude" />
     </script>
 
     <script id="template-text-field" type="x-tmpl-mustache">
@@ -197,7 +202,9 @@
     <%# <script src="<%= request.script_name %1>/__assets__/js/sortable.js" type="text/javascript" charset="utf-8"></script> %>
     <script src="<%= request.script_name %>/__assets__/js/asmselect.js" type="text/javascript" charset="utf-8"></script>
     <script src="<%= request.script_name %>/__assets__/js/quicksearch.js" type="text/javascript" charset="utf-8"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
     <script type="text/javascript">
+      mapboxgl.accessToken = "pk.eyJ1IjoibWlja2FlbHJpZ2EiLCJhIjoiY2xsYXA3Y25lMWIxNzNlbzY0MW1hdm15ZCJ9.bBJwnlHVNkPyF-ZKA5J6Dg";
       window.admin_path = "<%= request.script_name %>";
       window.index_path = "<%= settings.index_path %>";
     </script>

@@ -253,6 +253,10 @@ fieldset {
 }
 .asmListItemRemove, .asmListItemRemove:hover { color: #dc322f; }
 
+.map.mapboxgl-map {
+  aspect-ratio: 4/3;
+}
+
 
          /\
         / *\
