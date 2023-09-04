@@ -214,6 +214,9 @@ textarea:focus {
 textarea { height: 4em; resize: vertical; transition: 0.2s; }
 textarea.oneline { height: 1em; resize: none; }
 textarea:focus { height: 50vh; }
+.EasyMDEContainer {
+  width: 400px;
+}
 
 fieldset {
   border: 0;

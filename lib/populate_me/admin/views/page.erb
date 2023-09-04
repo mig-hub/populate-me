@@ -7,6 +7,7 @@
     <link href="<%= request.script_name %>/__assets__/img/favicon.png" rel="icon" type="image/png">
     <link rel="stylesheet" href="<%= request.script_name %>/__assets__/css/jquery-ui.min.css" type="text/css" media='screen' />
     <link rel="stylesheet" href="<%= request.script_name %>/__assets__/css/asmselect.css" type="text/css" media='screen' />
+    <link rel="stylesheet" href="<%= request.script_name %>/__assets__/css/easymde.min.css" type="text/css" media='screen' />
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
     <link rel="stylesheet" href="<%= request.script_name %>/__assets__/css/main.css" type="text/css" media='screen' />
     <% if settings.respond_to? :custom_css_url %>
@@ -143,7 +144,7 @@
     </script>
 
     <script id="template-text-field" type="x-tmpl-mustache">
-      <textarea name='{{input_name}}' {{#required}}required{{/required}}{{{build_input_attributes}}}>{{input_value}}</textarea>
+      <textarea name='{{input_name}}' {{#required}}required{{/required}}{{#markdown}}data-markdown data-markdown-toolbar='{{markdown_toolbar}}'{{/markdown}}{{{build_input_attributes}}}>{{input_value}}</textarea>
     </script>
 
     <script id="template-boolean-field" type="x-tmpl-mustache">
@@ -201,6 +202,7 @@
     <script src="<%= request.script_name %>/__assets__/js/columnav.js" type="text/javascript" charset="utf-8"></script>
     <%# <script src="<%= request.script_name %1>/__assets__/js/sortable.js" type="text/javascript" charset="utf-8"></script> %>
     <script src="<%= request.script_name %>/__assets__/js/asmselect.js" type="text/javascript" charset="utf-8"></script>
+    <script src="<%= request.script_name %>/__assets__/js/easymde.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="<%= request.script_name %>/__assets__/js/quicksearch.js" type="text/javascript" charset="utf-8"></script>
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
     <script type="text/javascript">
