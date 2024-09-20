@@ -85,9 +85,16 @@ module PopulateMe
             documents.find{|doc| doc[id_string_key] == id }
           end
         end
+        alias_method :[], :admin_get
 
         def admin_get_multiple ids, o={sort: nil}
-          self.admin_find(o.merge(query: {id_string_key => {'$in' => ids.uniq.compact}}))
+          clean_ids = ids.uniq.compact
+          items = self.cast do
+            documents.select{|doc| clean_ids.include?(doc[id_string_key]) }
+          end
+          clean_ids.map do |id|
+            items.find{|item| item.id == id}
+          end.compact
         end
 
         def admin_find o={}

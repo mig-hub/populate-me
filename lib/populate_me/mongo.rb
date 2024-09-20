@@ -6,7 +6,7 @@ module PopulateMe
   class MissingMongoDBError < StandardError; end
 
   class Mongo < Document
-    
+
     self.settings.instance_eval do
       def collection_name
         puts 'yo'
@@ -95,10 +95,13 @@ module PopulateMe
       alias_method :[], :admin_get
 
       def admin_get_multiple theids, o={sort: nil}
-        theids = theids.uniq.compact.map{|theid| string_or_object_id(theid) }
-        self.admin_find(o.merge({
-          query: {id_string_key => {'$in' => theids} }
+        clean_ids = theids.uniq.compact.map{|theid| string_or_object_id(theid) }
+        items = self.admin_find(o.merge({
+          query: {id_string_key => {'$in' => clean_ids} }
         }))
+        clean_ids.map do |id|
+          items.find{|item| item.id == id}
+        end.compact
       end
 
       def admin_find o={}

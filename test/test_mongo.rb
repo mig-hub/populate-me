@@ -131,12 +131,15 @@ describe 'PopulateMe::Mongo' do
       alpha_id = LowFish.new(name: "alpha").perform_create
       beta_id = LowFish.new(name: "beta").perform_create
       gamma_id = LowFish.new(name: "gamma").perform_create
-      items = LowFish.admin_get([alpha_id, beta_id, nil, alpha_id])
+      items = LowFish.admin_get([beta_id, "nonexistentid", alpha_id, beta_id, nil, alpha_id])
       assert items.is_a?(Array)
       assert_equal 2, items.count
       refute_nil items.find{|i| i.id == alpha_id}
       refute_nil items.find{|i| i.id == beta_id}
       assert_nil items.find{|i| i.id == gamma_id}
+      # respects natural order of uniq compact elements
+      assert_equal beta_id, items[0].id
+      assert_equal alpha_id, items[1].id
     end
 
     it 'Should have the [] shortcut for admin_get' do

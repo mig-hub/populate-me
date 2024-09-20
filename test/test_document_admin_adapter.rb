@@ -97,12 +97,12 @@ describe PopulateMe::Document, 'AdminAdapter' do
   end
 
   describe '::admin_find ::admin_find_first' do
-    
+
     class FindablePerson < PopulateMe::Document
       field :first_name
       field :last_name
     end
-    
+
     before do
       FindablePerson.documents = []
       FindablePerson.new(first_name: 'Bobby', last_name: 'Peru').save
@@ -132,6 +132,46 @@ describe PopulateMe::Document, 'AdminAdapter' do
     it 'Finds first with query' do
       person = FindablePerson.admin_find_first query: {first_name: 'John'}
       assert_equal 'Doe', person.last_name
+    end
+
+  end
+
+  describe '::admin_get' do
+
+    class GetablePerson < PopulateMe::Document
+      field :name
+      field :lastname
+    end
+
+    before do
+      GetablePerson.documents = []
+    end
+
+    it "Should get correct item" do
+      jackson_id = GetablePerson.new(name: "jackson").save
+      assert_equal "jackson", GetablePerson.admin_get(jackson_id).name
+      assert_equal "jackson", GetablePerson.admin_get(jackson_id.to_s).name
+      assert_nil GetablePerson.admin_get("nonexistentid")
+
+      regular_id = GetablePerson.new(id: 87, name: "regular").save
+      # need to test with .to_s
+      assert_equal "regular", GetablePerson.admin_get(regular_id).name
+    end
+
+    it "Should get multiple items" do
+      # Order is not respected
+      alpha_id = GetablePerson.new(name: "alpha").save
+      beta_id = GetablePerson.new(name: "beta").save
+      gamma_id = GetablePerson.new(name: "gamma").save
+      items = GetablePerson.admin_get([beta_id, "nonexistentid", alpha_id, beta_id, nil, alpha_id])
+      assert items.is_a?(Array)
+      assert_equal 2, items.count
+      refute_nil items.find{|i| i.id == alpha_id}
+      refute_nil items.find{|i| i.id == beta_id}
+      assert_nil items.find{|i| i.id == gamma_id}
+      # respects natural order of uniq compact elements
+      assert_equal beta_id, items[0].id
+      assert_equal alpha_id, items[1].id
     end
 
   end
