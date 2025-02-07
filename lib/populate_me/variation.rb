@@ -15,10 +15,8 @@ module PopulateMe
 
       def new_image_magick_job name, ext, convert_string, options={}
 
-        `command -v magick` # ImageMagick 7
-        has_magick = $?.success?
-        `command -v convert` # ImageMagick 6
-        has_convert = $?.success?
+        has_magick = Kernel.system("command -v magick")# ImageMagick 7
+        has_convert = Kernel.system("command -v convert")# ImageMagick 6
 
         o = {
           strip: true, progressive: true,
