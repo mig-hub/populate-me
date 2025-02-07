@@ -21,7 +21,7 @@ module PopulateMe
         defaults << "-strip " if o[:strip]
         defaults << "-interlace Plane " if o[:progressive] and [:jpg,:jpeg].include?(ext.to_sym)
         job = lambda{ |src,dst|
-          Kernel.system "convert \"#{src}\" #{defaults}#{convert_string} \"#{dst}\""
+          Kernel.system "magick \"#{src}\" #{defaults}#{convert_string} \"#{dst}\""
         }
         self.new name, ext, job
       end
