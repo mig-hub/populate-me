@@ -14,6 +14,12 @@ module PopulateMe
     class << self
 
       def new_image_magick_job name, ext, convert_string, options={}
+
+        `command -v magick` # ImageMagick 7
+        has_magick = $?.success?
+        `command -v convert` # ImageMagick 6
+        has_convert = $?.success?
+
         o = {
           strip: true, progressive: true,
         }.merge(options)
@@ -21,7 +27,13 @@ module PopulateMe
         defaults << "-strip " if o[:strip]
         defaults << "-interlace Plane " if o[:progressive] and [:jpg,:jpeg].include?(ext.to_sym)
         job = lambda{ |src,dst|
-          Kernel.system "magick \"#{src}\" #{defaults}#{convert_string} \"#{dst}\""
+          if has_magick
+            Kernel.system "magick \"#{src}\" #{defaults}#{convert_string} \"#{dst}\""
+          elsif has_convert
+            Kernel.system "convert \"#{src}\" #{defaults}#{convert_string} \"#{dst}\""
+          else
+            puts "ImageMagick not found, niether `magick` nor `convert` commands are available."
+          end
         }
         self.new name, ext, job
       end
